@@ -6,7 +6,7 @@
 <title>Duozy</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4a2a86">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Duozy">
@@ -364,6 +364,9 @@
     font-weight:700;
     margin-top:6px;
   }
+  .auth-submit:disabled{
+    opacity:0.7;
+  }
 
   .auth-divider{
     display:flex;
@@ -444,7 +447,6 @@
       <div class="loading">
         <div class="bar-track"><div class="bar-fill"></div></div>
         <div class="loading-label">Memuat...</div>
-        <div id="debugBox" style="margin-top:16px;max-width:90%;font-size:10.5px;color:#ffd1e6;background:rgba(0,0,0,0.25);padding:8px 12px;border-radius:10px;text-align:left;display:none;white-space:pre-wrap;"></div>
       </div>
     </div>
   </div>
@@ -473,7 +475,7 @@
         </div>
         <div class="auth-error" id="loginError"></div>
 
-        <button class="auth-submit" onclick="handleLogin()">Masuk</button>
+        <button class="auth-submit" id="loginBtn" onclick="handleLogin()">Masuk</button>
 
         <div class="auth-divider">atau</div>
         <button class="auth-google">🔵 Lanjutkan dengan Google</button>
@@ -513,7 +515,7 @@
         </div>
         <div class="auth-error" id="regError"></div>
 
-        <button class="auth-submit" onclick="handleRegister()">Daftar</button>
+        <button class="auth-submit" id="registerBtn" onclick="handleRegister()">Daftar</button>
 
         <div class="auth-divider">atau</div>
         <button class="auth-google">🔵 Daftar dengan Google</button>
@@ -843,15 +845,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-  // Penangkap error untuk debugging langsung di layar (tanpa perlu DevTools)
-  var debugLines = [];
+  // Penangkap error untuk debugging (dicatat ke console saja, tidak tampil di layar)
   function tampilkanDebug(msg){
-    debugLines.push(msg);
-    var box = document.getElementById('debugBox');
-    if(box){
-      box.style.display = 'block';
-      box.textContent = debugLines.join('\n');
-    }
+    console.log(msg);
   }
   window.onerror = function(message, source, lineno, colno, error){
     tampilkanDebug('❌ Error JS: ' + message + ' (baris ' + lineno + ')');
@@ -917,6 +913,8 @@
     var email = document.getElementById('loginEmail').value.trim();
     var pass = document.getElementById('loginPassword').value.trim();
     var err = document.getElementById('loginError');
+    var btn = document.getElementById('loginBtn');
+    err.textContent = '';
     if(!email || !pass){
       err.textContent = 'Email/HP dan kata sandi wajib diisi.';
       return;
@@ -925,14 +923,18 @@
       err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
       return;
     }
-    err.textContent = 'Memproses...';
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
     withTimeout(auth.signInWithEmailAndPassword(email, pass), 15000)
       .then(function(){
-        err.textContent = '';
         showView('home');
       })
       .catch(function(error){
         err.textContent = terjemahkanErrorFirebase(error);
+      })
+      .finally(function(){
+        btn.disabled = false;
+        btn.textContent = 'Masuk';
       });
   }
 
@@ -941,6 +943,8 @@
     var email = document.getElementById('regEmail').value.trim();
     var pass = document.getElementById('regPassword').value.trim();
     var err = document.getElementById('regError');
+    var btn = document.getElementById('registerBtn');
+    err.textContent = '';
     if(!name || !email || !pass){
       err.textContent = 'Semua kolom wajib diisi.';
       return;
@@ -953,17 +957,21 @@
       err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
       return;
     }
-    err.textContent = 'Memproses...';
+    btn.disabled = true;
+    btn.textContent = 'Memproses...';
     withTimeout(auth.createUserWithEmailAndPassword(email, pass), 15000)
       .then(function(userCredential){
         return userCredential.user.updateProfile({ displayName: name });
       })
       .then(function(){
-        err.textContent = '';
         showView('home');
       })
       .catch(function(error){
         err.textContent = terjemahkanErrorFirebase(error);
+      })
+      .finally(function(){
+        btn.disabled = false;
+        btn.textContent = 'Daftar';
       });
   }
 
