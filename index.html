@@ -802,21 +802,21 @@
       </div>
 
       <div class="stats-row">
-        <div class="stat"><p class="num">128</p><p class="label">Momen</p></div>
-        <div class="stat"><p class="num">256</p><p class="label">Teman</p></div>
-        <div class="stat"><p class="num">3.4K</p><p class="label">Pengikut</p></div>
+        <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
+        <div class="stat"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
+        <div class="stat"><p class="num" id="statPengikut">0</p><p class="label">Pengikut</p></div>
       </div>
 
       <div class="level-card">
-        <div class="level-top"><p class="title">💜 Level 3</p><p class="xp">560 / 1000 XP</p></div>
-        <div class="level-bar-track"><div class="level-bar-fill"></div></div>
+        <div class="level-top"><p class="title" id="profileLevel">💜 Level 1</p><p class="xp" id="profileXp">0 / 1000 XP</p></div>
+        <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
       </div>
 
       <button class="edit-btn">Edit Profil</button>
 
       <p class="section-title">Favorit Saya</p>
-      <div class="tag-row">
-        <span>🎮 Game</span><span>🎵 Musik</span><span>💜 K-Pop</span><span>🚶 Jalan-jalan</span>
+      <div class="tag-row" id="favoritRow">
+        <span style="color:var(--text-muted);background:transparent;border:none;">Belum ada favorit</span>
       </div>
 
       <div class="plist">
@@ -843,6 +843,7 @@
 <!-- Firebase SDK (compat, supaya bisa langsung pakai <script> tanpa build tool) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
 <script>
   // Penangkap error untuk debugging (dicatat ke console saja, tidak tampil di layar)
@@ -860,6 +861,7 @@
 <script>
   var firebaseReady = false;
   var auth = null;
+  var db = null;
   try{
     var firebaseConfig = {
       apiKey: "AIzaSyCdsiaPo41OpoV17Cj7F29xV5Yjw-StVo0",
@@ -871,6 +873,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
+    db = firebase.firestore();
     firebaseReady = true;
     tampilkanDebug('✅ Firebase berhasil dimuat');
   }catch(e){
@@ -961,7 +964,21 @@
     btn.textContent = 'Memproses...';
     withTimeout(auth.createUserWithEmailAndPassword(email, pass), 15000)
       .then(function(userCredential){
-        return userCredential.user.updateProfile({ displayName: name });
+        var user = userCredential.user;
+        return user.updateProfile({ displayName: name }).then(function(){
+          // Buat dokumen profil awal di Firestore untuk akun baru ini
+          return db.collection('users').doc(user.uid).set({
+            name: name,
+            email: email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            momen: 0,
+            teman: 0,
+            pengikut: 0,
+            level: 1,
+            xp: 0,
+            favorit: []
+          });
+        });
       })
       .then(function(){
         showView('home');
@@ -996,6 +1013,34 @@
     }
   }
 
+  function muatProfilDariFirestore(uid){
+    if(!db) return;
+    db.collection('users').doc(uid).get().then(function(doc){
+      if(!doc.exists) return; // wajar untuk akun lama sebelum Firestore ada
+      var data = doc.data();
+
+      document.getElementById('statMomen').textContent = data.momen || 0;
+      document.getElementById('statTeman').textContent = data.teman || 0;
+      document.getElementById('statPengikut').textContent = data.pengikut || 0;
+
+      var level = data.level || 1;
+      var xp = data.xp || 0;
+      var xpTarget = level * 1000;
+      document.getElementById('profileLevel').textContent = '💜 Level ' + level;
+      document.getElementById('profileXp').textContent = xp + ' / ' + xpTarget + ' XP';
+      document.getElementById('levelBarFill').style.width = Math.min(100, (xp / xpTarget) * 100) + '%';
+
+      var favoritRow = document.getElementById('favoritRow');
+      if(data.favorit && data.favorit.length > 0){
+        favoritRow.innerHTML = data.favorit.map(function(f){
+          return '<span>' + f + '</span>';
+        }).join('');
+      }
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
+    });
+  }
+
   // Splash: sembunyikan bottom nav, cek status login, lalu arahkan.
   // Dibuat tahan-gagal: kalau Firebase tidak berhasil dimuat (mis. offline),
   // aplikasi tetap lanjut ke halaman Masuk setelah splash, bukan macet selamanya.
@@ -1012,6 +1057,7 @@
       var handleEl = document.getElementById('profileHandle');
       if(authUser.displayName){ nameEl.textContent = authUser.displayName + ' ✓'; }
       if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
+      muatProfilDariFirestore(authUser.uid);
       showView('home');
     } else {
       showView('login');
