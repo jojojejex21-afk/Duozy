@@ -416,6 +416,47 @@
     margin-top:16px;
     text-decoration:underline;
   }
+
+  /* ================= MODAL EDIT PROFIL ================= */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(19,18,64,0.55);
+    z-index:100;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-sheet{
+    width:100%;
+    max-width:430px;
+    background:#fff;
+    border-radius:22px 22px 0 0;
+    padding:22px 22px 28px;
+  }
+  .modal-sheet h2{
+    font-size:17px;
+    font-weight:800;
+    color:var(--text-dark);
+    margin-bottom:16px;
+  }
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:16px;
+  }
+  .modal-actions button{
+    flex:1;
+    border:none;
+    padding:12px 0;
+    border-radius:14px;
+    font-size:13.5px;
+    font-weight:700;
+  }
+  .modal-cancel{ background:var(--bg-app); color:var(--text-dark); }
+  .modal-save{ background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow)); color:#fff; }
+  .modal-save:disabled{ opacity:0.7; }
 </style>
 </head>
 <body>
@@ -812,7 +853,7 @@
         <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
       </div>
 
-      <button class="edit-btn">Edit Profil</button>
+      <button class="edit-btn" onclick="bukaEditProfil()">Edit Profil</button>
 
       <p class="section-title">Favorit Saya</p>
       <div class="tag-row" id="favoritRow">
@@ -825,6 +866,22 @@
         <div class="prow"><div class="m-icon">⚙️</div><div class="m-label">Pengaturan</div><div class="m-arrow">›</div></div>
         <div class="prow"><div class="m-icon">❓</div><div class="m-label">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
         <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label">Keluar</div><div class="m-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL EDIT PROFIL ================= -->
+  <div class="modal-overlay" id="editProfilModal">
+    <div class="modal-sheet">
+      <h2>Edit Profil</h2>
+      <div class="field">
+        <label>Nama Tampilan</label>
+        <input type="text" id="editNameInput" placeholder="Nama kamu">
+      </div>
+      <div class="auth-error" id="editProfilError"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="tutupEditProfil()">Batal</button>
+        <button class="modal-save" id="editProfilSaveBtn" onclick="simpanEditProfil()">Simpan</button>
       </div>
     </div>
   </div>
@@ -1039,6 +1096,53 @@
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
     });
+  }
+
+  function bukaEditProfil(){
+    var input = document.getElementById('editNameInput');
+    input.value = (auth.currentUser && auth.currentUser.displayName) || '';
+    document.getElementById('editProfilError').textContent = '';
+    document.getElementById('editProfilModal').classList.add('show');
+  }
+
+  function tutupEditProfil(){
+    document.getElementById('editProfilModal').classList.remove('show');
+  }
+
+  function simpanEditProfil(){
+    var newName = document.getElementById('editNameInput').value.trim();
+    var err = document.getElementById('editProfilError');
+    var btn = document.getElementById('editProfilSaveBtn');
+    err.textContent = '';
+
+    if(!newName){
+      err.textContent = 'Nama tidak boleh kosong.';
+      return;
+    }
+    if(!auth.currentUser){
+      err.textContent = 'Sesi login tidak ditemukan, coba masuk ulang.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+
+    var user = auth.currentUser;
+    withTimeout(user.updateProfile({ displayName: newName }), 15000)
+      .then(function(){
+        return db.collection('users').doc(user.uid).set({ name: newName }, { merge: true });
+      })
+      .then(function(){
+        document.getElementById('profileName').textContent = newName + ' ✓';
+        tutupEditProfil();
+      })
+      .catch(function(error){
+        err.textContent = terjemahkanErrorFirebase(error);
+      })
+      .finally(function(){
+        btn.disabled = false;
+        btn.textContent = 'Simpan';
+      });
   }
 
   // Splash: sembunyikan bottom nav, cek status login, lalu arahkan.
