@@ -643,53 +643,30 @@
     <div class="topbar">
       <div class="topbar-row">
         <h1>Momen</h1>
-        <div class="icon-btn" style="width:34px;height:34px;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;border:none;font-weight:700;">+</div>
-      </div>
-      <div class="tabs">
-        <div class="tab active">Untuk Anda</div>
-        <div class="tab">Teman</div>
-        <div class="tab">Populer</div>
-        <div class="tab">Game</div>
+        <div class="icon-btn clickable" onclick="bukaBuatMomen()" style="width:34px;height:34px;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;border:none;font-weight:700;">+</div>
       </div>
     </div>
 
-    <div class="content">
-      <div class="create-row">
-        <div class="create-item"><div class="create-avatar new">+</div><span>Buat Momen</span></div>
-        <div class="create-item"><div class="create-avatar face"></div><span>Rara</span></div>
-        <div class="create-item"><div class="create-avatar face"></div><span>Dika</span></div>
-        <div class="create-item"><div class="create-avatar face"></div><span>Naila</span></div>
-        <div class="create-item"><div class="create-avatar face"></div><span>Fikri</span></div>
-      </div>
+    <div class="content" id="momenFeedContainer">
+      <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat momen...</p>
+    </div>
+    <button class="fab" onclick="bukaBuatMomen()">＋ Buat Momen</button>
+  </div>
 
-      <div class="post">
-        <div class="post-head">
-          <div class="post-avatar"></div>
-          <div class="post-user"><p>Rara</p><small>2 jam yang lalu</small></div>
-          <div class="post-more">⋯</div>
-        </div>
-        <div class="post-text">Cuaca hari ini enak banget ☀️ Jadi pengen jalan-jalan lagi...</div>
-        <div class="post-image pi-1">🌇</div>
-        <div class="post-tags">#Jakarta #jalan-jalan</div>
-        <div class="post-actions"><span>❤️ 124</span><span>💬 18</span><span>↗️</span></div>
+  <!-- ================= MODAL BUAT MOMEN ================= -->
+  <div class="modal-overlay" id="buatMomenModal">
+    <div class="modal-sheet">
+      <h2>Buat Momen</h2>
+      <div class="field">
+        <textarea id="momenTextInput" placeholder="Lagi mikir apa nih?" maxlength="280"
+          style="width:100%;min-height:90px;padding:12px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;color:var(--text-dark);outline:none;resize:none;font-family:inherit;"></textarea>
       </div>
-
-      <div class="post">
-        <div class="post-head">
-          <div class="post-avatar"></div>
-          <div class="post-user"><p>Dika</p><small>3 jam yang lalu</small></div>
-          <div class="post-more">⋯</div>
-        </div>
-        <div class="post-text">Main game dulu, siapa yang mau mabar? 🎮</div>
-        <div class="post-image pi-2">🎮</div>
-        <div class="post-actions"><span>❤️ 89</span><span>💬 12</span><span>↗️</span></div>
-        <div class="post-cta">
-          <button class="cta-game" onclick="showView('game')">🎮 Game</button>
-          <button class="cta-friend">Cari Teman</button>
-        </div>
+      <div class="auth-error" id="momenError"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="tutupBuatMomen()">Batal</button>
+        <button class="modal-save" id="momenSaveBtn" onclick="postingMomen()">Posting</button>
       </div>
     </div>
-    <button class="fab">＋ Buat Momen</button>
   </div>
 
   <!-- ================= DATING ================= -->
@@ -1015,9 +992,14 @@
       unsubscribeChatMessages();
       unsubscribeChatMessages = null;
     }
+    if(name !== 'momen' && unsubscribeMomenFeed){
+      unsubscribeMomenFeed();
+      unsubscribeMomenFeed = null;
+    }
     // Muat daftar user kalau masuk ke halaman pilih teman
     if(name === 'pilihTeman'){ muatDaftarUser(); }
     if(name === 'dating'){ muatRekomendasiDating(); }
+    if(name === 'momen'){ muatMomenFeed(); }
 
     window.scrollTo(0,0);
   }
@@ -1133,6 +1115,7 @@
   function handleLogout(){
     if(unsubscribeChatList){ unsubscribeChatList(); unsubscribeChatList = null; }
     if(unsubscribeChatMessages){ unsubscribeChatMessages(); unsubscribeChatMessages = null; }
+    if(unsubscribeMomenFeed){ unsubscribeMomenFeed(); unsubscribeMomenFeed = null; }
     if(!firebaseReady){ showView('login'); return; }
     auth.signOut().then(function(){
       showView('login');
@@ -1154,6 +1137,7 @@
   }
 
   var fotoBaruBase64 = null; // menampung foto yang baru dipilih, sebelum disimpan
+  var fotoUserSaatIni = null; // foto profil user yang sedang login (untuk ditempel di postingan baru)
 
   function muatProfilDariFirestore(uid){
     if(!db) return;
@@ -1196,6 +1180,7 @@
       }
 
       if(data.photoUrl){
+        fotoUserSaatIni = data.photoUrl;
         document.getElementById('profileAvatar').style.backgroundImage = 'url(' + data.photoUrl + ')';
         document.getElementById('profileAvatar').style.backgroundSize = 'cover';
         document.getElementById('profileAvatar').style.backgroundPosition = 'center';
@@ -1209,6 +1194,7 @@
 
   var unsubscribeChatList = null;
   var unsubscribeChatMessages = null;
+  var unsubscribeMomenFeed = null;
   var chatDetailAktif = null; // { chatId, otherUid, otherName }
 
   // Bikin ID chat yang konsisten untuk sepasang user, urutan diabaikan.
@@ -1569,6 +1555,122 @@
       participantNames: participantNames,
       matched: true
     }, { merge: true });
+  }
+
+  // ================= MOMEN (feed real-time via Firestore) =================
+
+  function bukaBuatMomen(){
+    document.getElementById('momenTextInput').value = '';
+    document.getElementById('momenError').textContent = '';
+    document.getElementById('buatMomenModal').classList.add('show');
+  }
+
+  function tutupBuatMomen(){
+    document.getElementById('buatMomenModal').classList.remove('show');
+  }
+
+  function postingMomen(){
+    var teks = document.getElementById('momenTextInput').value.trim();
+    var err = document.getElementById('momenError');
+    var btn = document.getElementById('momenSaveBtn');
+    err.textContent = '';
+
+    if(!teks){
+      err.textContent = 'Tulis sesuatu dulu sebelum posting.';
+      return;
+    }
+    if(!auth.currentUser){
+      err.textContent = 'Sesi login tidak ditemukan, coba masuk ulang.';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Memposting...';
+
+    db.collection('moments').add({
+      authorUid: auth.currentUser.uid,
+      authorName: auth.currentUser.displayName || 'Pengguna Duozy',
+      authorPhoto: fotoUserSaatIni,
+      text: teks,
+      likes: [],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      tutupBuatMomen();
+    }).catch(function(e){
+      err.textContent = 'Gagal posting: ' + e.message;
+    }).finally(function(){
+      btn.disabled = false;
+      btn.textContent = 'Posting';
+    });
+  }
+
+  function waktuRelatif(timestamp){
+    if(!timestamp) return 'baru saja';
+    var detik = Math.floor((Date.now() - timestamp.toMillis()) / 1000);
+    if(detik < 60) return 'baru saja';
+    var menit = Math.floor(detik / 60);
+    if(menit < 60) return menit + ' menit yang lalu';
+    var jam = Math.floor(menit / 60);
+    if(jam < 24) return jam + ' jam yang lalu';
+    var hari = Math.floor(jam / 24);
+    return hari + ' hari yang lalu';
+  }
+
+  function muatMomenFeed(){
+    var container = document.getElementById('momenFeedContainer');
+    if(!db || !auth.currentUser) return;
+
+    if(unsubscribeMomenFeed){ unsubscribeMomenFeed(); }
+
+    unsubscribeMomenFeed = db.collection('moments')
+      .orderBy('createdAt', 'desc')
+      .limit(30)
+      .onSnapshot(function(snapshot){
+        if(snapshot.empty){
+          container.innerHTML = '<div style="text-align:center;margin-top:50px;">' +
+            '<div style="font-size:44px;margin-bottom:10px;">📸</div>' +
+            '<p style="color:var(--text-dark);font-weight:700;font-size:14px;margin-bottom:4px;">Belum ada Momen</p>' +
+            '<p style="color:var(--text-muted);font-size:12px;">Jadilah yang pertama posting!</p>' +
+          '</div>';
+          return;
+        }
+
+        var myUid = auth.currentUser.uid;
+        var html = '';
+        snapshot.forEach(function(doc){
+          var m = doc.data();
+          var likes = m.likes || [];
+          var sudahLike = likes.indexOf(myUid) !== -1;
+          var fotoStyle = m.authorPhoto ? ('background-image:url(' + m.authorPhoto + ');background-size:cover;background-position:center;') : '';
+
+          html +=
+            '<div class="post">' +
+              '<div class="post-head">' +
+                '<div class="post-avatar" style="' + fotoStyle + '"></div>' +
+                '<div class="post-user"><p>' + escapeHtml(m.authorName || 'Pengguna Duozy') + '</p><small>' + waktuRelatif(m.createdAt) + '</small></div>' +
+              '</div>' +
+              '<div class="post-text">' + escapeHtml(m.text || '') + '</div>' +
+              '<div class="post-actions">' +
+                '<span class="clickable" onclick="toggleLikeMomen(' + JSON.stringify(doc.id) + ', ' + sudahLike + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
+                '<span>💬 0</span>' +
+              '</div>' +
+            '</div>';
+        });
+        container.innerHTML = html;
+      }, function(e){
+        container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat Momen.</p>';
+        tampilkanDebug('❌ Gagal memuat Momen: ' + e.message);
+      });
+  }
+
+  function toggleLikeMomen(momentId, sudahLike){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+    var ref = db.collection('moments').doc(momentId);
+    var aksi = sudahLike ? firebase.firestore.FieldValue.arrayRemove(myUid) : firebase.firestore.FieldValue.arrayUnion(myUid);
+    ref.update({ likes: aksi }).catch(function(e){
+      tampilkanDebug('❌ Gagal update Like Momen: ' + e.message);
+    });
   }
 
   function bukaEditProfil(){
