@@ -834,13 +834,14 @@
     </div>
     <div class="content">
       <div class="profile-head">
-        <div class="profile-avatar"></div>
+        <div class="profile-avatar" id="profileAvatar"></div>
         <div class="profile-info">
           <p class="name" id="profileName">Rara ✓</p>
           <p class="handle" id="profileHandle">@rara_21</p>
           <p class="loc">📍 Jakarta, Indonesia</p>
         </div>
       </div>
+      <p class="bio-text" id="profileBio" style="font-size:12.5px;color:var(--text-muted);margin:-10px 0 16px;line-height:1.5;"></p>
 
       <div class="stats-row">
         <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
@@ -872,12 +873,38 @@
 
   <!-- ================= MODAL EDIT PROFIL ================= -->
   <div class="modal-overlay" id="editProfilModal">
-    <div class="modal-sheet">
+    <div class="modal-sheet" style="max-height:85vh;overflow-y:auto;">
       <h2>Edit Profil</h2>
+
+      <div class="field" style="text-align:center;">
+        <label>Foto Profil</label>
+        <div style="display:flex;justify-content:center;margin:8px 0 4px;">
+          <div id="editAvatarPreview" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#d9d4ff,#a884ff);border:3px solid #fff;box-shadow:0 0 0 2px var(--pink-glow);background-size:cover;background-position:center;"></div>
+        </div>
+        <label for="editPhotoInput" style="display:inline-block;font-size:12px;color:var(--purple-brand);font-weight:700;margin-top:6px;">Ganti Foto</label>
+        <input type="file" id="editPhotoInput" accept="image/*" style="display:none;" onchange="prosesFotoDipilih(event)">
+      </div>
+
       <div class="field">
         <label>Nama Tampilan</label>
         <input type="text" id="editNameInput" placeholder="Nama kamu">
       </div>
+
+      <div class="field">
+        <label>Jenis Kelamin</label>
+        <select id="editGenderInput" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;color:var(--text-dark);">
+          <option value="">Pilih jenis kelamin</option>
+          <option value="Laki-laki">Laki-laki</option>
+          <option value="Perempuan">Perempuan</option>
+          <option value="Lainnya">Lainnya / Tidak disebutkan</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Bio / Tagline</label>
+        <input type="text" id="editBioInput" placeholder="Ceritakan sedikit tentang kamu..." maxlength="80">
+      </div>
+
       <div class="auth-error" id="editProfilError"></div>
       <div class="modal-actions">
         <button class="modal-cancel" onclick="tutupEditProfil()">Batal</button>
@@ -1070,6 +1097,8 @@
     }
   }
 
+  var fotoBaruBase64 = null; // menampung foto yang baru dipilih, sebelum disimpan
+
   function muatProfilDariFirestore(uid){
     if(!db) return;
     db.collection('users').doc(uid).get().then(function(doc){
@@ -1093,6 +1122,16 @@
           return '<span>' + f + '</span>';
         }).join('');
       }
+
+      var bioEl = document.getElementById('profileBio');
+      if(data.bio){ bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
+      else { bioEl.style.display = 'none'; }
+
+      if(data.photoUrl){
+        document.getElementById('profileAvatar').style.backgroundImage = 'url(' + data.photoUrl + ')';
+        document.getElementById('profileAvatar').style.backgroundSize = 'cover';
+        document.getElementById('profileAvatar').style.backgroundPosition = 'center';
+      }
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
     });
@@ -1101,16 +1140,66 @@
   function bukaEditProfil(){
     var input = document.getElementById('editNameInput');
     input.value = (auth.currentUser && auth.currentUser.displayName) || '';
+    document.getElementById('editGenderInput').value = '';
+    document.getElementById('editBioInput').value = '';
+    fotoBaruBase64 = null;
+
+    var preview = document.getElementById('editAvatarPreview');
+    var currentBg = document.getElementById('profileAvatar').style.backgroundImage;
+    preview.style.backgroundImage = currentBg || '';
+
     document.getElementById('editProfilError').textContent = '';
     document.getElementById('editProfilModal').classList.add('show');
+
+    // Ambil data terbaru (gender, bio) dari Firestore supaya form terisi benar
+    if(db && auth.currentUser){
+      db.collection('users').doc(auth.currentUser.uid).get().then(function(doc){
+        if(doc.exists){
+          var data = doc.data();
+          if(data.gender){ document.getElementById('editGenderInput').value = data.gender; }
+          if(data.bio){ document.getElementById('editBioInput').value = data.bio; }
+        }
+      });
+    }
   }
 
   function tutupEditProfil(){
     document.getElementById('editProfilModal').classList.remove('show');
   }
 
+  // Ubah foto yang dipilih jadi gambar kecil (base64) supaya hemat penyimpanan,
+  // lalu tampilkan pratinjaunya di modal.
+  function prosesFotoDipilih(event){
+    var file = event.target.files[0];
+    if(!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var ukuran = 240; // dikompres jadi persegi 240x240 px
+        var canvas = document.createElement('canvas');
+        canvas.width = ukuran;
+        canvas.height = ukuran;
+        var ctx = canvas.getContext('2d');
+
+        var sisi = Math.min(img.width, img.height);
+        var sx = (img.width - sisi) / 2;
+        var sy = (img.height - sisi) / 2;
+        ctx.drawImage(img, sx, sy, sisi, sisi, 0, 0, ukuran, ukuran);
+
+        fotoBaruBase64 = canvas.toDataURL('image/jpeg', 0.7);
+        document.getElementById('editAvatarPreview').style.backgroundImage = 'url(' + fotoBaruBase64 + ')';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
   function simpanEditProfil(){
     var newName = document.getElementById('editNameInput').value.trim();
+    var gender = document.getElementById('editGenderInput').value;
+    var bio = document.getElementById('editBioInput').value.trim();
     var err = document.getElementById('editProfilError');
     var btn = document.getElementById('editProfilSaveBtn');
     err.textContent = '';
@@ -1128,16 +1217,35 @@
     btn.textContent = 'Menyimpan...';
 
     var user = auth.currentUser;
+    var dataUntukFirestore = { name: newName, gender: gender, bio: bio };
+    if(fotoBaruBase64){ dataUntukFirestore.photoUrl = fotoBaruBase64; }
+
     withTimeout(user.updateProfile({ displayName: newName }), 15000)
       .then(function(){
-        return db.collection('users').doc(user.uid).set({ name: newName }, { merge: true });
+        return db.collection('users').doc(user.uid).set(dataUntukFirestore, { merge: true });
       })
       .then(function(){
         document.getElementById('profileName').textContent = newName + ' ✓';
+        if(bio){
+          document.getElementById('profileBio').textContent = bio;
+          document.getElementById('profileBio').style.display = 'block';
+        } else {
+          document.getElementById('profileBio').style.display = 'none';
+        }
+        if(fotoBaruBase64){
+          var avatarEl = document.getElementById('profileAvatar');
+          avatarEl.style.backgroundImage = 'url(' + fotoBaruBase64 + ')';
+          avatarEl.style.backgroundSize = 'cover';
+          avatarEl.style.backgroundPosition = 'center';
+        }
         tutupEditProfil();
       })
       .catch(function(error){
-        err.textContent = terjemahkanErrorFirebase(error);
+        if(error && error.code === 'auth/network-request-failed'){
+          err.textContent = 'Gagal menyimpan: foto mungkin terlalu besar atau koneksi bermasalah.';
+        } else {
+          err.textContent = terjemahkanErrorFirebase(error);
+        }
       })
       .finally(function(){
         btn.disabled = false;
