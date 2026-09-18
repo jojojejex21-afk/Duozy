@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Duozy</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4a2a86">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Duozy">
+<style>
+  :root{
+    --navy-deep:#131240;
+    --violet-mid:#4a2a86;
+    --pink-glow:#c33fa0;
+    --heart-blue:#4facfe;
+    --heart-pink:#ff6fa5;
+    --heart-red:#ff4d7e;
+    --purple-brand:#6a3dd8;
+    --bg-app:#f5f4fb;
+    --text-dark:#231f3d;
+    --text-muted:#8b87a3;
+    --card-line:#eceafb;
+    --unread:#ff4d7e;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ height:100%; }
+
+  body{
+    font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:var(--bg-app);
+    display:flex;
+    justify-content:center;
+  }
+
+  .app{
+    width:100%;
+    max-width:430px;
+    min-height:100vh;
+    background:#fff;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .view{
+    display:none;
+    min-height:100vh;
+    flex-direction:column;
+    background:var(--bg-app);
+    padding-bottom:78px;
+  }
+  .view.active{ display:flex; }
+
+  a, .clickable{ cursor:pointer; }
+
+  /* ================= SPLASH ================= */
+  #view-splash{
+    background:
+      radial-gradient(circle at 30% 15%, rgba(255,111,165,0.25), transparent 45%),
+      radial-gradient(circle at 75% 80%, rgba(79,172,254,0.20), transparent 50%),
+      linear-gradient(160deg, var(--navy-deep) 0%, var(--violet-mid) 55%, var(--pink-glow) 130%);
+    min-height:100vh;
+    align-items:center;
+    justify-content:center;
+    padding:0;
+  }
+  .splash-inner{
+    width:100%;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    padding:14vh 32px 48px;
+    position:relative;
+  }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:18px; }
+  .logo-mark{ width:96px; height:96px; }
+  .wordmark{ font-size:38px; font-weight:800; letter-spacing:2px; color:#fff; }
+  .tagline{ font-size:15px; color:#c9c3e8; text-align:center; line-height:1.6; max-width:260px; }
+  .loading{ width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .bar-track{ width:64%; height:4px; border-radius:4px; background:rgba(255,255,255,0.15); overflow:hidden; position:relative; }
+  .bar-fill{ height:100%; width:40%; border-radius:4px; background:linear-gradient(90deg, var(--heart-blue), var(--heart-pink)); animation:loadbar 1.6s ease-in-out infinite; position:absolute; left:0; top:0; }
+  @keyframes loadbar{ 0%{ transform:translateX(-100%); } 100%{ transform:translateX(250%); } }
+  .loading-label{ font-size:13px; color:#c9c3e8; opacity:0.8; }
+
+  /* ================= SHARED HEADER / NAV ================= */
+  .topbar{ padding:18px 20px 12px; background:#fff; border-bottom:1px solid var(--card-line); }
+  .topbar-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .topbar-row h1{ font-size:19px; font-weight:800; color:var(--text-dark); }
+  .icon-btn{ width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid var(--card-line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text-dark); }
+
+  .tabs{ display:flex; gap:8px; overflow-x:auto; }
+  .tabs::-webkit-scrollbar{ display:none; }
+  .tab{ flex-shrink:0; padding:7px 16px; border-radius:20px; font-size:12.5px; font-weight:600; color:var(--text-muted); background:var(--bg-app); }
+  .tab.active{ background:var(--purple-brand); color:#fff; }
+
+  .content{ flex:1; padding:18px 20px 10px; }
+
+  .section{ margin-bottom:26px; }
+  .section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .section-head h2{ font-size:15px; font-weight:700; color:var(--text-dark); }
+  .section-head .see-all{ font-size:12px; color:var(--purple-brand); font-weight:600; }
+
+  .bottom-nav{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:430px; background:#fff; border-top:1px solid var(--card-line);
+    display:none; justify-content:space-around; padding:10px 0 14px; z-index:50;
+  }
+  .bottom-nav.show{ display:flex; }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; color:var(--text-muted); font-weight:600; }
+  .nav-item.active{ color:var(--purple-brand); }
+  .nav-icon{ font-size:19px; }
+
+  /* ================= HOME ================= */
+  #view-home .header{
+    background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 70%, var(--pink-glow) 140%);
+    padding:18px 20px 22px; color:#fff;
+  }
+  #view-home .header-top{ display:flex; align-items:center; justify-content:space-between; }
+  .brand-mini{ display:flex; align-items:center; gap:8px; font-size:19px; font-weight:800; letter-spacing:1px; }
+  .brand-mini svg{ width:24px; height:24px; }
+  .header-icons{ display:flex; align-items:center; gap:16px; }
+  .header-icons .icon-btn{ width:34px; height:34px; background:rgba(255,255,255,0.12); border:none; position:relative; color:#fff; }
+  .dot-badge{ position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#ff5da2; border:1.5px solid var(--violet-mid); }
+  .avatar-tiny{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#ffb2d9,#a884ff); }
+  .welcome-card{ margin-top:18px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:18px; padding:16px 18px; }
+  .welcome-card h1{ font-size:17px; font-weight:700; margin-bottom:4px; }
+  .welcome-card p{ font-size:12.5px; color:#dcd8f5; line-height:1.5; }
+
+  .menu-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:2px; }
+  .menu-item{ display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none; }
+  .menu-icon{ width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .menu-item span{ font-size:11px; color:var(--text-dark); font-weight:600; text-align:center; }
+  .mi-dating{ background:linear-gradient(135deg,#ff8fb3,#ff5da2); }
+  .mi-friends{ background:linear-gradient(135deg,#7fd4ff,#4facfe); }
+  .mi-chat{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
+  .mi-game{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
+  .mi-couple{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
+  .mi-moments{ background:linear-gradient(135deg,#b3a4ff,#6a3dd8); }
+
+  .online-count{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
+  .online-row{ display:flex; gap:14px; overflow-x:auto; padding-bottom:4px; }
+  .online-row::-webkit-scrollbar{ display:none; }
+  .online-person{ display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
+  .online-avatar{ width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); border:2px solid #3fd695; }
+  .online-person span{ font-size:11px; color:var(--text-dark); font-weight:600; }
+  .online-person small{ font-size:9.5px; color:var(--text-muted); }
+
+  .game-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
+  .game-row::-webkit-scrollbar{ display:none; }
+  .game-card{ flex-shrink:0; width:120px; border-radius:14px; overflow:hidden; background:#fff; border:1px solid var(--card-line); }
+  .game-thumb{ height:74px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+  .gt-1{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
+  .gt-2{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
+  .gt-3{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
+  .gt-4{ background:linear-gradient(135deg,#7fd4ff,#4a7dfe); }
+  .game-info{ padding:8px 10px 10px; }
+  .game-info p{ font-size:12px; font-weight:700; color:var(--text-dark); }
+  .game-info small, .game-info p.online{ font-size:10px; color:var(--text-muted); }
+
+  /* ================= MOMEN ================= */
+  #view-momen .content{ padding:0 0 10px; }
+  .create-row{ display:flex; gap:14px; padding:16px 20px; overflow-x:auto; background:#fff; border-bottom:8px solid var(--bg-app); }
+  .create-row::-webkit-scrollbar{ display:none; }
+  .create-item{ display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
+  .create-avatar{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .create-avatar.new{ background:var(--bg-app); border:2px dashed #c9c3e8; color:var(--purple-brand); font-size:20px; font-weight:700; }
+  .create-avatar.face{ background:linear-gradient(135deg,#d9d4ff,#a884ff); border:2px solid #fff; box-shadow:0 0 0 2px var(--pink-glow); }
+  .create-item span{ font-size:11px; color:var(--text-dark); font-weight:600; }
+
+  .post{ background:#fff; padding:16px 20px 14px; border-bottom:8px solid var(--bg-app); }
+  .post-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .post-avatar{ width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; }
+  .post-user{ flex:1; }
+  .post-user p{ font-size:13.5px; font-weight:700; color:var(--text-dark); }
+  .post-user small{ font-size:11px; color:var(--text-muted); }
+  .post-more{ color:var(--text-muted); font-size:16px; }
+  .post-text{ font-size:13.5px; color:var(--text-dark); line-height:1.5; margin-bottom:10px; }
+  .post-image{ width:100%; height:200px; border-radius:14px; margin-bottom:10px; display:flex; align-items:center; justify-content:center; font-size:40px; }
+  .pi-1{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
+  .pi-2{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
+  .post-tags{ font-size:12px; color:var(--purple-brand); margin-bottom:10px; }
+  .post-actions{ display:flex; align-items:center; gap:18px; font-size:13px; color:var(--text-muted); font-weight:600; }
+  .post-actions span{ display:flex; align-items:center; gap:5px; }
+  .post-cta{ margin-top:12px; display:flex; gap:10px; }
+  .post-cta button{ flex:1; border:none; padding:9px 0; border-radius:12px; font-size:12.5px; font-weight:700; }
+  .cta-game{ background:var(--bg-app); color:var(--purple-brand); }
+  .cta-friend{ background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow)); color:#fff; }
+  .fab{ position:absolute; bottom:88px; right:20px; background:linear-gradient(135deg, var(--pink-glow), var(--purple-brand)); color:#fff; border:none; padding:12px 20px; border-radius:24px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; box-shadow:0 8px 20px rgba(106,61,216,0.35); z-index:40; }
+
+  /* ================= DATING ================= */
+  #view-dating .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px 6px; background:transparent; border:none; }
+  .swipe-card{ background:#fff; border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(106,61,216,0.12); margin-bottom:20px; }
+  .swipe-photo{ height:280px; background:linear-gradient(160deg,#2a2450,#6a3dd8 55%,#c33fa0 130%); display:flex; align-items:flex-end; justify-content:center; font-size:70px; }
+  .swipe-info{ padding:16px 18px 20px; text-align:center; }
+  .swipe-info h2{ font-size:18px; font-weight:700; color:var(--text-dark); margin-bottom:8px; }
+  .swipe-actions{ display:flex; gap:12px; }
+  .swipe-actions button{ flex:1; border:none; padding:12px 0; border-radius:14px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .btn-view{ background:var(--bg-app); color:var(--purple-brand); }
+  .btn-like{ background:linear-gradient(135deg, var(--heart-red), var(--pink-glow)); color:#fff; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .rec-card{ background:#fff; border-radius:16px; overflow:hidden; border:1px solid var(--card-line); }
+  .rec-photo{ height:130px; display:flex; align-items:flex-start; justify-content:flex-end; padding:8px; }
+  .rec-photo .heart{ width:26px; height:26px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--heart-red); }
+  .rp-1{ background:linear-gradient(160deg,#ffb199,#ff5da2); }
+  .rp-2{ background:linear-gradient(160deg,#7fd4ff,#4a7dfe); }
+  .rec-info{ padding:10px 12px 12px; }
+  .rec-info p.name{ font-size:13.5px; font-weight:700; color:var(--text-dark); }
+  .rec-info p.loc{ font-size:11px; color:var(--text-muted); margin-bottom:4px; }
+  .rec-info .match{ font-size:11px; color:var(--heart-red); font-weight:600; margin-bottom:6px; }
+  .rec-tags{ display:flex; gap:5px; margin-bottom:10px; }
+  .rec-tags span{ font-size:9.5px; background:var(--bg-app); color:var(--purple-brand); padding:3px 7px; border-radius:8px; font-weight:600; }
+  .rec-btn{ width:100%; border:none; padding:8px 0; border-radius:10px; background:var(--purple-brand); color:#fff; font-size:11.5px; font-weight:700; }
+
+  /* ================= CHAT ================= */
+  #view-chat .content{ padding:0; }
+  .chat-row{ display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--card-line); background:#fff; }
+  .chat-avatar{ width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; }
+  .chat-avatar.group{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
+  .chat-main{ flex:1; min-width:0; }
+  .chat-main .row1{ display:flex; justify-content:space-between; margin-bottom:3px; }
+  .chat-main .name{ font-size:14px; font-weight:700; color:var(--text-dark); }
+  .chat-main .time{ font-size:11px; color:var(--text-muted); }
+  .chat-main .row2{ display:flex; justify-content:space-between; align-items:center; }
+  .chat-main .preview{ font-size:12.5px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
+  .unread-badge{ background:var(--unread); color:#fff; font-size:10.5px; font-weight:700; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 5px; }
+  .section-label{ font-size:11.5px; font-weight:700; color:var(--text-muted); padding:14px 20px 6px; background:var(--bg-app); }
+  .fab-chat{ position:absolute; bottom:88px; right:20px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow)); color:#fff; border:none; font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(106,61,216,0.35); z-index:40; }
+
+  /* ================= GAME ================= */
+  .banner{ background:linear-gradient(135deg,#8a5cf5,#c33fa0); border-radius:18px; padding:22px; color:#fff; display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+  .banner-text p.big{ font-size:16px; font-weight:800; margin-bottom:2px; }
+  .banner-text p.small{ font-size:12.5px; color:#f0e9ff; }
+  .banner-icon{ font-size:38px; }
+
+  /* ================= COUPLE ================= */
+  #view-couple .topbar{ background:transparent; border:none; }
+  .couple-banner{ background:linear-gradient(135deg,#ff8fb3,#8a5cf5 65%,#4a7dfe 130%); border-radius:20px; padding:26px 20px; color:#fff; text-align:center; margin-bottom:22px; }
+  .couple-banner .icon{ font-size:34px; margin-bottom:8px; }
+  .couple-banner h2{ font-size:17px; font-weight:800; margin-bottom:4px; }
+  .couple-banner p{ font-size:12.5px; color:#f3ecff; }
+  .menu-list{ display:flex; flex-direction:column; gap:12px; }
+  .menu-row{ background:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; border:1px solid var(--card-line); }
+  .mi-1{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
+  .mi-2{ background:linear-gradient(135deg,#ff9ac4,#ff5da2); }
+  .mi-3{ background:linear-gradient(135deg,#ff8fb3,#ff4d7e); }
+  .mi-4{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
+  .mi-5{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
+  .mi-6{ background:linear-gradient(135deg,#7fd4ff,#4a7dfe); }
+  .menu-text{ flex:1; }
+  .menu-text p.title{ font-size:14px; font-weight:700; color:var(--text-dark); margin-bottom:2px; }
+  .menu-text p.desc{ font-size:11.5px; color:var(--text-muted); }
+  .menu-arrow{ font-size:16px; color:var(--text-muted); }
+
+  /* ================= PROFIL ================= */
+  #view-profil .topbar{ background:transparent; border:none; padding:18px 20px 4px; }
+  .profile-head{ display:flex; align-items:center; gap:14px; padding:14px 0 18px; }
+  .profile-avatar{ width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); border:3px solid #fff; box-shadow:0 0 0 2px var(--pink-glow); flex-shrink:0; }
+  .profile-info p.name{ font-size:17px; font-weight:800; color:var(--text-dark); display:flex; align-items:center; gap:5px; }
+  .profile-info p.handle{ font-size:12px; color:var(--text-muted); margin:2px 0 4px; }
+  .profile-info p.loc{ font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:4px; }
+  .stats-row{ display:flex; background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 0; margin-bottom:16px; }
+  .stat{ flex:1; text-align:center; border-right:1px solid var(--card-line); }
+  .stat:last-child{ border-right:none; }
+  .stat p.num{ font-size:16px; font-weight:800; color:var(--text-dark); }
+  .stat p.label{ font-size:11px; color:var(--text-muted); }
+  .level-card{ background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 16px; margin-bottom:16px; }
+  .level-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .level-top p.title{ font-size:13.5px; font-weight:700; color:var(--text-dark); display:flex; align-items:center; gap:6px; }
+  .level-top p.xp{ font-size:11.5px; color:var(--text-muted); }
+  .level-bar-track{ width:100%; height:7px; border-radius:8px; background:var(--bg-app); overflow:hidden; }
+  .level-bar-fill{ width:56%; height:100%; border-radius:8px; background:linear-gradient(90deg, var(--purple-brand), var(--pink-glow)); }
+  .edit-btn{ width:100%; padding:12px 0; border-radius:14px; border:1px solid var(--card-line); background:#fff; color:var(--purple-brand); font-size:13.5px; font-weight:700; margin-bottom:20px; }
+  .section-title{ font-size:13.5px; font-weight:700; color:var(--text-dark); margin-bottom:10px; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+  .tag-row span{ font-size:12px; background:#fff; border:1px solid var(--card-line); color:var(--purple-brand); padding:6px 14px; border-radius:16px; font-weight:600; }
+  .plist{ display:flex; flex-direction:column; background:#fff; border-radius:16px; border:1px solid var(--card-line); overflow:hidden; }
+  .prow{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--card-line); }
+  .prow:last-child{ border-bottom:none; }
+  .prow .m-icon{ font-size:17px; width:22px; text-align:center; }
+  .prow .m-label{ flex:1; font-size:13.5px; font-weight:600; color:var(--text-dark); }
+  .prow.danger .m-label{ color:var(--heart-red); }
+  .prow .m-arrow{ color:var(--text-muted); font-size:15px; }
+
+  /* ================= AUTH (DAFTAR / MASUK) ================= */
+  #view-login, #view-register{
+    background:linear-gradient(160deg, var(--navy-deep) 0%, var(--violet-mid) 60%, var(--pink-glow) 140%);
+    min-height:100vh;
+    padding:0;
+  }
+  .auth-wrap{
+    padding:9vh 26px 30px;
+    display:flex;
+    flex-direction:column;
+    flex:1;
+  }
+  .auth-logo{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+    margin-bottom:30px;
+  }
+  .auth-logo svg{ width:56px; height:56px; }
+  .auth-logo .word{ font-size:22px; font-weight:800; color:#fff; letter-spacing:1px; }
+
+  .auth-card{
+    background:#fff;
+    border-radius:22px;
+    padding:26px 22px 24px;
+    flex:1;
+  }
+  .auth-card h1{
+    font-size:20px;
+    font-weight:800;
+    color:var(--text-dark);
+    margin-bottom:4px;
+  }
+  .auth-card p.sub{
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin-bottom:22px;
+  }
+
+  .field{ margin-bottom:14px; }
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--text-dark);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:12px;
+    border:1px solid var(--card-line);
+    background:var(--bg-app);
+    font-size:13.5px;
+    color:var(--text-dark);
+    outline:none;
+  }
+  .field input:focus{ border-color:var(--purple-brand); }
+
+  .auth-error{
+    font-size:11.5px;
+    color:var(--heart-red);
+    margin:-6px 0 12px;
+    min-height:14px;
+  }
+
+  .auth-submit{
+    width:100%;
+    border:none;
+    padding:13px 0;
+    border-radius:14px;
+    background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow));
+    color:#fff;
+    font-size:14px;
+    font-weight:700;
+    margin-top:6px;
+  }
+
+  .auth-divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:18px 0;
+    font-size:11px;
+    color:var(--text-muted);
+  }
+  .auth-divider::before, .auth-divider::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:var(--card-line);
+  }
+
+  .auth-google{
+    width:100%;
+    border:1px solid var(--card-line);
+    background:#fff;
+    padding:11px 0;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:700;
+    color:var(--text-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+  }
+
+  .auth-switch{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin-top:20px;
+  }
+  .auth-switch span{
+    color:var(--purple-brand);
+    font-weight:700;
+  }
+
+  .auth-skip{
+    text-align:center;
+    font-size:11.5px;
+    color:#e6defc;
+    margin-top:16px;
+    text-decoration:underline;
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ================= SPLASH ================= -->
+  <div id="view-splash" class="view active">
+    <div class="splash-inner">
+      <div></div>
+      <div class="brand">
+        <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="heartBlue" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#6fc3ff"/><stop offset="100%" stop-color="#4a7dfe"/>
+            </linearGradient>
+            <linearGradient id="heartPink" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#ff9ac4"/><stop offset="100%" stop-color="#ff5da2"/>
+            </linearGradient>
+          </defs>
+          <path transform="translate(6,10) scale(0.85)" fill="url(#heartBlue)" opacity="0.95"
+            d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+          <path transform="translate(-6,20) scale(0.85)" fill="url(#heartPink)" opacity="0.95"
+            d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+        </svg>
+        <div class="wordmark">DUOZY</div>
+        <div class="tagline">Easy to Meet, Easy to Chat,<br>Easy to Play.</div>
+      </div>
+      <div class="loading">
+        <div class="bar-track"><div class="bar-fill"></div></div>
+        <div class="loading-label">Memuat...</div>
+        <div id="debugBox" style="margin-top:16px;max-width:90%;font-size:10.5px;color:#ffd1e6;background:rgba(0,0,0,0.25);padding:8px 12px;border-radius:10px;text-align:left;display:none;white-space:pre-wrap;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LOGIN ================= -->
+  <div id="view-login" class="view">
+    <div class="auth-wrap">
+      <div class="auth-logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#6fc3ff" opacity="0.95" d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+        </svg>
+        <div class="word">DUOZY</div>
+      </div>
+
+      <div class="auth-card">
+        <h1>Selamat datang kembali</h1>
+        <p class="sub">Masuk untuk lanjut Meet, Chat, dan Play di Duozy.</p>
+
+        <div class="field">
+          <label>Email atau Nomor HP</label>
+          <input type="text" id="loginEmail" placeholder="contoh@email.com">
+        </div>
+        <div class="field">
+          <label>Kata Sandi</label>
+          <input type="password" id="loginPassword" placeholder="Masukkan kata sandi">
+        </div>
+        <div class="auth-error" id="loginError"></div>
+
+        <button class="auth-submit" onclick="handleLogin()">Masuk</button>
+
+        <div class="auth-divider">atau</div>
+        <button class="auth-google">🔵 Lanjutkan dengan Google</button>
+
+        <div class="auth-switch">Belum punya akun? <span class="clickable" onclick="showView('register')">Daftar</span></div>
+      </div>
+
+      <div class="auth-skip clickable" onclick="showView('home')">Lewati untuk sekarang</div>
+    </div>
+  </div>
+
+  <!-- ================= REGISTER ================= -->
+  <div id="view-register" class="view">
+    <div class="auth-wrap">
+      <div class="auth-logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#ff9ac4" opacity="0.95" d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+        </svg>
+        <div class="word">DUOZY</div>
+      </div>
+
+      <div class="auth-card">
+        <h1>Buat akun baru</h1>
+        <p class="sub">Gabung Duozy — Easy to Meet, Easy to Chat, Easy to Play.</p>
+
+        <div class="field">
+          <label>Nama Tampilan</label>
+          <input type="text" id="regName" placeholder="Nama kamu">
+        </div>
+        <div class="field">
+          <label>Email atau Nomor HP</label>
+          <input type="text" id="regEmail" placeholder="contoh@email.com">
+        </div>
+        <div class="field">
+          <label>Kata Sandi</label>
+          <input type="password" id="regPassword" placeholder="Buat kata sandi">
+        </div>
+        <div class="auth-error" id="regError"></div>
+
+        <button class="auth-submit" onclick="handleRegister()">Daftar</button>
+
+        <div class="auth-divider">atau</div>
+        <button class="auth-google">🔵 Daftar dengan Google</button>
+
+        <div class="auth-switch">Sudah punya akun? <span class="clickable" onclick="showView('login')">Masuk</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= HOME ================= -->
+  <div id="view-home" class="view">
+    <div class="header">
+      <div class="header-top">
+        <div class="brand-mini">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#6fc3ff" opacity="0.95" d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+          </svg>
+          DUOZY
+        </div>
+        <div class="header-icons">
+          <div class="icon-btn">🔍</div>
+          <div class="icon-btn">🔔<span class="dot-badge"></span></div>
+          <div class="avatar-tiny clickable" onclick="showView('profil')"></div>
+        </div>
+      </div>
+      <div class="welcome-card">
+        <h1>Selamat datang di Duozy!</h1>
+        <p>Temukan pasangan, teman baru, atau main game bareng.</p>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="menu-grid">
+        <div class="menu-item clickable" onclick="showView('dating')">
+          <div class="menu-icon mi-dating">💘</div><span>Dating</span>
+        </div>
+        <div class="menu-item clickable" onclick="showView('home')">
+          <div class="menu-icon mi-friends">👥</div><span>Teman Baru</span>
+        </div>
+        <div class="menu-item clickable" onclick="showView('chat')">
+          <div class="menu-icon mi-chat">💬</div><span>Chat</span>
+        </div>
+        <div class="menu-item clickable" onclick="showView('game')">
+          <div class="menu-icon mi-game">🎮</div><span>Game</span>
+        </div>
+        <div class="menu-item clickable" onclick="showView('couple')">
+          <div class="menu-icon mi-couple">❤️</div><span>Couple</span>
+        </div>
+        <div class="menu-item clickable" onclick="showView('momen')">
+          <div class="menu-icon mi-moments">📸</div><span>Momen</span>
+        </div>
+      </div>
+
+      <div class="section" style="margin-top:26px;">
+        <div class="section-head">
+          <h2>Orang yang sedang online</h2>
+          <span class="online-count">324 online</span>
+        </div>
+        <div class="online-row">
+          <div class="online-person"><div class="online-avatar"></div><span>Rara</span><small>Jakarta</small></div>
+          <div class="online-person"><div class="online-avatar"></div><span>Dika</span><small>Bandung</small></div>
+          <div class="online-person"><div class="online-avatar"></div><span>Salsa</span><small>Surabaya</small></div>
+          <div class="online-person"><div class="online-avatar"></div><span>Fikri</span><small>Medan</small></div>
+          <div class="online-person"><div class="online-avatar"></div><span>Nayla</span><small>Malang</small></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Game Populer</h2>
+          <span class="see-all clickable" onclick="showView('game')">Lihat semua ›</span>
+        </div>
+        <div class="game-row">
+          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-1">🏃</div><div class="game-info"><p>Run Together</p><small>12.4K online</small></div></div>
+          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-2">⚔️</div><div class="game-info"><p>Mini Battle</p><small>8.7K online</small></div></div>
+          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-3">🎲</div><div class="game-info"><p>Ludo Party</p><small>6.3K online</small></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MOMEN ================= -->
+  <div id="view-momen" class="view">
+    <div class="topbar">
+      <div class="topbar-row">
+        <h1>Momen</h1>
+        <div class="icon-btn" style="width:34px;height:34px;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;border:none;font-weight:700;">+</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">Untuk Anda</div>
+        <div class="tab">Teman</div>
+        <div class="tab">Populer</div>
+        <div class="tab">Game</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="create-row">
+        <div class="create-item"><div class="create-avatar new">+</div><span>Buat Momen</span></div>
+        <div class="create-item"><div class="create-avatar face"></div><span>Rara</span></div>
+        <div class="create-item"><div class="create-avatar face"></div><span>Dika</span></div>
+        <div class="create-item"><div class="create-avatar face"></div><span>Naila</span></div>
+        <div class="create-item"><div class="create-avatar face"></div><span>Fikri</span></div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-avatar"></div>
+          <div class="post-user"><p>Rara</p><small>2 jam yang lalu</small></div>
+          <div class="post-more">⋯</div>
+        </div>
+        <div class="post-text">Cuaca hari ini enak banget ☀️ Jadi pengen jalan-jalan lagi...</div>
+        <div class="post-image pi-1">🌇</div>
+        <div class="post-tags">#Jakarta #jalan-jalan</div>
+        <div class="post-actions"><span>❤️ 124</span><span>💬 18</span><span>↗️</span></div>
+      </div>
+
+      <div class="post">
+        <div class="post-head">
+          <div class="post-avatar"></div>
+          <div class="post-user"><p>Dika</p><small>3 jam yang lalu</small></div>
+          <div class="post-more">⋯</div>
+        </div>
+        <div class="post-text">Main game dulu, siapa yang mau mabar? 🎮</div>
+        <div class="post-image pi-2">🎮</div>
+        <div class="post-actions"><span>❤️ 89</span><span>💬 12</span><span>↗️</span></div>
+        <div class="post-cta">
+          <button class="cta-game" onclick="showView('game')">🎮 Game</button>
+          <button class="cta-friend">Cari Teman</button>
+        </div>
+      </div>
+    </div>
+    <button class="fab">＋ Buat Momen</button>
+  </div>
+
+  <!-- ================= DATING ================= -->
+  <div id="view-dating" class="view">
+    <div class="topbar">
+      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <h1>Dating</h1>
+      <div class="icon-btn">⚙️</div>
+    </div>
+    <div class="content">
+      <div class="swipe-card">
+        <div class="swipe-photo">🧑‍🤝‍🧑</div>
+        <div class="swipe-info">
+          <h2>Temukan pasangan yang cocok denganmu!</h2>
+          <div class="swipe-actions">
+            <button class="btn-view">Lihat Profil</button>
+            <button class="btn-like">🤍 Like</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <h2>Orang yang mungkin kamu suka</h2>
+        <span class="see-all">Lihat semua ›</span>
+      </div>
+      <div class="grid-2">
+        <div class="rec-card">
+          <div class="rec-photo rp-1"><div class="heart">🤍</div></div>
+          <div class="rec-info">
+            <p class="name">Rara &middot; 21</p>
+            <p class="loc">Jakarta</p>
+            <p class="match">92% cocok</p>
+            <div class="rec-tags"><span>Game</span><span>Musik</span></div>
+            <button class="rec-btn">Lihat Profil</button>
+          </div>
+        </div>
+        <div class="rec-card">
+          <div class="rec-photo rp-2"><div class="heart">🤍</div></div>
+          <div class="rec-info">
+            <p class="name">Dika &middot; 23</p>
+            <p class="loc">Bandung</p>
+            <p class="match">89% cocok</p>
+            <div class="rec-tags"><span>Film</span><span>Anime</span></div>
+            <button class="rec-btn">Lihat Profil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CHAT ================= -->
+  <div id="view-chat" class="view">
+    <div class="topbar">
+      <div class="topbar-row">
+        <h1>Chat</h1>
+        <div class="icon-btn">📷</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">Semua</div>
+        <div class="tab">Pribadi</div>
+        <div class="tab">Grup</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Rara</span><span class="time">14:32</span></div><div class="row2"><span class="preview">Kamu lagi ngapain? 😄</span><span class="unread-badge">3</span></div></div></div>
+      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Dika</span><span class="time">13:45</span></div><div class="row2"><span class="preview">Siap, ayo main! 🎮</span><span class="unread-badge">1</span></div></div></div>
+      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Salsa</span><span class="time">12:20</span></div><div class="row2"><span class="preview">📷 Foto</span></div></div></div>
+      <div class="chat-row"><div class="chat-avatar group"></div><div class="chat-main"><div class="row1"><span class="name">Grup Game Duozy</span><span class="time">11:50</span></div><div class="row2"><span class="preview">Fikri: Ayo mabar sekarang!</span><span class="unread-badge">8</span></div></div></div>
+      <div class="section-label">Sebelumnya</div>
+      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Nayla</span><span class="time">10:32</span></div><div class="row2"><span class="preview">Oke, nanti aku join ya 😊</span></div></div></div>
+      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Raka</span><span class="time">09:15</span></div><div class="row2"><span class="preview">Makasih sudah add! 🙌</span></div></div></div>
+    </div>
+    <button class="fab-chat">✎</button>
+  </div>
+
+  <!-- ================= GAME ================= -->
+  <div id="view-game" class="view">
+    <div class="topbar">
+      <div class="topbar-row">
+        <h1>Game</h1>
+        <div class="icon-btn">🔍</div>
+      </div>
+      <div class="tabs">
+        <div class="tab active">Semua</div>
+        <div class="tab">Multiplayer</div>
+        <div class="tab">Favorit</div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="banner">
+        <div class="banner-text"><p class="big">Mini Game</p><p class="small">Coming Soon!</p></div>
+        <div class="banner-icon">🎮</div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Game Populer</h2><span class="see-all">Lihat semua ›</span></div>
+        <div class="grid-2">
+          <div class="game-card"><div class="game-thumb gt-1">🏃</div><div class="game-info"><p class="name">Run Together</p><p class="online">12.4K online</p></div></div>
+          <div class="game-card"><div class="game-thumb gt-2">⚔️</div><div class="game-info"><p class="name">Mini Battle</p><p class="online">8.7K online</p></div></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>Game Multiplayer</h2></div>
+        <div class="grid-2">
+          <div class="game-card"><div class="game-thumb gt-3">🎲</div><div class="game-info"><p class="name">Ludo Party</p><p class="online">6.3K online</p></div></div>
+          <div class="game-card"><div class="game-thumb gt-4">🐍</div><div class="game-info"><p class="name">Snake Battle</p><p class="online">4.2K online</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= COUPLE ================= -->
+  <div id="view-couple" class="view">
+    <div class="topbar">
+      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <h1>💗 Couple</h1>
+      <div class="icon-btn">⚙️</div>
+    </div>
+    <div class="content">
+      <div class="couple-banner">
+        <div class="icon">💑</div>
+        <h2>Bersama lebih seru!</h2>
+        <p>Main, ngobrol, dan tumbuh bersama.</p>
+      </div>
+      <div class="menu-list">
+        <div class="menu-row"><div class="menu-icon mi-1">🎮</div><div class="menu-text"><p class="title">Couple Game</p><p class="desc">Main bersama</p></div><div class="menu-arrow">›</div></div>
+        <div class="menu-row"><div class="menu-icon mi-2">❓</div><div class="menu-text"><p class="title">Couple Quiz</p><p class="desc">Uji seberapa cocok kalian</p></div><div class="menu-arrow">›</div></div>
+        <div class="menu-row"><div class="menu-icon mi-3">💕</div><div class="menu-text"><p class="title">Tebak Pasangan</p><p class="desc">Cari pasangan yang cocok</p></div><div class="menu-arrow">›</div></div>
+        <div class="menu-row"><div class="menu-icon mi-4">📈</div><div class="menu-text"><p class="title">Relationship Level</p><p class="desc">Lihat level hubungan</p></div><div class="menu-arrow">›</div></div>
+        <div class="menu-row"><div class="menu-icon mi-5">🎁</div><div class="menu-text"><p class="title">Hadiah Virtual</p><p class="desc">Kirim hadiah spesial</p></div><div class="menu-arrow">›</div></div>
+        <div class="menu-row"><div class="menu-icon mi-6">✨</div><div class="menu-text"><p class="title">Aktivitas Bersama</p><p class="desc">Lakukan misi couple</p></div><div class="menu-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PROFIL ================= -->
+  <div id="view-profil" class="view">
+    <div class="topbar">
+      <h1>Profil</h1>
+      <div class="icon-btn">⚙️</div>
+    </div>
+    <div class="content">
+      <div class="profile-head">
+        <div class="profile-avatar"></div>
+        <div class="profile-info">
+          <p class="name" id="profileName">Rara ✓</p>
+          <p class="handle" id="profileHandle">@rara_21</p>
+          <p class="loc">📍 Jakarta, Indonesia</p>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat"><p class="num">128</p><p class="label">Momen</p></div>
+        <div class="stat"><p class="num">256</p><p class="label">Teman</p></div>
+        <div class="stat"><p class="num">3.4K</p><p class="label">Pengikut</p></div>
+      </div>
+
+      <div class="level-card">
+        <div class="level-top"><p class="title">💜 Level 3</p><p class="xp">560 / 1000 XP</p></div>
+        <div class="level-bar-track"><div class="level-bar-fill"></div></div>
+      </div>
+
+      <button class="edit-btn">Edit Profil</button>
+
+      <p class="section-title">Favorit Saya</p>
+      <div class="tag-row">
+        <span>🎮 Game</span><span>🎵 Musik</span><span>💜 K-Pop</span><span>🚶 Jalan-jalan</span>
+      </div>
+
+      <div class="plist">
+        <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label">Momen Saya</div><div class="m-arrow">›</div></div>
+        <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label">Couple Saya</div><div class="m-arrow">›</div></div>
+        <div class="prow"><div class="m-icon">⚙️</div><div class="m-label">Pengaturan</div><div class="m-arrow">›</div></div>
+        <div class="prow"><div class="m-icon">❓</div><div class="m-label">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
+        <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label">Keluar</div><div class="m-arrow">›</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= BOTTOM NAV (shared) ================= -->
+  <div class="bottom-nav" id="bottomNav">
+    <div class="nav-item" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div>Beranda</div>
+    <div class="nav-item" data-view="momen" onclick="showView('momen')"><div class="nav-icon">📸</div>Momen</div>
+    <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon">💬</div>Chat</div>
+    <div class="nav-item" data-view="game" onclick="showView('game')"><div class="nav-icon">🎮</div>Game</div>
+    <div class="nav-item" data-view="profil" onclick="showView('profil')"><div class="nav-icon">👤</div>Profil</div>
+  </div>
+
+</div>
+
+<!-- Firebase SDK (compat, supaya bisa langsung pakai <script> tanpa build tool) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script>
+  // Penangkap error untuk debugging langsung di layar (tanpa perlu DevTools)
+  var debugLines = [];
+  function tampilkanDebug(msg){
+    debugLines.push(msg);
+    var box = document.getElementById('debugBox');
+    if(box){
+      box.style.display = 'block';
+      box.textContent = debugLines.join('\n');
+    }
+  }
+  window.onerror = function(message, source, lineno, colno, error){
+    tampilkanDebug('❌ Error JS: ' + message + ' (baris ' + lineno + ')');
+  };
+  window.addEventListener('unhandledrejection', function(event){
+    tampilkanDebug('❌ Promise error: ' + (event.reason && event.reason.message ? event.reason.message : event.reason));
+  });
+</script>
+
+<script>
+  var firebaseReady = false;
+  var auth = null;
+  try{
+    var firebaseConfig = {
+      apiKey: "AIzaSyCdsiaPo41OpoV17Cj7F29xV5Yjw-StVo0",
+      authDomain: "duozy-f01e6.firebaseapp.com",
+      projectId: "duozy-f01e6",
+      storageBucket: "duozy-f01e6.firebasestorage.app",
+      messagingSenderId: "154951180900",
+      appId: "1:154951180900:web:b9e4a7434f4e1eef21f571"
+    };
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    firebaseReady = true;
+    tampilkanDebug('✅ Firebase berhasil dimuat');
+  }catch(e){
+    console.error('Firebase gagal dimuat (cek koneksi internet):', e);
+    tampilkanDebug('❌ Firebase gagal dimuat: ' + e.message);
+  }
+</script>
+
+<script>
+  var mainTabs = ['home','momen','chat','game','profil'];
+  var authViews = ['splash','login','register'];
+
+  function showView(name){
+    document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
+    document.getElementById('view-' + name).classList.add('active');
+
+    var nav = document.getElementById('bottomNav');
+    if(authViews.indexOf(name) !== -1){
+      nav.classList.remove('show');
+    } else {
+      nav.classList.add('show');
+      document.querySelectorAll('.nav-item').forEach(function(item){
+        item.classList.toggle('active', item.getAttribute('data-view') === name);
+      });
+    }
+    window.scrollTo(0,0);
+  }
+
+  function withTimeout(promise, ms){
+    return new Promise(function(resolve, reject){
+      var timer = setTimeout(function(){
+        reject({ code: 'custom/timeout', message: 'timeout' });
+      }, ms);
+      promise.then(function(res){ clearTimeout(timer); resolve(res); },
+                    function(err){ clearTimeout(timer); reject(err); });
+    });
+  }
+
+  function handleLogin(){
+    var email = document.getElementById('loginEmail').value.trim();
+    var pass = document.getElementById('loginPassword').value.trim();
+    var err = document.getElementById('loginError');
+    if(!email || !pass){
+      err.textContent = 'Email/HP dan kata sandi wajib diisi.';
+      return;
+    }
+    if(!firebaseReady){
+      err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
+      return;
+    }
+    err.textContent = 'Memproses...';
+    withTimeout(auth.signInWithEmailAndPassword(email, pass), 15000)
+      .then(function(){
+        err.textContent = '';
+        showView('home');
+      })
+      .catch(function(error){
+        err.textContent = terjemahkanErrorFirebase(error);
+      });
+  }
+
+  function handleRegister(){
+    var name = document.getElementById('regName').value.trim();
+    var email = document.getElementById('regEmail').value.trim();
+    var pass = document.getElementById('regPassword').value.trim();
+    var err = document.getElementById('regError');
+    if(!name || !email || !pass){
+      err.textContent = 'Semua kolom wajib diisi.';
+      return;
+    }
+    if(pass.length < 6){
+      err.textContent = 'Kata sandi minimal 6 karakter.';
+      return;
+    }
+    if(!firebaseReady){
+      err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
+      return;
+    }
+    err.textContent = 'Memproses...';
+    withTimeout(auth.createUserWithEmailAndPassword(email, pass), 15000)
+      .then(function(userCredential){
+        return userCredential.user.updateProfile({ displayName: name });
+      })
+      .then(function(){
+        err.textContent = '';
+        showView('home');
+      })
+      .catch(function(error){
+        err.textContent = terjemahkanErrorFirebase(error);
+      });
+  }
+
+  function handleLogout(){
+    if(!firebaseReady){ showView('login'); return; }
+    auth.signOut().then(function(){
+      showView('login');
+    });
+  }
+
+  function terjemahkanErrorFirebase(error){
+    switch(error.code){
+      case 'auth/email-already-in-use': return 'Email ini sudah terdaftar. Coba Masuk.';
+      case 'auth/invalid-email': return 'Format email tidak valid.';
+      case 'auth/weak-password': return 'Kata sandi terlalu lemah (minimal 6 karakter).';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential': return 'Email atau kata sandi salah.';
+      case 'auth/network-request-failed': return 'Koneksi internet bermasalah. Coba lagi.';
+      case 'custom/timeout': return 'Koneksi internet terlalu lambat. Cek sinyal WiFi/data kamu, lalu coba lagi.';
+      default: return 'Terjadi kesalahan: ' + error.message;
+    }
+  }
+
+  // Splash: sembunyikan bottom nav, cek status login, lalu arahkan.
+  // Dibuat tahan-gagal: kalau Firebase tidak berhasil dimuat (mis. offline),
+  // aplikasi tetap lanjut ke halaman Masuk setelah splash, bukan macet selamanya.
+  document.getElementById('bottomNav').classList.remove('show');
+
+  var splashDone = false;
+  var authChecked = false;
+  var authUser = null;
+
+  function routeAfterSplash(){
+    if(!splashDone || !authChecked) return;
+    if(authUser){
+      var nameEl = document.getElementById('profileName');
+      var handleEl = document.getElementById('profileHandle');
+      if(authUser.displayName){ nameEl.textContent = authUser.displayName + ' ✓'; }
+      if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
+      showView('home');
+    } else {
+      showView('login');
+    }
+  }
+
+  setTimeout(function(){
+    splashDone = true;
+    tampilkanDebug('⏱ Splash timer selesai (2.2 detik)');
+    routeAfterSplash();
+  }, 2200);
+
+  if(firebaseReady){
+    auth.onAuthStateChanged(function(user){
+      authUser = user;
+      authChecked = true;
+      tampilkanDebug('✅ Status login diterima: ' + (user ? 'sudah login' : 'belum login'));
+      routeAfterSplash();
+    });
+  } else {
+    // Firebase gagal dimuat (biasanya karena tidak ada internet) —
+    // tetap lanjutkan ke halaman Masuk, jangan biarkan splash macet.
+    authChecked = true;
+    routeAfterSplash();
+  }
+
+  // Jaga-jaga terakhir: kalau karena sebab apapun belum pindah dari splash
+  // dalam 6 detik, paksa ke halaman Masuk.
+  setTimeout(function(){
+    if(document.getElementById('view-splash').classList.contains('active')){
+      tampilkanDebug('⚠️ Dipaksa pindah ke Masuk (jaring pengaman 6 detik)');
+      showView('login');
+    }
+  }, 6000);
+
+  // Daftarkan Service Worker untuk fitur PWA (Add to Home Screen + cache offline).
+  // Hanya berfungsi kalau dibuka lewat https:// atau localhost, bukan file:// biasa.
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('service-worker.js')
+        .then(function(){ console.log('Service worker aktif'); })
+        .catch(function(e){ console.log('Service worker tidak aktif (normal kalau dibuka via file://):', e.message); });
+    });
+  }
+</script>
+
+</body>
+</html>
