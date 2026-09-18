@@ -745,24 +745,40 @@
     <div class="topbar">
       <div class="topbar-row">
         <h1>Chat</h1>
-        <div class="icon-btn">📷</div>
-      </div>
-      <div class="tabs">
-        <div class="tab active">Semua</div>
-        <div class="tab">Pribadi</div>
-        <div class="tab">Grup</div>
       </div>
     </div>
-    <div class="content">
-      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Rara</span><span class="time">14:32</span></div><div class="row2"><span class="preview">Kamu lagi ngapain? 😄</span><span class="unread-badge">3</span></div></div></div>
-      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Dika</span><span class="time">13:45</span></div><div class="row2"><span class="preview">Siap, ayo main! 🎮</span><span class="unread-badge">1</span></div></div></div>
-      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Salsa</span><span class="time">12:20</span></div><div class="row2"><span class="preview">📷 Foto</span></div></div></div>
-      <div class="chat-row"><div class="chat-avatar group"></div><div class="chat-main"><div class="row1"><span class="name">Grup Game Duozy</span><span class="time">11:50</span></div><div class="row2"><span class="preview">Fikri: Ayo mabar sekarang!</span><span class="unread-badge">8</span></div></div></div>
-      <div class="section-label">Sebelumnya</div>
-      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Nayla</span><span class="time">10:32</span></div><div class="row2"><span class="preview">Oke, nanti aku join ya 😊</span></div></div></div>
-      <div class="chat-row"><div class="chat-avatar"></div><div class="chat-main"><div class="row1"><span class="name">Raka</span><span class="time">09:15</span></div><div class="row2"><span class="preview">Makasih sudah add! 🙌</span></div></div></div>
+    <div class="content" id="chatListContainer">
+      <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat chat...</p>
     </div>
-    <button class="fab-chat">✎</button>
+    <button class="fab-chat" onclick="showView('pilihTeman')">✎</button>
+  </div>
+
+  <!-- ================= PILIH TEMAN (mulai chat baru) ================= -->
+  <div id="view-pilihTeman" class="view">
+    <div class="topbar">
+      <div class="icon-btn clickable" onclick="showView('chat')">←</div>
+      <h1>Mulai Chat Baru</h1>
+      <div style="width:32px;"></div>
+    </div>
+    <div class="content" id="daftarUserContainer">
+      <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat daftar pengguna...</p>
+    </div>
+  </div>
+
+  <!-- ================= DETAIL CHAT (percakapan) ================= -->
+  <div id="view-chatDetail" class="view" style="padding-bottom:0;">
+    <div class="topbar" style="display:flex;align-items:center;gap:12px;">
+      <div class="icon-btn clickable" onclick="showView('chat')">←</div>
+      <div class="chat-avatar" id="chatDetailAvatar" style="width:38px;height:38px;"></div>
+      <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
+    </div>
+    <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:8px;background:var(--bg-app);">
+      <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
+    </div>
+    <div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
+      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 14px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}">
+      <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
+    </div>
   </div>
 
   <!-- ================= GAME ================= -->
@@ -969,13 +985,14 @@
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
+  var fullscreenViews = ['pilihTeman','chatDetail']; // halaman tanpa bottom nav, header sendiri
 
   function showView(name){
     document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
     document.getElementById('view-' + name).classList.add('active');
 
     var nav = document.getElementById('bottomNav');
-    if(authViews.indexOf(name) !== -1){
+    if(authViews.indexOf(name) !== -1 || fullscreenViews.indexOf(name) !== -1){
       nav.classList.remove('show');
     } else {
       nav.classList.add('show');
@@ -983,6 +1000,15 @@
         item.classList.toggle('active', item.getAttribute('data-view') === name);
       });
     }
+
+    // Hentikan dengarkan pesan chat lama kalau pindah keluar dari halaman chat detail
+    if(name !== 'chatDetail' && unsubscribeChatMessages){
+      unsubscribeChatMessages();
+      unsubscribeChatMessages = null;
+    }
+    // Muat daftar user kalau masuk ke halaman pilih teman
+    if(name === 'pilihTeman'){ muatDaftarUser(); }
+
     window.scrollTo(0,0);
   }
 
@@ -1077,6 +1103,8 @@
   }
 
   function handleLogout(){
+    if(unsubscribeChatList){ unsubscribeChatList(); unsubscribeChatList = null; }
+    if(unsubscribeChatMessages){ unsubscribeChatMessages(); unsubscribeChatMessages = null; }
     if(!firebaseReady){ showView('login'); return; }
     auth.signOut().then(function(){
       showView('login');
@@ -1135,6 +1163,168 @@
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
     });
+  }
+
+  // ================= CHAT (Firestore real-time) =================
+
+  var unsubscribeChatList = null;
+  var unsubscribeChatMessages = null;
+  var chatDetailAktif = null; // { chatId, otherUid, otherName }
+
+  // Bikin ID chat yang konsisten untuk sepasang user, urutan diabaikan.
+  function buatChatId(uidA, uidB){
+    return [uidA, uidB].sort().join('_');
+  }
+
+  // Ambil daftar semua user lain (untuk mulai chat baru)
+  function muatDaftarUser(){
+    var container = document.getElementById('daftarUserContainer');
+    if(!db || !auth.currentUser){ return; }
+
+    db.collection('users').get().then(function(snapshot){
+      var html = '';
+      snapshot.forEach(function(doc){
+        if(doc.id === auth.currentUser.uid) return; // skip diri sendiri
+        var data = doc.data();
+        var nama = data.name || 'Pengguna Duozy';
+        var fotoStyle = data.photoUrl ? ('background-image:url(' + data.photoUrl + ');background-size:cover;background-position:center;') : '';
+        html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + doc.id + '\', ' + JSON.stringify(nama) + ')">' +
+                  '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
+                  '<div class="chat-main"><div class="row1"><span class="name">' + nama + '</span></div></div>' +
+                '</div>';
+      });
+      container.innerHTML = html || '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Belum ada pengguna lain yang terdaftar.</p>';
+    }).catch(function(e){
+      container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar pengguna.</p>';
+      tampilkanDebug('❌ Gagal memuat daftar user: ' + e.message);
+    });
+  }
+
+  // Mulai (atau buka) percakapan dengan user tertentu
+  function mulaiChatDengan(otherUid, otherName){
+    var myUid = auth.currentUser.uid;
+    var chatId = buatChatId(myUid, otherUid);
+
+    var participantNames = {};
+    participantNames[myUid] = auth.currentUser.displayName || 'Kamu';
+    participantNames[otherUid] = otherName;
+
+    db.collection('chats').doc(chatId).set({
+      participants: [myUid, otherUid],
+      participantNames: participantNames
+    }, { merge: true }).then(function(){
+      bukaChatDetail(chatId, otherUid, otherName);
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal memulai chat: ' + e.message);
+    });
+  }
+
+  // Buka layar percakapan dan dengarkan pesan secara real-time
+  function bukaChatDetail(chatId, otherUid, otherName){
+    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName };
+    document.getElementById('chatDetailName').textContent = otherName;
+
+    var msgContainer = document.getElementById('chatMessagesContainer');
+    msgContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>';
+
+    showView('chatDetail');
+
+    if(unsubscribeChatMessages){ unsubscribeChatMessages(); }
+
+    unsubscribeChatMessages = db.collection('chats').doc(chatId).collection('messages')
+      .orderBy('createdAt', 'asc')
+      .onSnapshot(function(snapshot){
+        var myUid = auth.currentUser.uid;
+        var html = '';
+        snapshot.forEach(function(doc){
+          var m = doc.data();
+          var milikSaya = m.senderId === myUid;
+          html += '<div style="align-self:' + (milikSaya ? 'flex-end' : 'flex-start') + ';max-width:75%;">' +
+                    '<div style="background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:9px 14px;border-radius:16px;font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.06);">' +
+                      escapeHtml(m.text || '') +
+                    '</div>' +
+                  '</div>';
+        });
+        msgContainer.innerHTML = html || '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Belum ada pesan. Mulai obrolan!</p>';
+        msgContainer.scrollTop = msgContainer.scrollHeight;
+      }, function(e){
+        tampilkanDebug('❌ Gagal memuat pesan: ' + e.message);
+      });
+  }
+
+  function escapeHtml(text){
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function kirimPesan(){
+    var input = document.getElementById('chatMessageInput');
+    var teks = input.value.trim();
+    if(!teks || !chatDetailAktif) return;
+
+    var myUid = auth.currentUser.uid;
+    var chatId = chatDetailAktif.chatId;
+    input.value = '';
+
+    db.collection('chats').doc(chatId).collection('messages').add({
+      text: teks,
+      senderId: myUid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return db.collection('chats').doc(chatId).set({
+        lastMessage: teks,
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastSenderId: myUid
+      }, { merge: true });
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal mengirim pesan: ' + e.message);
+    });
+  }
+
+  // Dengarkan daftar chat milik user secara real-time untuk halaman Chat (list)
+  function muatDaftarChat(){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+    var container = document.getElementById('chatListContainer');
+
+    if(unsubscribeChatList){ unsubscribeChatList(); }
+
+    unsubscribeChatList = db.collection('chats')
+      .where('participants', 'array-contains', myUid)
+      .onSnapshot(function(snapshot){
+        if(snapshot.empty){
+          container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Belum ada chat. Ketuk ✎ untuk mulai chat baru.</p>';
+          return;
+        }
+        var chats = [];
+        snapshot.forEach(function(doc){ chats.push({ id: doc.id, data: doc.data() }); });
+
+        // Urutkan manual (terbaru dulu) supaya tidak butuh index gabungan Firestore
+        chats.sort(function(a, b){
+          var ta = a.data.lastMessageAt ? a.data.lastMessageAt.toMillis() : 0;
+          var tb = b.data.lastMessageAt ? b.data.lastMessageAt.toMillis() : 0;
+          return tb - ta;
+        });
+
+        var html = '';
+        chats.forEach(function(c){
+          var otherUid = c.data.participants.filter(function(uid){ return uid !== myUid; })[0];
+          var otherName = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
+          var preview = c.data.lastMessage || 'Belum ada pesan';
+          html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + JSON.stringify(c.id) + ', ' + JSON.stringify(otherUid) + ', ' + JSON.stringify(otherName) + ')">' +
+                    '<div class="chat-avatar"></div>' +
+                    '<div class="chat-main">' +
+                      '<div class="row1"><span class="name">' + otherName + '</span></div>' +
+                      '<div class="row2"><span class="preview">' + escapeHtml(preview) + '</span></div>' +
+                    '</div>' +
+                  '</div>';
+        });
+        container.innerHTML = html;
+      }, function(e){
+        container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar chat.</p>';
+        tampilkanDebug('❌ Gagal memuat daftar chat: ' + e.message);
+      });
   }
 
   function bukaEditProfil(){
@@ -1270,6 +1460,7 @@
       if(authUser.displayName){ nameEl.textContent = authUser.displayName + ' ✓'; }
       if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
       muatProfilDariFirestore(authUser.uid);
+      muatDaftarChat();
       showView('home');
     } else {
       showView('login');
