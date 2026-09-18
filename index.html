@@ -700,42 +700,43 @@
       <div class="icon-btn">⚙️</div>
     </div>
     <div class="content">
-      <div class="swipe-card">
-        <div class="swipe-photo">🧑‍🤝‍🧑</div>
-        <div class="swipe-info">
-          <h2>Temukan pasangan yang cocok denganmu!</h2>
-          <div class="swipe-actions">
-            <button class="btn-view">Lihat Profil</button>
-            <button class="btn-like">🤍 Like</button>
-          </div>
+      <div id="datingSwipeContainer">
+        <div class="swipe-card">
+          <div class="swipe-photo">🧑‍🤝‍🧑</div>
+          <div class="swipe-info"><h2>Memuat rekomendasi...</h2></div>
         </div>
       </div>
 
       <div class="section-head">
         <h2>Orang yang mungkin kamu suka</h2>
-        <span class="see-all">Lihat semua ›</span>
       </div>
-      <div class="grid-2">
-        <div class="rec-card">
-          <div class="rec-photo rp-1"><div class="heart">🤍</div></div>
-          <div class="rec-info">
-            <p class="name">Rara &middot; 21</p>
-            <p class="loc">Jakarta</p>
-            <p class="match">92% cocok</p>
-            <div class="rec-tags"><span>Game</span><span>Musik</span></div>
-            <button class="rec-btn">Lihat Profil</button>
-          </div>
-        </div>
-        <div class="rec-card">
-          <div class="rec-photo rp-2"><div class="heart">🤍</div></div>
-          <div class="rec-info">
-            <p class="name">Dika &middot; 23</p>
-            <p class="loc">Bandung</p>
-            <p class="match">89% cocok</p>
-            <div class="rec-tags"><span>Film</span><span>Anime</span></div>
-            <button class="rec-btn">Lihat Profil</button>
-          </div>
-        </div>
+      <div class="grid-2" id="datingGridContainer"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL LIHAT PROFIL (Dating) ================= -->
+  <div class="modal-overlay" id="lihatProfilModal">
+    <div class="modal-sheet" style="text-align:center;">
+      <div id="lihatProfilAvatar" style="width:88px;height:88px;border-radius:50%;background:linear-gradient(135deg,#d9d4ff,#a884ff);margin:0 auto 12px;background-size:cover;background-position:center;"></div>
+      <h2 id="lihatProfilNama" style="margin-bottom:2px;">Nama</h2>
+      <p id="lihatProfilGender" style="font-size:12px;color:var(--text-muted);margin-bottom:10px;"></p>
+      <p id="lihatProfilBio" style="font-size:13px;color:var(--text-dark);margin-bottom:18px;line-height:1.5;"></p>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="tutupLihatProfil()">Tutup</button>
+        <button class="modal-save" id="lihatProfilLikeBtn" onclick="sukaiDariModal()">🤍 Like</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POPUP MATCH ================= -->
+  <div class="modal-overlay" id="matchModal">
+    <div class="modal-sheet" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:6px;">🎉💜</div>
+      <h2 style="margin-bottom:6px;">It's a Match!</h2>
+      <p id="matchText" style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">Kalian saling menyukai satu sama lain.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="document.getElementById('matchModal').classList.remove('show')">Nanti</button>
+        <button class="modal-save" id="matchChatBtn">Chat Sekarang</button>
       </div>
     </div>
   </div>
@@ -1016,6 +1017,7 @@
     }
     // Muat daftar user kalau masuk ke halaman pilih teman
     if(name === 'pilihTeman'){ muatDaftarUser(); }
+    if(name === 'dating'){ muatRekomendasiDating(); }
 
     window.scrollTo(0,0);
   }
@@ -1420,6 +1422,153 @@
         container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar chat.</p>';
         tampilkanDebug('❌ Gagal memuat daftar chat: ' + e.message);
       });
+  }
+
+  // ================= DATING / MATCH (Firestore real-time) =================
+
+  var daftarKandidatDating = [];
+  var userDilihatDiModal = null; // menyimpan siapa yang lagi dibuka di modal Lihat Profil
+
+  function muatRekomendasiDating(){
+    var swipeContainer = document.getElementById('datingSwipeContainer');
+    var gridContainer = document.getElementById('datingGridContainer');
+    if(!db || !auth.currentUser) return;
+
+    var myUid = auth.currentUser.uid;
+
+    db.collection('users').get().then(function(snapshot){
+      daftarKandidatDating = [];
+      snapshot.forEach(function(doc){
+        if(doc.id === myUid) return;
+        var data = doc.data();
+        daftarKandidatDating.push({
+          uid: doc.id,
+          nama: data.name || 'Pengguna Duozy',
+          photoUrl: data.photoUrl || null,
+          gender: data.gender || '',
+          bio: data.bio || ''
+        });
+      });
+
+      if(daftarKandidatDating.length === 0){
+        swipeContainer.innerHTML = '<div class="swipe-card"><div class="swipe-photo">🫂</div><div class="swipe-info"><h2>Belum ada pengguna lain untuk direkomendasikan.</h2></div></div>';
+        gridContainer.innerHTML = '';
+        return;
+      }
+
+      // Acak urutan supaya rekomendasi bervariasi tiap dibuka
+      daftarKandidatDating.sort(function(){ return Math.random() - 0.5; });
+
+      var utama = daftarKandidatDating[0];
+      var sisanya = daftarKandidatDating.slice(1, 5);
+
+      var fotoUtamaStyle = utama.photoUrl ? ('background-image:url(' + utama.photoUrl + ');background-size:cover;background-position:center;') : '';
+      swipeContainer.innerHTML =
+        '<div class="swipe-card">' +
+          '<div class="swipe-photo" style="' + fotoUtamaStyle + '">' + (utama.photoUrl ? '' : '🧑‍🤝‍🧑') + '</div>' +
+          '<div class="swipe-info">' +
+            '<h2>' + utama.nama + '</h2>' +
+            (utama.bio ? '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">' + escapeHtml(utama.bio) + '</p>' : '') +
+            '<div class="swipe-actions">' +
+              '<button class="btn-view" onclick="bukaLihatProfil(' + JSON.stringify(utama.uid) + ')">Lihat Profil</button>' +
+              '<button class="btn-like" id="likeBtn-' + utama.uid + '" onclick="sukaiUser(' + JSON.stringify(utama.uid) + ', ' + JSON.stringify(utama.nama) + ')">🤍 Like</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+
+      var html = '';
+      sisanya.forEach(function(u){
+        var fotoStyle = u.photoUrl ? ('background-image:url(' + u.photoUrl + ');background-size:cover;background-position:center;') : '';
+        html +=
+          '<div class="rec-card">' +
+            '<div class="rec-photo" style="' + fotoStyle + (u.photoUrl ? '' : 'background:linear-gradient(160deg,#c9a4ff,#8a5cf5);') + '">' +
+              '<div class="heart clickable" id="likeHeart-' + u.uid + '" onclick="sukaiUser(' + JSON.stringify(u.uid) + ', ' + JSON.stringify(u.nama) + ')">🤍</div>' +
+            '</div>' +
+            '<div class="rec-info">' +
+              '<p class="name">' + u.nama + '</p>' +
+              (u.bio ? '<p class="loc">' + escapeHtml(u.bio.slice(0, 30)) + '</p>' : '<p class="loc">Anggota Duozy</p>') +
+              '<button class="rec-btn" onclick="bukaLihatProfil(' + JSON.stringify(u.uid) + ')">Lihat Profil</button>' +
+            '</div>' +
+          '</div>';
+      });
+      gridContainer.innerHTML = html;
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal memuat rekomendasi dating: ' + e.message);
+    });
+  }
+
+  function bukaLihatProfil(uid){
+    var user = daftarKandidatDating.filter(function(u){ return u.uid === uid; })[0];
+    if(!user) return;
+    userDilihatDiModal = user;
+
+    document.getElementById('lihatProfilAvatar').style.backgroundImage = user.photoUrl ? 'url(' + user.photoUrl + ')' : '';
+    document.getElementById('lihatProfilNama').textContent = user.nama;
+    document.getElementById('lihatProfilGender').textContent = user.gender || '';
+    document.getElementById('lihatProfilBio').textContent = user.bio || 'Belum ada bio.';
+    document.getElementById('lihatProfilModal').classList.add('show');
+  }
+
+  function tutupLihatProfil(){
+    document.getElementById('lihatProfilModal').classList.remove('show');
+  }
+
+  function sukaiDariModal(){
+    if(userDilihatDiModal){
+      sukaiUser(userDilihatDiModal.uid, userDilihatDiModal.nama);
+    }
+  }
+
+  // Like seorang user; kalau dia juga sudah Like kita sebelumnya → Match otomatis
+  function sukaiUser(targetUid, targetNama){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+    var myNama = auth.currentUser.displayName || 'Kamu';
+    var likeId = myUid + '_' + targetUid;
+    var likeIdBalik = targetUid + '_' + myUid;
+
+    // Tandai tombol yang diklik supaya user tahu Like-nya terkirim
+    var btn = document.getElementById('likeBtn-' + targetUid);
+    var heart = document.getElementById('likeHeart-' + targetUid);
+    if(btn){ btn.textContent = '💗 Disukai'; btn.disabled = true; }
+    if(heart){ heart.textContent = '💗'; }
+
+    db.collection('likes').doc(likeId).set({
+      from: myUid,
+      to: targetUid,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return db.collection('likes').doc(likeIdBalik).get();
+    }).then(function(doc){
+      if(doc.exists){
+        // Dia sudah Like kita duluan → MATCH!
+        tampilkanPopupMatch(targetUid, targetNama, myUid, myNama);
+      }
+      tutupLihatProfil();
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal menyimpan Like: ' + e.message);
+    });
+  }
+
+  function tampilkanPopupMatch(targetUid, targetNama, myUid, myNama){
+    document.getElementById('matchText').textContent = 'Kamu dan ' + targetNama + ' saling menyukai satu sama lain!';
+    document.getElementById('matchModal').classList.add('show');
+
+    var chatBtn = document.getElementById('matchChatBtn');
+    chatBtn.onclick = function(){
+      document.getElementById('matchModal').classList.remove('show');
+      mulaiChatDengan(targetUid, targetNama);
+    };
+
+    // Buat dokumen chat otomatis supaya keduanya langsung bisa mengobrol
+    var participantNames = {};
+    participantNames[myUid] = myNama;
+    participantNames[targetUid] = targetNama;
+    db.collection('chats').doc(buatChatId(myUid, targetUid)).set({
+      participants: [myUid, targetUid],
+      participantNames: participantNames,
+      matched: true
+    }, { merge: true });
   }
 
   function bukaEditProfil(){
