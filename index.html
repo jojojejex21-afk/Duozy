@@ -760,6 +760,10 @@
       <h1>Mulai Chat Baru</h1>
       <div style="width:32px;"></div>
     </div>
+    <div style="padding:14px 20px 0;background:#fff;">
+      <input type="text" id="cariUserInput" placeholder="Cari nama pengguna..." oninput="saringDaftarUser()"
+        style="width:100%;padding:11px 16px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;">
+    </div>
     <div class="content" id="daftarUserContainer">
       <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat daftar pengguna...</p>
     </div>
@@ -1177,27 +1181,58 @@
   }
 
   // Ambil daftar semua user lain (untuk mulai chat baru)
+  var semuaUserUntukDicari = []; // {uid, nama, photoUrl} — disimpan supaya pencarian tidak perlu query ulang ke server
+
   function muatDaftarUser(){
     var container = document.getElementById('daftarUserContainer');
+    document.getElementById('cariUserInput').value = '';
     if(!db || !auth.currentUser){ return; }
 
     db.collection('users').get().then(function(snapshot){
-      var html = '';
+      semuaUserUntukDicari = [];
       snapshot.forEach(function(doc){
         if(doc.id === auth.currentUser.uid) return; // skip diri sendiri
         var data = doc.data();
-        var nama = data.name || 'Pengguna Duozy';
-        var fotoStyle = data.photoUrl ? ('background-image:url(' + data.photoUrl + ');background-size:cover;background-position:center;') : '';
-        html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + doc.id + '\', ' + JSON.stringify(nama) + ')">' +
-                  '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
-                  '<div class="chat-main"><div class="row1"><span class="name">' + nama + '</span></div></div>' +
-                '</div>';
+        semuaUserUntukDicari.push({
+          uid: doc.id,
+          nama: data.name || 'Pengguna Duozy',
+          photoUrl: data.photoUrl || null
+        });
       });
-      container.innerHTML = html || '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Belum ada pengguna lain yang terdaftar.</p>';
+      renderDaftarUser(semuaUserUntukDicari);
     }).catch(function(e){
       container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar pengguna.</p>';
       tampilkanDebug('❌ Gagal memuat daftar user: ' + e.message);
     });
+  }
+
+  function renderDaftarUser(daftar){
+    var container = document.getElementById('daftarUserContainer');
+    if(daftar.length === 0){
+      container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Tidak ada pengguna dengan nama itu.</p>';
+      return;
+    }
+    var html = '';
+    daftar.forEach(function(u){
+      var fotoStyle = u.photoUrl ? ('background-image:url(' + u.photoUrl + ');background-size:cover;background-position:center;') : '';
+      html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + u.uid + '\', ' + JSON.stringify(u.nama) + ')">' +
+                '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
+                '<div class="chat-main"><div class="row1"><span class="name">' + u.nama + '</span></div></div>' +
+              '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function saringDaftarUser(){
+    var kataKunci = document.getElementById('cariUserInput').value.trim().toLowerCase();
+    if(!kataKunci){
+      renderDaftarUser(semuaUserUntukDicari);
+      return;
+    }
+    var hasil = semuaUserUntukDicari.filter(function(u){
+      return u.nama.toLowerCase().indexOf(kataKunci) !== -1;
+    });
+    renderDaftarUser(hasil);
   }
 
   // Mulai (atau buka) percakapan dengan user tertentu
