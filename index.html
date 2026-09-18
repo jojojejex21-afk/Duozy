@@ -760,9 +760,12 @@
       <h1>Mulai Chat Baru</h1>
       <div style="width:32px;"></div>
     </div>
-    <div style="padding:14px 20px 0;background:#fff;">
-      <input type="text" id="cariUserInput" placeholder="Cari nama pengguna..." oninput="saringDaftarUser()"
-        style="width:100%;padding:11px 16px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;">
+    <div style="padding:14px 20px 16px;background:#fff;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--purple-brand);pointer-events:none;">🔍</span>
+        <input type="text" id="cariUserInput" placeholder="Cari nama atau ID Duozy (mis. DZ123456)..." oninput="saringDaftarUser()"
+          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:#fff;font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
+      </div>
     </div>
     <div class="content" id="daftarUserContainer">
       <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat daftar pengguna...</p>
@@ -859,6 +862,7 @@
           <p class="name" id="profileName">Rara ✓</p>
           <p class="handle" id="profileHandle">@rara_21</p>
           <p class="loc">📍 Jakarta, Indonesia</p>
+          <p class="clickable" id="profileDuozyId" onclick="salinIdDuozy()" style="font-size:11px;color:var(--purple-brand);font-weight:700;margin-top:4px;display:none;">🆔 — 📋</p>
         </div>
       </div>
       <p class="bio-text" id="profileBio" style="font-size:12.5px;color:var(--text-muted);margin:-10px 0 16px;line-height:1.5;"></p>
@@ -1055,6 +1059,23 @@
       });
   }
 
+  function buatIdDuozy(){
+    var angka = Math.floor(100000 + Math.random() * 900000); // 6 digit
+    return 'DZ' + angka;
+  }
+
+  function salinIdDuozy(){
+    var teks = document.getElementById('profileDuozyId').textContent.replace('🆔', '').replace('📋', '').trim();
+    if(navigator.clipboard){
+      navigator.clipboard.writeText(teks).then(function(){
+        var el = document.getElementById('profileDuozyId');
+        var asli = el.innerHTML;
+        el.innerHTML = '✅ ID disalin!';
+        setTimeout(function(){ el.innerHTML = asli; }, 1500);
+      });
+    }
+  }
+
   function handleRegister(){
     var name = document.getElementById('regName').value.trim();
     var email = document.getElementById('regEmail').value.trim();
@@ -1084,6 +1105,7 @@
           return db.collection('users').doc(user.uid).set({
             name: name,
             email: email,
+            duozyId: buatIdDuozy(),
             createdAt: firebase.firestore.FieldValue.serverTimestamp(),
             momen: 0,
             teman: 0,
@@ -1159,6 +1181,18 @@
       if(data.bio){ bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
       else { bioEl.style.display = 'none'; }
 
+      var idEl = document.getElementById('profileDuozyId');
+      if(data.duozyId){
+        idEl.innerHTML = '🆔 ' + data.duozyId + ' 📋';
+        idEl.style.display = 'block';
+      } else {
+        // Akun lama sebelum fitur ID Duozy ada — buatkan sekarang, sekali saja
+        var idBaru = buatIdDuozy();
+        db.collection('users').doc(uid).set({ duozyId: idBaru }, { merge: true });
+        idEl.innerHTML = '🆔 ' + idBaru + ' 📋';
+        idEl.style.display = 'block';
+      }
+
       if(data.photoUrl){
         document.getElementById('profileAvatar').style.backgroundImage = 'url(' + data.photoUrl + ')';
         document.getElementById('profileAvatar').style.backgroundSize = 'cover';
@@ -1181,12 +1215,14 @@
   }
 
   // Ambil daftar semua user lain (untuk mulai chat baru)
-  var semuaUserUntukDicari = []; // {uid, nama, photoUrl} — disimpan supaya pencarian tidak perlu query ulang ke server
+  var semuaUserUntukDicari = []; // {uid, nama, photoUrl, duozyId} — disimpan supaya pencarian tidak perlu query ulang ke server
 
   function muatDaftarUser(){
     var container = document.getElementById('daftarUserContainer');
     document.getElementById('cariUserInput').value = '';
     if(!db || !auth.currentUser){ return; }
+
+    container.innerHTML = tampilanKosongPencarian('memuat');
 
     db.collection('users').get().then(function(snapshot){
       semuaUserUntukDicari = [];
@@ -1196,7 +1232,8 @@
         semuaUserUntukDicari.push({
           uid: doc.id,
           nama: data.name || 'Pengguna Duozy',
-          photoUrl: data.photoUrl || null
+          photoUrl: data.photoUrl || null,
+          duozyId: data.duozyId || ''
         });
       });
       renderDaftarUser(semuaUserUntukDicari);
@@ -1206,10 +1243,30 @@
     });
   }
 
+  function tampilanKosongPencarian(mode){
+    if(mode === 'memuat'){
+      return '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat daftar pengguna...</p>';
+    }
+    if(mode === 'kosong-total'){
+      return '<div style="text-align:center;margin-top:50px;">' +
+               '<div style="font-size:44px;margin-bottom:10px;">🫂</div>' +
+               '<p style="color:var(--text-dark);font-weight:700;font-size:14px;margin-bottom:4px;">Belum ada pengguna lain</p>' +
+               '<p style="color:var(--text-muted);font-size:12px;">Ajak temanmu daftar di Duozy dulu, yuk!</p>' +
+             '</div>';
+    }
+    // tidak ketemu saat mencari
+    return '<div style="text-align:center;margin-top:50px;">' +
+             '<div style="font-size:44px;margin-bottom:10px;">🔎</div>' +
+             '<p style="color:var(--text-dark);font-weight:700;font-size:14px;margin-bottom:4px;">Tidak ditemukan</p>' +
+             '<p style="color:var(--text-muted);font-size:12px;">Coba cek lagi ejaan nama, atau minta ID Duozy<br>temanmu (contoh: DZ123456) untuk hasil yang pasti.</p>' +
+           '</div>';
+  }
+
   function renderDaftarUser(daftar){
     var container = document.getElementById('daftarUserContainer');
     if(daftar.length === 0){
-      container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Tidak ada pengguna dengan nama itu.</p>';
+      var adaKataKunci = document.getElementById('cariUserInput').value.trim().length > 0;
+      container.innerHTML = tampilanKosongPencarian(adaKataKunci ? 'tidak-ketemu' : 'kosong-total');
       return;
     }
     var html = '';
@@ -1217,7 +1274,9 @@
       var fotoStyle = u.photoUrl ? ('background-image:url(' + u.photoUrl + ');background-size:cover;background-position:center;') : '';
       html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + u.uid + '\', ' + JSON.stringify(u.nama) + ')">' +
                 '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
-                '<div class="chat-main"><div class="row1"><span class="name">' + u.nama + '</span></div></div>' +
+                '<div class="chat-main"><div class="row1"><span class="name">' + u.nama + '</span></div>' +
+                (u.duozyId ? '<div class="row2"><span class="preview">🆔 ' + u.duozyId + '</span></div>' : '') +
+                '</div>' +
               '</div>';
     });
     container.innerHTML = html;
@@ -1230,7 +1289,8 @@
       return;
     }
     var hasil = semuaUserUntukDicari.filter(function(u){
-      return u.nama.toLowerCase().indexOf(kataKunci) !== -1;
+      return u.nama.toLowerCase().indexOf(kataKunci) !== -1 ||
+             u.duozyId.toLowerCase().indexOf(kataKunci) !== -1;
     });
     renderDaftarUser(hasil);
   }
