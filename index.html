@@ -519,7 +519,7 @@
         <button class="auth-submit" id="loginBtn" onclick="handleLogin()">Masuk</button>
 
         <div class="auth-divider">atau</div>
-        <button class="auth-google">🔵 Lanjutkan dengan Google</button>
+        <button class="auth-google" onclick="handleGoogleSignIn('loginError')">🔵 Lanjutkan dengan Google</button>
 
         <div class="auth-switch">Belum punya akun? <span class="clickable" onclick="showView('register')">Daftar</span></div>
       </div>
@@ -559,7 +559,7 @@
         <button class="auth-submit" id="registerBtn" onclick="handleRegister()">Daftar</button>
 
         <div class="auth-divider">atau</div>
-        <button class="auth-google">🔵 Daftar dengan Google</button>
+        <button class="auth-google" onclick="handleGoogleSignIn('regError')">🔵 Daftar dengan Google</button>
 
         <div class="auth-switch">Sudah punya akun? <span class="clickable" onclick="showView('login')">Masuk</span></div>
       </div>
@@ -971,8 +971,8 @@
       </div>
 
       <div class="field">
-        <label>Hobi & Musik (pisahkan dengan koma)</label>
-        <input type="text" id="editHobiInput" placeholder="mis. Game, K-Pop, Jalan-jalan">
+        <label>Hobi & Musik (ketuk untuk pilih, boleh lebih dari satu)</label>
+        <div id="hobiChipsContainer" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       </div>
 
       <div class="auth-error" id="editProfilError"></div>
@@ -1118,6 +1118,50 @@
     return 'DZ' + angka;
   }
 
+  // Pastikan user (dari Google atau lainnya) punya dokumen profil di Firestore.
+  // Kalau belum ada (login Google pertama kali), buatkan dengan data default.
+  function pastikanProfilAda(user){
+    if(!db) return Promise.resolve();
+    var ref = db.collection('users').doc(user.uid);
+    return ref.get().then(function(doc){
+      if(doc.exists) return; // sudah punya profil, tidak usah dibuat ulang
+      return ref.set({
+        name: user.displayName || 'Pengguna Duozy',
+        email: user.email || '',
+        photoUrl: user.photoURL || null,
+        duozyId: buatIdDuozy(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        momen: 0, teman: 0, pengikut: 0, level: 1, xp: 0, favorit: []
+      });
+    });
+  }
+
+  function handleGoogleSignIn(errElId){
+    var err = document.getElementById(errElId);
+    err.textContent = '';
+    if(!firebaseReady){
+      err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
+      return;
+    }
+    var provider = new firebase.auth.GoogleAuthProvider();
+    // Pakai redirect (bukan popup) supaya lebih pasti jalan di browser HP —
+    // popup sering diblokir/aneh di Chrome Android.
+    auth.signInWithRedirect(provider).catch(function(error){
+      err.textContent = terjemahkanErrorFirebase(error);
+    });
+  }
+
+  // Setelah kembali dari layar login Google (redirect), lengkapi profil kalau ini pertama kali.
+  if(firebaseReady){
+    auth.getRedirectResult().then(function(result){
+      if(result && result.user){
+        pastikanProfilAda(result.user);
+      }
+    }).catch(function(error){
+      tampilkanDebug('❌ Google Sign-In gagal: ' + error.message);
+    });
+  }
+
   function salinIdDuozy(){
     var teks = document.getElementById('profileDuozyId').textContent.replace('🆔', '').replace('📋', '').trim();
     if(navigator.clipboard){
@@ -1210,12 +1254,16 @@
 
   var fotoBaruBase64 = null; // menampung foto yang baru dipilih, sebelum disimpan
   var fotoUserSaatIni = null; // foto profil user yang sedang login (untuk ditempel di postingan baru)
+  var profilDataSaatIni = null; // cache data profil terakhir yang berhasil dimuat, dipakai saat buka Edit Profil (tanpa nunggu server lagi)
+  var daftarHobiPreset = ['🎮 Game','🎵 Musik','🎬 Film','📺 Anime/Drama','✈️ Jalan-jalan','📸 Fotografi','🍜 Kuliner','⚽ Olahraga','📚 Membaca','💃 K-Pop','🎨 Seni','🐾 Hewan','🏋️ Fitness','🎤 Nyanyi','💻 Teknologi','🧘 Yoga'];
+  var hobiTerpilih = [];
 
   function muatProfilDariFirestore(uid){
     if(!db) return;
     db.collection('users').doc(uid).get().then(function(doc){
       if(!doc.exists) return; // wajar untuk akun lama sebelum Firestore ada
       var data = doc.data();
+      profilDataSaatIni = data; // simpan cache untuk dipakai instan di Edit Profil
 
       document.getElementById('statMomen').textContent = data.momen || 0;
       document.getElementById('statTeman').textContent = data.teman || 0;
@@ -1491,17 +1539,38 @@
       .onSnapshot(function(snapshot){
         var myUid = auth.currentUser.uid;
         var html = '';
+        var belumTerbaca = []; // ref pesan dari lawan bicara yang belum ditandai terbaca
+
         snapshot.forEach(function(doc){
           var m = doc.data();
           var milikSaya = m.senderId === myUid;
+
+          var centang = '';
+          if(milikSaya){
+            centang = m.read
+              ? ' <span style="opacity:0.9;">✓✓</span>'
+              : ' <span style="opacity:0.6;">✓</span>';
+          }
+
           html += '<div style="align-self:' + (milikSaya ? 'flex-end' : 'flex-start') + ';max-width:75%;">' +
                     '<div style="background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:9px 14px;border-radius:16px;font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.06);">' +
                       escapeHtml(m.text || '') +
+                      '<span style="font-size:10px;">' + centang + '</span>' +
                     '</div>' +
                   '</div>';
+
+          if(!milikSaya && !m.read){ belumTerbaca.push(doc.ref); }
         });
+
         msgContainer.innerHTML = html || '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Belum ada pesan. Mulai obrolan!</p>';
         msgContainer.scrollTop = msgContainer.scrollHeight;
+
+        // Tandai pesan dari lawan bicara sebagai sudah dibaca, karena kita baru saja melihatnya
+        if(belumTerbaca.length > 0){
+          var batch = db.batch();
+          belumTerbaca.forEach(function(ref){ batch.update(ref, { read: true }); });
+          batch.commit().catch(function(e){ tampilkanDebug('❌ Gagal menandai pesan terbaca: ' + e.message); });
+        }
       }, function(e){
         tampilkanDebug('❌ Gagal memuat pesan: ' + e.message);
       });
@@ -1534,6 +1603,7 @@
     db.collection('chats').doc(chatId).collection('messages').add({
       text: teks,
       senderId: myUid,
+      read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
       return db.collection('chats').doc(chatId).set({
@@ -2039,22 +2109,27 @@
   var avatarPresetTerpilih = null; // {emoji, color} kalau user pilih preset (bukan upload foto)
 
   function bukaEditProfil(){
+    var data = profilDataSaatIni || {}; // pakai data yang sudah ada di memori — instan, tidak perlu nunggu server
+
     var input = document.getElementById('editNameInput');
     input.value = (auth.currentUser && auth.currentUser.displayName) || '';
-    document.getElementById('editGenderInput').value = '';
-    document.getElementById('editBioInput').value = '';
-    document.getElementById('editLocationInput').value = '';
-    document.getElementById('editZodiakInput').value = '';
-    document.getElementById('editMbtiInput').value = '';
-    document.getElementById('editHobiInput').value = '';
+    document.getElementById('editGenderInput').value = data.gender || '';
+    document.getElementById('editBioInput').value = data.bio || '';
+    document.getElementById('editLocationInput').value = data.location || '';
+    document.getElementById('editZodiakInput').value = data.zodiak || '';
+    document.getElementById('editMbtiInput').value = data.mbti || '';
     fotoBaruBase64 = null;
     avatarPresetTerpilih = null;
+    hobiTerpilih = (data.favorit && data.favorit.length) ? data.favorit.slice() : [];
 
     // Render pilihan avatar preset
     var row = document.getElementById('avatarPresetRow');
     row.innerHTML = daftarAvatarPreset.map(function(a, i){
       return '<div class="clickable" onclick="pilihAvatarPreset(' + i + ')" style="width:38px;height:38px;border-radius:50%;background:' + a.color + ';display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid #fff;box-shadow:0 0 0 1px var(--card-line);">' + a.emoji + '</div>';
     }).join('');
+
+    // Render pilihan chip hobi & musik
+    renderHobiChips();
 
     var preview = document.getElementById('editAvatarPreview');
     var currentBg = document.getElementById('profileAvatar').style.backgroundImage;
@@ -2064,20 +2139,34 @@
     document.getElementById('editProfilError').textContent = '';
     document.getElementById('editProfilModal').classList.add('show');
 
-    // Ambil data terbaru dari Firestore supaya form terisi sesuai data tersimpan
-    if(db && auth.currentUser){
+    // Kalau profil belum sempat termuat sama sekali (kasus jarang), ambil dari server
+    // sebagai cadangan, dan isi ulang form begitu datang.
+    if(!profilDataSaatIni && db && auth.currentUser){
       db.collection('users').doc(auth.currentUser.uid).get().then(function(doc){
         if(doc.exists){
-          var data = doc.data();
-          if(data.gender){ document.getElementById('editGenderInput').value = data.gender; }
-          if(data.bio){ document.getElementById('editBioInput').value = data.bio; }
-          if(data.location){ document.getElementById('editLocationInput').value = data.location; }
-          if(data.zodiak){ document.getElementById('editZodiakInput').value = data.zodiak; }
-          if(data.mbti){ document.getElementById('editMbtiInput').value = data.mbti; }
-          if(data.favorit && data.favorit.length){ document.getElementById('editHobiInput').value = data.favorit.join(', '); }
+          profilDataSaatIni = doc.data();
+          bukaEditProfil(); // render ulang form dengan data yang baru didapat
         }
       });
     }
+  }
+
+  function renderHobiChips(){
+    var container = document.getElementById('hobiChipsContainer');
+    container.innerHTML = daftarHobiPreset.map(function(h){
+      var aktif = hobiTerpilih.indexOf(h) !== -1;
+      return '<span class="clickable" onclick="toggleHobiChip(' + jsAttr(h) + ')" style="font-size:12px;padding:7px 13px;border-radius:16px;font-weight:600;' +
+             (aktif
+               ? 'background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;'
+               : 'background:var(--bg-app);color:var(--text-dark);border:1px solid var(--card-line);') +
+             '">' + h + '</span>';
+    }).join('');
+  }
+
+  function toggleHobiChip(hobi){
+    var idx = hobiTerpilih.indexOf(hobi);
+    if(idx === -1){ hobiTerpilih.push(hobi); } else { hobiTerpilih.splice(idx, 1); }
+    renderHobiChips();
   }
 
   function pilihAvatarPreset(index){
@@ -2133,8 +2222,7 @@
     var location = document.getElementById('editLocationInput').value.trim();
     var zodiak = document.getElementById('editZodiakInput').value;
     var mbti = document.getElementById('editMbtiInput').value;
-    var hobiRaw = document.getElementById('editHobiInput').value.trim();
-    var favorit = hobiRaw ? hobiRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+    var favorit = hobiTerpilih.slice();
 
     var err = document.getElementById('editProfilError');
     var btn = document.getElementById('editProfilSaveBtn');
@@ -2205,7 +2293,9 @@
       var handleEl = document.getElementById('profileHandle');
       if(authUser.displayName){ nameEl.textContent = authUser.displayName + ' ✓'; }
       if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
-      muatProfilDariFirestore(authUser.uid);
+      pastikanProfilAda(authUser).then(function(){
+        muatProfilDariFirestore(authUser.uid);
+      });
       muatDaftarChat();
       mulaiHeartbeatOnline();
       muatUserOnline();
