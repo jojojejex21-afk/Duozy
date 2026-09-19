@@ -669,6 +669,23 @@
     </div>
   </div>
 
+  <!-- ================= MODAL KOMENTAR MOMEN ================= -->
+  <div class="modal-overlay" id="komentarModal">
+    <div class="modal-sheet" style="max-height:80vh;display:flex;flex-direction:column;padding-bottom:16px;">
+      <h2>Komentar</h2>
+      <div id="komentarListContainer" style="flex:1;overflow-y:auto;margin-bottom:12px;max-height:45vh;">
+        <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat komentar...</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="text" id="komentarInput" placeholder="Tulis komentar..." maxlength="200"
+          style="flex:1;padding:11px 14px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13px;outline:none;"
+          onkeydown="if(event.key==='Enter'){kirimKomentar();}">
+        <button onclick="kirimKomentar()" style="width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:15px;flex-shrink:0;">➤</button>
+      </div>
+      <button class="modal-cancel" style="margin-top:12px;" onclick="tutupKomentar()">Tutup</button>
+    </div>
+  </div>
+
   <!-- ================= DATING ================= -->
   <div id="view-dating" class="view">
     <div class="topbar">
@@ -1136,6 +1153,7 @@
     if(unsubscribeChatList){ unsubscribeChatList(); unsubscribeChatList = null; }
     if(unsubscribeChatMessages){ unsubscribeChatMessages(); unsubscribeChatMessages = null; }
     if(unsubscribeMomenFeed){ unsubscribeMomenFeed(); unsubscribeMomenFeed = null; }
+    if(unsubscribeKomentar){ unsubscribeKomentar(); unsubscribeKomentar = null; }
     if(!firebaseReady){ showView('login'); return; }
     auth.signOut().then(function(){
       showView('login');
@@ -1681,7 +1699,7 @@
               '<div class="post-text">' + escapeHtml(m.text || '') + '</div>' +
               '<div class="post-actions">' +
                 '<span class="clickable" onclick="toggleLikeMomen(' + jsAttr(doc.id) + ', ' + sudahLike + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
-                '<span>💬 0</span>' +
+                '<span class="clickable" onclick="bukaKomentar(' + jsAttr(doc.id) + ')">💬 ' + (m.commentsCount || 0) + '</span>' +
               '</div>' +
             '</div>';
         });
@@ -1699,6 +1717,75 @@
     var aksi = sudahLike ? firebase.firestore.FieldValue.arrayRemove(myUid) : firebase.firestore.FieldValue.arrayUnion(myUid);
     ref.update({ likes: aksi }).catch(function(e){
       tampilkanDebug('❌ Gagal update Like Momen: ' + e.message);
+    });
+  }
+
+  // ---------- Komentar Momen ----------
+  var unsubscribeKomentar = null;
+  var momentIdAktifDiKomentar = null;
+
+  function bukaKomentar(momentId){
+    momentIdAktifDiKomentar = momentId;
+    document.getElementById('komentarInput').value = '';
+    document.getElementById('komentarListContainer').innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat komentar...</p>';
+    document.getElementById('komentarModal').classList.add('show');
+
+    if(unsubscribeKomentar){ unsubscribeKomentar(); }
+
+    unsubscribeKomentar = db.collection('moments').doc(momentId).collection('comments')
+      .orderBy('createdAt', 'asc')
+      .onSnapshot(function(snapshot){
+        var container = document.getElementById('komentarListContainer');
+        if(snapshot.empty){
+          container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Belum ada komentar. Jadilah yang pertama!</p>';
+          return;
+        }
+        var html = '';
+        snapshot.forEach(function(doc){
+          var k = doc.data();
+          html += '<div style="display:flex;gap:8px;margin-bottom:12px;">' +
+                    '<div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#d9d4ff,#a884ff);flex-shrink:0;' + (k.authorPhoto ? 'background-image:url(' + k.authorPhoto + ');background-size:cover;background-position:center;' : '') + '"></div>' +
+                    '<div style="flex:1;">' +
+                      '<div style="background:var(--bg-app);border-radius:12px;padding:8px 12px;">' +
+                        '<p style="font-size:12px;font-weight:700;color:var(--text-dark);margin-bottom:2px;">' + escapeHtml(k.authorName || 'Pengguna Duozy') + '</p>' +
+                        '<p style="font-size:12.5px;color:var(--text-dark);">' + escapeHtml(k.text || '') + '</p>' +
+                      '</div>' +
+                    '</div>' +
+                  '</div>';
+        });
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+      }, function(e){
+        tampilkanDebug('❌ Gagal memuat komentar: ' + e.message);
+      });
+  }
+
+  function tutupKomentar(){
+    document.getElementById('komentarModal').classList.remove('show');
+    if(unsubscribeKomentar){ unsubscribeKomentar(); unsubscribeKomentar = null; }
+    momentIdAktifDiKomentar = null;
+  }
+
+  function kirimKomentar(){
+    var input = document.getElementById('komentarInput');
+    var teks = input.value.trim();
+    if(!teks || !momentIdAktifDiKomentar || !auth.currentUser) return;
+
+    input.value = '';
+    var momentId = momentIdAktifDiKomentar;
+
+    db.collection('moments').doc(momentId).collection('comments').add({
+      text: teks,
+      authorUid: auth.currentUser.uid,
+      authorName: auth.currentUser.displayName || 'Pengguna Duozy',
+      authorPhoto: fotoUserSaatIni,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      return db.collection('moments').doc(momentId).update({
+        commentsCount: firebase.firestore.FieldValue.increment(1)
+      });
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal mengirim komentar: ' + e.message);
     });
   }
 
