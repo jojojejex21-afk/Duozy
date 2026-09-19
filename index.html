@@ -87,6 +87,11 @@
   @keyframes loadbar{ 0%{ transform:translateX(-100%); } 100%{ transform:translateX(250%); } }
   .loading-label{ font-size:13px; color:#c9c3e8; opacity:0.8; }
 
+  /* efek hati/bintang mengambang di splash */
+  .bokeh{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .bokeh span{ position:absolute; font-size:20px; opacity:0.25; filter:blur(0.3px); animation:drift 7s ease-in-out infinite; }
+  @keyframes drift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-16px); } }
+
   /* ================= SHARED HEADER / NAV ================= */
   .topbar{ padding:18px 20px 12px; background:#fff; border-bottom:1px solid var(--card-line); }
   .topbar-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
@@ -466,6 +471,13 @@
   <!-- ================= SPLASH ================= -->
   <div id="view-splash" class="view active">
     <div class="splash-inner">
+      <div class="bokeh" aria-hidden="true">
+        <span style="top:12%;left:10%;animation-delay:0s;">💗</span>
+        <span style="top:20%;right:12%;animation-delay:1.4s;">✨</span>
+        <span style="bottom:32%;left:8%;animation-delay:2.6s;">💙</span>
+        <span style="bottom:24%;right:10%;animation-delay:0.8s;">✨</span>
+        <span style="top:45%;left:20%;animation-delay:2s;">💗</span>
+      </div>
       <div></div>
       <div class="brand">
         <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
