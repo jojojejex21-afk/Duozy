@@ -613,14 +613,10 @@
       <div class="section" style="margin-top:26px;">
         <div class="section-head">
           <h2>Orang yang sedang online</h2>
-          <span class="online-count">324 online</span>
+          <span class="online-count" id="onlineCountText">0 online</span>
         </div>
-        <div class="online-row">
-          <div class="online-person"><div class="online-avatar"></div><span>Rara</span><small>Jakarta</small></div>
-          <div class="online-person"><div class="online-avatar"></div><span>Dika</span><small>Bandung</small></div>
-          <div class="online-person"><div class="online-avatar"></div><span>Salsa</span><small>Surabaya</small></div>
-          <div class="online-person"><div class="online-avatar"></div><span>Fikri</span><small>Medan</small></div>
-          <div class="online-person"><div class="online-avatar"></div><span>Nayla</span><small>Malang</small></div>
+        <div class="online-row" id="onlineRowContainer">
+          <p style="font-size:11.5px;color:var(--text-muted);">Memuat...</p>
         </div>
       </div>
 
@@ -875,12 +871,14 @@
         <div class="profile-info">
           <p class="name" id="profileName">Rara ✓</p>
           <p class="handle" id="profileHandle">@rara_21</p>
-          <p class="loc">📍 Jakarta, Indonesia</p>
+          <p class="loc" id="profileLoc" style="display:none;">📍 <span id="profileLocText"></span></p>
           <p class="clickable" id="profileDuozyId" onclick="salinIdDuozy()" style="font-size:11px;color:var(--purple-brand);font-weight:700;margin-top:4px;display:none;">🆔 — 📋</p>
         </div>
       </div>
       <p class="bio-text" id="profileBio" style="font-size:12.5px;color:var(--text-muted);margin:-10px 0 16px;line-height:1.5;"></p>
 
+      <div id="profileDetailTags" style="display:none;flex-wrap:wrap;gap:8px;margin:-6px 0 16px;">
+      </div>
       <div class="stats-row">
         <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
         <div class="stat"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
@@ -917,10 +915,13 @@
       <div class="field" style="text-align:center;">
         <label>Foto Profil</label>
         <div style="display:flex;justify-content:center;margin:8px 0 4px;">
-          <div id="editAvatarPreview" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#d9d4ff,#a884ff);border:3px solid #fff;box-shadow:0 0 0 2px var(--pink-glow);background-size:cover;background-position:center;"></div>
+          <div id="editAvatarPreview" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,#d9d4ff,#a884ff);border:3px solid #fff;box-shadow:0 0 0 2px var(--pink-glow);background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:34px;"></div>
         </div>
-        <label for="editPhotoInput" style="display:inline-block;font-size:12px;color:var(--purple-brand);font-weight:700;margin-top:6px;">Ganti Foto</label>
+        <label for="editPhotoInput" style="display:inline-block;font-size:12px;color:var(--purple-brand);font-weight:700;margin-top:6px;">Upload Foto Sendiri</label>
         <input type="file" id="editPhotoInput" accept="image/*" style="display:none;" onchange="prosesFotoDipilih(event)">
+
+        <p style="font-size:11px;color:var(--text-muted);margin:12px 0 6px;">atau pilih avatar:</p>
+        <div id="avatarPresetRow" style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;"></div>
       </div>
 
       <div class="field">
@@ -939,8 +940,39 @@
       </div>
 
       <div class="field">
+        <label>Lokasi</label>
+        <input type="text" id="editLocationInput" placeholder="Kota kamu, mis. Jakarta">
+      </div>
+
+      <div class="field">
         <label>Bio / Tagline</label>
         <input type="text" id="editBioInput" placeholder="Ceritakan sedikit tentang kamu..." maxlength="80">
+      </div>
+
+      <div class="field">
+        <label>Zodiak</label>
+        <select id="editZodiakInput" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;color:var(--text-dark);">
+          <option value="">Pilih zodiak</option>
+          <option>Aries</option><option>Taurus</option><option>Gemini</option><option>Cancer</option>
+          <option>Leo</option><option>Virgo</option><option>Libra</option><option>Scorpio</option>
+          <option>Sagittarius</option><option>Capricorn</option><option>Aquarius</option><option>Pisces</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>MBTI</label>
+        <select id="editMbtiInput" style="width:100%;padding:12px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;color:var(--text-dark);">
+          <option value="">Pilih tipe MBTI</option>
+          <option>INTJ</option><option>INTP</option><option>ENTJ</option><option>ENTP</option>
+          <option>INFJ</option><option>INFP</option><option>ENFJ</option><option>ENFP</option>
+          <option>ISTJ</option><option>ISFJ</option><option>ESTJ</option><option>ESFJ</option>
+          <option>ISTP</option><option>ISFP</option><option>ESTP</option><option>ESFP</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Hobi & Musik (pisahkan dengan koma)</label>
+        <input type="text" id="editHobiInput" placeholder="mis. Game, K-Pop, Jalan-jalan">
       </div>
 
       <div class="auth-error" id="editProfilError"></div>
@@ -1036,6 +1068,7 @@
     if(name === 'pilihTeman'){ muatDaftarUser(); }
     if(name === 'dating'){ muatRekomendasiDating(); }
     if(name === 'momen'){ muatMomenFeed(); }
+    if(name === 'home'){ muatUserOnline(); }
     if(name === 'temanBaru'){ muatTemanBaru(); }
 
     window.scrollTo(0,0);
@@ -1154,6 +1187,7 @@
     if(unsubscribeChatMessages){ unsubscribeChatMessages(); unsubscribeChatMessages = null; }
     if(unsubscribeMomenFeed){ unsubscribeMomenFeed(); unsubscribeMomenFeed = null; }
     if(unsubscribeKomentar){ unsubscribeKomentar(); unsubscribeKomentar = null; }
+    if(heartbeatInterval){ clearInterval(heartbeatInterval); heartbeatInterval = null; }
     if(!firebaseReady){ showView('login'); return; }
     auth.signOut().then(function(){
       showView('login');
@@ -1197,13 +1231,35 @@
       var favoritRow = document.getElementById('favoritRow');
       if(data.favorit && data.favorit.length > 0){
         favoritRow.innerHTML = data.favorit.map(function(f){
-          return '<span>' + f + '</span>';
+          return '<span>' + escapeHtml(f) + '</span>';
         }).join('');
       }
 
       var bioEl = document.getElementById('profileBio');
       if(data.bio){ bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
       else { bioEl.style.display = 'none'; }
+
+      var locEl = document.getElementById('profileLoc');
+      if(data.location){
+        document.getElementById('profileLocText').textContent = data.location;
+        locEl.style.display = 'block';
+      } else {
+        locEl.style.display = 'none';
+      }
+
+      var detailTagsEl = document.getElementById('profileDetailTags');
+      var detailTags = [];
+      if(data.zodiak){ detailTags.push('♈ ' + data.zodiak); }
+      if(data.mbti){ detailTags.push('🧠 ' + data.mbti); }
+      if(detailTags.length > 0){
+        detailTagsEl.style.display = 'flex';
+        detailTagsEl.innerHTML = detailTags.map(function(t){
+          return '<span style="font-size:11.5px;background:#fff;border:1px solid var(--card-line);color:var(--purple-brand);padding:5px 12px;border-radius:14px;font-weight:600;">' + escapeHtml(t) + '</span>';
+        }).join('');
+      } else {
+        detailTagsEl.style.display = 'none';
+        detailTagsEl.innerHTML = '';
+      }
 
       var idEl = document.getElementById('profileDuozyId');
       if(data.duozyId){
@@ -1217,15 +1273,93 @@
         idEl.style.display = 'block';
       }
 
+      var avatarEl = document.getElementById('profileAvatar');
       if(data.photoUrl){
         fotoUserSaatIni = data.photoUrl;
-        document.getElementById('profileAvatar').style.backgroundImage = 'url(' + data.photoUrl + ')';
-        document.getElementById('profileAvatar').style.backgroundSize = 'cover';
-        document.getElementById('profileAvatar').style.backgroundPosition = 'center';
+        avatarEl.style.backgroundImage = 'url(' + data.photoUrl + ')';
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.textContent = '';
+      } else if(data.avatarEmoji){
+        avatarEl.style.backgroundImage = 'none';
+        avatarEl.style.background = data.avatarColor || 'linear-gradient(135deg,#d9d4ff,#a884ff)';
+        avatarEl.style.display = 'flex';
+        avatarEl.style.alignItems = 'center';
+        avatarEl.style.justifyContent = 'center';
+        avatarEl.style.fontSize = '32px';
+        avatarEl.textContent = data.avatarEmoji;
       }
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
     });
+  }
+
+  // ---------- Status Online (heartbeat sederhana pakai Firestore) ----------
+  var heartbeatInterval = null;
+
+  function mulaiHeartbeatOnline(){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+
+    function kirimHeartbeat(){
+      db.collection('users').doc(myUid).set({
+        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    }
+
+    kirimHeartbeat(); // langsung sekali saat masuk
+    if(heartbeatInterval){ clearInterval(heartbeatInterval); }
+    heartbeatInterval = setInterval(kirimHeartbeat, 45000); // tiap 45 detik selama app terbuka
+  }
+
+  function muatUserOnline(){
+    var container = document.getElementById('onlineRowContainer');
+    var countEl = document.getElementById('onlineCountText');
+    if(!db || !auth.currentUser) return;
+
+    var duaMenitLalu = firebase.firestore.Timestamp.fromMillis(Date.now() - 2 * 60 * 1000);
+    var myUid = auth.currentUser.uid;
+
+    db.collection('users')
+      .where('lastActive', '>', duaMenitLalu)
+      .limit(10)
+      .get()
+      .then(function(snapshot){
+        var orang = [];
+        snapshot.forEach(function(doc){
+          if(doc.id === myUid) return;
+          var data = doc.data();
+          orang.push({
+            nama: data.name || 'Pengguna Duozy',
+            lokasi: data.location || '',
+            photoUrl: data.photoUrl || null,
+            avatarEmoji: data.avatarEmoji || null,
+            avatarColor: data.avatarColor || null
+          });
+        });
+
+        countEl.textContent = orang.length + ' online';
+
+        if(orang.length === 0){
+          container.innerHTML = '<p style="font-size:11.5px;color:var(--text-muted);">Belum ada yang online sekarang.</p>';
+          return;
+        }
+
+        container.innerHTML = orang.map(function(o){
+          var avatarStyle = o.photoUrl
+            ? 'background-image:url(' + o.photoUrl + ');background-size:cover;background-position:center;'
+            : (o.avatarEmoji ? o.avatarColor + ';' : '');
+          var avatarInner = (!o.photoUrl && o.avatarEmoji) ? o.avatarEmoji : '';
+          return '<div class="online-person">' +
+                   '<div class="online-avatar" style="' + avatarStyle + 'display:flex;align-items:center;justify-content:center;font-size:20px;">' + avatarInner + '</div>' +
+                   '<span>' + escapeHtml(o.nama) + '</span>' +
+                   (o.lokasi ? '<small>' + escapeHtml(o.lokasi) + '</small>' : '') +
+                 '</div>';
+        }).join('');
+      }).catch(function(e){
+        container.innerHTML = '<p style="font-size:11.5px;color:var(--heart-red);">Gagal memuat status online.</p>';
+        tampilkanDebug('❌ Gagal memuat user online: ' + e.message);
+      });
   }
 
   // ================= CHAT (Firestore real-time) =================
@@ -1891,30 +2025,68 @@
     });
   }
 
+  // Daftar avatar preset (emoji + warna) — alternatif kalau tidak mau upload foto asli
+  var daftarAvatarPreset = [
+    { emoji: '🦄', color: 'linear-gradient(135deg,#ffb2d9,#a884ff)' },
+    { emoji: '🐱', color: 'linear-gradient(135deg,#ffd08a,#ff9d5c)' },
+    { emoji: '🐶', color: 'linear-gradient(135deg,#8bf0c0,#3fd695)' },
+    { emoji: '🌸', color: 'linear-gradient(135deg,#ff9ac4,#ff5da2)' },
+    { emoji: '🐼', color: 'linear-gradient(135deg,#c9c9c9,#8a8a8a)' },
+    { emoji: '🦊', color: 'linear-gradient(135deg,#ffb199,#ff5da2)' },
+    { emoji: '🐸', color: 'linear-gradient(135deg,#b7f0a0,#3fd695)' },
+    { emoji: '⭐', color: 'linear-gradient(135deg,#7fd4ff,#4a7dfe)' }
+  ];
+  var avatarPresetTerpilih = null; // {emoji, color} kalau user pilih preset (bukan upload foto)
+
   function bukaEditProfil(){
     var input = document.getElementById('editNameInput');
     input.value = (auth.currentUser && auth.currentUser.displayName) || '';
     document.getElementById('editGenderInput').value = '';
     document.getElementById('editBioInput').value = '';
+    document.getElementById('editLocationInput').value = '';
+    document.getElementById('editZodiakInput').value = '';
+    document.getElementById('editMbtiInput').value = '';
+    document.getElementById('editHobiInput').value = '';
     fotoBaruBase64 = null;
+    avatarPresetTerpilih = null;
+
+    // Render pilihan avatar preset
+    var row = document.getElementById('avatarPresetRow');
+    row.innerHTML = daftarAvatarPreset.map(function(a, i){
+      return '<div class="clickable" onclick="pilihAvatarPreset(' + i + ')" style="width:38px;height:38px;border-radius:50%;background:' + a.color + ';display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid #fff;box-shadow:0 0 0 1px var(--card-line);">' + a.emoji + '</div>';
+    }).join('');
 
     var preview = document.getElementById('editAvatarPreview');
     var currentBg = document.getElementById('profileAvatar').style.backgroundImage;
-    preview.style.backgroundImage = currentBg || '';
+    preview.style.backgroundImage = (currentBg && currentBg !== 'none') ? currentBg : '';
+    preview.textContent = document.getElementById('profileAvatar').textContent || '';
 
     document.getElementById('editProfilError').textContent = '';
     document.getElementById('editProfilModal').classList.add('show');
 
-    // Ambil data terbaru (gender, bio) dari Firestore supaya form terisi benar
+    // Ambil data terbaru dari Firestore supaya form terisi sesuai data tersimpan
     if(db && auth.currentUser){
       db.collection('users').doc(auth.currentUser.uid).get().then(function(doc){
         if(doc.exists){
           var data = doc.data();
           if(data.gender){ document.getElementById('editGenderInput').value = data.gender; }
           if(data.bio){ document.getElementById('editBioInput').value = data.bio; }
+          if(data.location){ document.getElementById('editLocationInput').value = data.location; }
+          if(data.zodiak){ document.getElementById('editZodiakInput').value = data.zodiak; }
+          if(data.mbti){ document.getElementById('editMbtiInput').value = data.mbti; }
+          if(data.favorit && data.favorit.length){ document.getElementById('editHobiInput').value = data.favorit.join(', '); }
         }
       });
     }
+  }
+
+  function pilihAvatarPreset(index){
+    avatarPresetTerpilih = daftarAvatarPreset[index];
+    fotoBaruBase64 = null; // preset dan upload foto saling menggantikan
+    var preview = document.getElementById('editAvatarPreview');
+    preview.style.backgroundImage = 'none';
+    preview.style.background = avatarPresetTerpilih.color;
+    preview.textContent = avatarPresetTerpilih.emoji;
   }
 
   function tutupEditProfil(){
@@ -1926,6 +2098,7 @@
   function prosesFotoDipilih(event){
     var file = event.target.files[0];
     if(!file) return;
+    avatarPresetTerpilih = null; // upload foto asli menggantikan preset
 
     var reader = new FileReader();
     reader.onload = function(e){
@@ -1943,7 +2116,10 @@
         ctx.drawImage(img, sx, sy, sisi, sisi, 0, 0, ukuran, ukuran);
 
         fotoBaruBase64 = canvas.toDataURL('image/jpeg', 0.7);
-        document.getElementById('editAvatarPreview').style.backgroundImage = 'url(' + fotoBaruBase64 + ')';
+        var preview = document.getElementById('editAvatarPreview');
+        preview.style.background = 'none';
+        preview.textContent = '';
+        preview.style.backgroundImage = 'url(' + fotoBaruBase64 + ')';
       };
       img.src = e.target.result;
     };
@@ -1954,6 +2130,12 @@
     var newName = document.getElementById('editNameInput').value.trim();
     var gender = document.getElementById('editGenderInput').value;
     var bio = document.getElementById('editBioInput').value.trim();
+    var location = document.getElementById('editLocationInput').value.trim();
+    var zodiak = document.getElementById('editZodiakInput').value;
+    var mbti = document.getElementById('editMbtiInput').value;
+    var hobiRaw = document.getElementById('editHobiInput').value.trim();
+    var favorit = hobiRaw ? hobiRaw.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : [];
+
     var err = document.getElementById('editProfilError');
     var btn = document.getElementById('editProfilSaveBtn');
     err.textContent = '';
@@ -1971,27 +2153,27 @@
     btn.textContent = 'Menyimpan...';
 
     var user = auth.currentUser;
-    var dataUntukFirestore = { name: newName, gender: gender, bio: bio };
-    if(fotoBaruBase64){ dataUntukFirestore.photoUrl = fotoBaruBase64; }
+    var dataUntukFirestore = {
+      name: newName, gender: gender, bio: bio, location: location,
+      zodiak: zodiak, mbti: mbti, favorit: favorit
+    };
+    if(fotoBaruBase64){
+      dataUntukFirestore.photoUrl = fotoBaruBase64;
+      dataUntukFirestore.avatarEmoji = firebase.firestore.FieldValue.delete();
+      dataUntukFirestore.avatarColor = firebase.firestore.FieldValue.delete();
+    } else if(avatarPresetTerpilih){
+      dataUntukFirestore.avatarEmoji = avatarPresetTerpilih.emoji;
+      dataUntukFirestore.avatarColor = avatarPresetTerpilih.color;
+      dataUntukFirestore.photoUrl = firebase.firestore.FieldValue.delete();
+      fotoUserSaatIni = null;
+    }
 
     withTimeout(user.updateProfile({ displayName: newName }), 15000)
       .then(function(){
         return db.collection('users').doc(user.uid).set(dataUntukFirestore, { merge: true });
       })
       .then(function(){
-        document.getElementById('profileName').textContent = newName + ' ✓';
-        if(bio){
-          document.getElementById('profileBio').textContent = bio;
-          document.getElementById('profileBio').style.display = 'block';
-        } else {
-          document.getElementById('profileBio').style.display = 'none';
-        }
-        if(fotoBaruBase64){
-          var avatarEl = document.getElementById('profileAvatar');
-          avatarEl.style.backgroundImage = 'url(' + fotoBaruBase64 + ')';
-          avatarEl.style.backgroundSize = 'cover';
-          avatarEl.style.backgroundPosition = 'center';
-        }
+        muatProfilDariFirestore(user.uid);
         tutupEditProfil();
       })
       .catch(function(error){
@@ -2025,6 +2207,8 @@
       if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
       muatProfilDariFirestore(authUser.uid);
       muatDaftarChat();
+      mulaiHeartbeatOnline();
+      muatUserOnline();
       showView('home');
     } else {
       showView('login');
