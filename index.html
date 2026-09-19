@@ -40,6 +40,7 @@
     width:100%;
     max-width:430px;
     min-height:100vh;
+    min-height:100dvh;
     background:#fff;
     position:relative;
     overflow:hidden;
@@ -48,11 +49,17 @@
   .view{
     display:none;
     min-height:100vh;
+    min-height:100dvh;
     flex-direction:column;
     background:var(--bg-app);
     padding-bottom:78px;
   }
   .view.active{ display:flex; }
+
+  /* Chat detail dibuat tinggi PASTI (bukan minimal) supaya kotak ketik selalu
+     kelihatan tepat di atas keyboard, dan daftar pesan yang menyesuaikan/scroll,
+     bukan malah terdorong ke bawah layar. */
+  #view-chatDetail{ height:100vh; height:100dvh; min-height:0; }
 
   a, .clickable{ cursor:pointer; }
 
@@ -590,7 +597,7 @@
         </div>
         <div class="header-icons">
           <div class="icon-btn">🔍</div>
-          <div class="icon-btn">🔔<span class="dot-badge"></span></div>
+          <div class="icon-btn clickable" onclick="bukaNotifikasi()">🔔<span class="dot-badge" id="notifBadge" style="display:none;"></span></div>
           <div class="avatar-tiny clickable" onclick="showView('profil')"></div>
         </div>
       </div>
@@ -697,7 +704,7 @@
   <!-- ================= DATING ================= -->
   <div id="view-dating" class="view">
     <div class="topbar">
-      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <div class="icon-btn clickable" onclick="kembaliApp('home')">←</div>
       <h1>Dating</h1>
       <div class="icon-btn">⚙️</div>
     </div>
@@ -743,10 +750,21 @@
     </div>
   </div>
 
+  <!-- ================= MODAL NOTIFIKASI ================= -->
+  <div class="modal-overlay" id="notifikasiModal">
+    <div class="modal-sheet" style="max-height:75vh;display:flex;flex-direction:column;">
+      <h2>Notifikasi</h2>
+      <div id="notifikasiListContainer" style="flex:1;overflow-y:auto;margin-bottom:14px;max-height:55vh;">
+        <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat notifikasi...</p>
+      </div>
+      <button class="modal-cancel" onclick="document.getElementById('notifikasiModal').classList.remove('show')">Tutup</button>
+    </div>
+  </div>
+
   <!-- ================= TEMAN BARU ================= -->
   <div id="view-temanBaru" class="view">
     <div class="topbar">
-      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <div class="icon-btn clickable" onclick="kembaliApp('home')">←</div>
       <h1>Teman Baru</h1>
       <div style="width:32px;"></div>
     </div>
@@ -778,7 +796,7 @@
   <!-- ================= PILIH TEMAN (mulai chat baru) ================= -->
   <div id="view-pilihTeman" class="view">
     <div class="topbar">
-      <div class="icon-btn clickable" onclick="showView('chat')">←</div>
+      <div class="icon-btn clickable" onclick="kembaliApp('chat')">←</div>
       <h1>Mulai Chat Baru</h1>
       <div style="width:32px;"></div>
     </div>
@@ -797,7 +815,7 @@
   <!-- ================= DETAIL CHAT (percakapan) ================= -->
   <div id="view-chatDetail" class="view" style="padding-bottom:0;">
     <div class="topbar" style="display:flex;align-items:center;gap:12px;">
-      <div class="icon-btn clickable" onclick="showView('chat')">←</div>
+      <div class="icon-btn clickable" onclick="kembaliApp('chat')">←</div>
       <div class="chat-avatar" id="chatDetailAvatar" style="width:38px;height:38px;"></div>
       <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
     </div>
@@ -805,7 +823,7 @@
       <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
     </div>
     <div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
-      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 14px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}">
+      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 14px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
       <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
     </div>
   </div>
@@ -850,7 +868,7 @@
   <!-- ================= COUPLE ================= -->
   <div id="view-couple" class="view">
     <div class="topbar">
-      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <div class="icon-btn clickable" onclick="kembaliApp('home')">←</div>
       <h1>💗 Couple</h1>
       <div class="icon-btn">⚙️</div>
     </div>
@@ -1052,8 +1070,10 @@
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
   var fullscreenViews = ['pilihTeman','chatDetail']; // halaman tanpa bottom nav, header sendiri
+  var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
 
-  function showView(name){
+  function showView(name, opts){
+    opts = opts || {};
     document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
     document.getElementById('view-' + name).classList.add('active');
 
@@ -1083,7 +1103,36 @@
     if(name === 'home'){ muatUserOnline(); }
     if(name === 'temanBaru'){ muatTemanBaru(); }
 
+    // Hubungkan ke tombol/gesture "kembali" bawaan HP, supaya menutup halaman ini
+    // kembali ke halaman sebelumnya di dalam app — bukan langsung keluar app.
+    if(!opts.dariPopstate && authViews.indexOf(name) === -1){
+      if(!historyBaselineSet){
+        history.replaceState({ view: name }, '', '#' + name);
+        historyBaselineSet = true;
+      } else {
+        history.pushState({ view: name }, '', '#' + name);
+      }
+    }
+
     window.scrollTo(0,0);
+  }
+
+  window.addEventListener('popstate', function(event){
+    var tujuan = (event.state && event.state.view) || 'home';
+    // Tutup dulu modal-modal yang mungkin lagi terbuka (edit profil, komentar, dll)
+    document.querySelectorAll('.modal-overlay.show').forEach(function(m){ m.classList.remove('show'); });
+    showView(tujuan, { dariPopstate: true });
+  });
+
+  // Dipakai tombol panah "←" di dalam app, supaya sungguhan "melangkah mundur"
+  // di riwayat (selaras dengan tombol/gestur kembali bawaan HP), bukan cuma
+  // pindah ke halaman baru. Kalau belum ada riwayat dari app ini, baru pakai fallback.
+  function kembaliApp(fallback){
+    if(history.state && history.state.view){
+      history.back();
+    } else {
+      showView(fallback);
+    }
   }
 
   function withTimeout(promise, ms){
@@ -1244,6 +1293,8 @@
     if(unsubscribeMomenFeed){ unsubscribeMomenFeed(); unsubscribeMomenFeed = null; }
     if(unsubscribeKomentar){ unsubscribeKomentar(); unsubscribeKomentar = null; }
     if(heartbeatInterval){ clearInterval(heartbeatInterval); heartbeatInterval = null; }
+    if(unsubscribeNotifBadge){ unsubscribeNotifBadge(); unsubscribeNotifBadge = null; }
+    if(unsubscribeNotifList){ unsubscribeNotifList(); unsubscribeNotifList = null; }
     if(!firebaseReady){ showView('login'); return; }
     auth.signOut().then(function(){
       showView('login');
@@ -1356,6 +1407,77 @@
 
   // ---------- Status Online (heartbeat sederhana pakai Firestore) ----------
   var heartbeatInterval = null;
+
+  // ================= NOTIFIKASI =================
+
+  var unsubscribeNotifBadge = null;
+  var unsubscribeNotifList = null;
+
+  // Kirim 1 notifikasi ke seorang user. Dipanggil dari titik-titik aksi (like, komentar, dst).
+  function kirimNotifikasi(untukUid, tipe, teks){
+    if(!db || !untukUid || !auth.currentUser || untukUid === auth.currentUser.uid) return; // jangan notif diri sendiri
+    db.collection('notifications').doc(untukUid).collection('items').add({
+      type: tipe,
+      text: teks,
+      read: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(function(e){ tampilkanDebug('❌ Gagal kirim notifikasi: ' + e.message); });
+  }
+
+  // Pantau jumlah notifikasi belum dibaca, untuk titik merah di ikon lonceng
+  function pantauBadgeNotifikasi(){
+    if(!db || !auth.currentUser) return;
+    if(unsubscribeNotifBadge){ unsubscribeNotifBadge(); }
+    unsubscribeNotifBadge = db.collection('notifications').doc(auth.currentUser.uid).collection('items')
+      .where('read', '==', false)
+      .onSnapshot(function(snapshot){
+        document.getElementById('notifBadge').style.display = snapshot.empty ? 'none' : 'block';
+      }, function(e){ tampilkanDebug('❌ Gagal memantau notifikasi: ' + e.message); });
+  }
+
+  function ikonNotifikasi(tipe){
+    if(tipe === 'like') return '💗';
+    if(tipe === 'comment') return '💬';
+    if(tipe === 'friend') return '👥';
+    if(tipe === 'match') return '🎉';
+    return '🔔';
+  }
+
+  function bukaNotifikasi(){
+    document.getElementById('notifikasiModal').classList.add('show');
+    var container = document.getElementById('notifikasiListContainer');
+    if(!db || !auth.currentUser) return;
+
+    if(unsubscribeNotifList){ unsubscribeNotifList(); }
+
+    var ref = db.collection('notifications').doc(auth.currentUser.uid).collection('items').orderBy('createdAt', 'desc').limit(30);
+    unsubscribeNotifList = ref.onSnapshot(function(snapshot){
+      if(snapshot.empty){
+        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:20px;">Belum ada notifikasi.</p>';
+        return;
+      }
+      var html = '';
+      var belumDibaca = [];
+      snapshot.forEach(function(doc){
+        var n = doc.data();
+        html += '<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--card-line);">' +
+                  '<div style="font-size:18px;">' + ikonNotifikasi(n.type) + '</div>' +
+                  '<div style="flex:1;"><p style="font-size:12.5px;color:var(--text-dark);">' + escapeHtml(n.text || '') + '</p></div>' +
+                '</div>';
+        if(!n.read){ belumDibaca.push(doc.ref); }
+      });
+      container.innerHTML = html;
+
+      if(belumDibaca.length > 0){
+        var batch = db.batch();
+        belumDibaca.forEach(function(ref){ batch.update(ref, { read: true }); });
+        batch.commit().catch(function(e){ tampilkanDebug('❌ Gagal menandai notifikasi terbaca: ' + e.message); });
+      }
+    }, function(e){
+      container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12px;">Gagal memuat notifikasi.</p>';
+      tampilkanDebug('❌ Gagal memuat notifikasi: ' + e.message);
+    });
+  }
 
   function mulaiHeartbeatOnline(){
     if(!db || !auth.currentUser) return;
@@ -1818,6 +1940,8 @@
       participantNames: participantNames,
       matched: true
     }, { merge: true });
+
+    kirimNotifikasi(targetUid, 'match', 'Kamu dan ' + myNama + ' saling menyukai! It\'s a Match 🎉');
   }
 
   // ================= MOMEN (feed real-time via Firestore) =================
@@ -1914,8 +2038,8 @@
               '</div>' +
               '<div class="post-text">' + escapeHtml(m.text || '') + '</div>' +
               '<div class="post-actions">' +
-                '<span class="clickable" onclick="toggleLikeMomen(' + jsAttr(doc.id) + ', ' + sudahLike + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
-                '<span class="clickable" onclick="bukaKomentar(' + jsAttr(doc.id) + ')">💬 ' + (m.commentsCount || 0) + '</span>' +
+                '<span class="clickable" onclick="toggleLikeMomen(' + jsAttr(doc.id) + ', ' + sudahLike + ', ' + jsAttr(m.authorUid) + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
+                '<span class="clickable" onclick="bukaKomentar(' + jsAttr(doc.id) + ', ' + jsAttr(m.authorUid) + ')">💬 ' + (m.commentsCount || 0) + '</span>' +
               '</div>' +
             '</div>';
         });
@@ -1926,12 +2050,16 @@
       });
   }
 
-  function toggleLikeMomen(momentId, sudahLike){
+  function toggleLikeMomen(momentId, sudahLike, authorUid){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
     var ref = db.collection('moments').doc(momentId);
     var aksi = sudahLike ? firebase.firestore.FieldValue.arrayRemove(myUid) : firebase.firestore.FieldValue.arrayUnion(myUid);
-    ref.update({ likes: aksi }).catch(function(e){
+    ref.update({ likes: aksi }).then(function(){
+      if(!sudahLike){
+        kirimNotifikasi(authorUid, 'like', (auth.currentUser.displayName || 'Seseorang') + ' menyukai Momen kamu');
+      }
+    }).catch(function(e){
       tampilkanDebug('❌ Gagal update Like Momen: ' + e.message);
     });
   }
@@ -1939,9 +2067,11 @@
   // ---------- Komentar Momen ----------
   var unsubscribeKomentar = null;
   var momentIdAktifDiKomentar = null;
+  var authorUidAktifDiKomentar = null;
 
-  function bukaKomentar(momentId){
+  function bukaKomentar(momentId, authorUid){
     momentIdAktifDiKomentar = momentId;
+    authorUidAktifDiKomentar = authorUid;
     document.getElementById('komentarInput').value = '';
     document.getElementById('komentarListContainer').innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat komentar...</p>';
     document.getElementById('komentarModal').classList.add('show');
@@ -1997,6 +2127,7 @@
       authorPhoto: fotoUserSaatIni,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
+      kirimNotifikasi(authorUidAktifDiKomentar, 'comment', (auth.currentUser.displayName || 'Seseorang') + ' mengomentari Momen kamu');
       return db.collection('moments').doc(momentId).update({
         commentsCount: firebase.firestore.FieldValue.increment(1)
       });
@@ -2098,6 +2229,7 @@
     ]).then(function(){
       daftarTemanSaya.push(targetUid);
       saringTemanBaru();
+      kirimNotifikasi(targetUid, 'friend', (auth.currentUser.displayName || 'Seseorang') + ' menambahkanmu sebagai teman');
       // Refresh statistik "Teman" di halaman Profil kalau sedang dibuka
       muatProfilDariFirestore(myUid);
     }).catch(function(e){
@@ -2310,6 +2442,7 @@
       });
       muatDaftarChat();
       mulaiHeartbeatOnline();
+      pantauBadgeNotifikasi();
       muatUserOnline();
       showView('home');
     } else {
