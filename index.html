@@ -593,7 +593,7 @@
         <div class="menu-item clickable" onclick="showView('dating')">
           <div class="menu-icon mi-dating">💘</div><span>Dating</span>
         </div>
-        <div class="menu-item clickable" onclick="showView('home')">
+        <div class="menu-item clickable" onclick="showView('temanBaru')">
           <div class="menu-icon mi-friends">👥</div><span>Teman Baru</span>
         </div>
         <div class="menu-item clickable" onclick="showView('chat')">
@@ -715,6 +715,25 @@
         <button class="modal-cancel" onclick="document.getElementById('matchModal').classList.remove('show')">Nanti</button>
         <button class="modal-save" id="matchChatBtn">Chat Sekarang</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= TEMAN BARU ================= -->
+  <div id="view-temanBaru" class="view">
+    <div class="topbar">
+      <div class="icon-btn clickable" onclick="showView('home')">←</div>
+      <h1>Teman Baru</h1>
+      <div style="width:32px;"></div>
+    </div>
+    <div style="padding:14px 20px 16px;background:#fff;">
+      <div style="position:relative;">
+        <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--purple-brand);pointer-events:none;">🔍</span>
+        <input type="text" id="cariTemanBaruInput" placeholder="Cari nama atau ID Duozy..." oninput="saringTemanBaru()"
+          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:#fff;font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
+      </div>
+    </div>
+    <div class="content" id="temanBaruContainer">
+      <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat pengguna...</p>
     </div>
   </div>
 
@@ -1000,6 +1019,7 @@
     if(name === 'pilihTeman'){ muatDaftarUser(); }
     if(name === 'dating'){ muatRekomendasiDating(); }
     if(name === 'momen'){ muatMomenFeed(); }
+    if(name === 'temanBaru'){ muatTemanBaru(); }
 
     window.scrollTo(0,0);
   }
@@ -1260,7 +1280,7 @@
     var html = '';
     daftar.forEach(function(u){
       var fotoStyle = u.photoUrl ? ('background-image:url(' + u.photoUrl + ');background-size:cover;background-position:center;') : '';
-      html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + u.uid + '\', ' + JSON.stringify(u.nama) + ')">' +
+      html += '<div class="chat-row clickable" onclick="mulaiChatDengan(\'' + u.uid + '\', ' + jsAttr(u.nama) + ')">' +
                 '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
                 '<div class="chat-main"><div class="row1"><span class="name">' + u.nama + '</span></div>' +
                 (u.duozyId ? '<div class="row2"><span class="preview">🆔 ' + u.duozyId + '</span></div>' : '') +
@@ -1341,6 +1361,15 @@
     return div.innerHTML;
   }
 
+  // Bikin nilai JS yang aman ditaruh di dalam atribut HTML berkutip-ganda (onclick="...").
+  // JSON.stringify biasa menghasilkan tanda kutip ganda literal yang bikin atribut
+  // HTML terputus di tengah — makanya kutip gandanya diubah jadi &quot; supaya
+  // browser tetap membacanya sebagai satu atribut utuh, lalu mengembalikannya jadi
+  // tanda kutip biasa saat kode di dalam onclick benar-benar dijalankan.
+  function jsAttr(value){
+    return JSON.stringify(value).replace(/"/g, '&quot;');
+  }
+
   function kirimPesan(){
     var input = document.getElementById('chatMessageInput');
     var teks = input.value.trim();
@@ -1395,7 +1424,7 @@
           var otherUid = c.data.participants.filter(function(uid){ return uid !== myUid; })[0];
           var otherName = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
           var preview = c.data.lastMessage || 'Belum ada pesan';
-          html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + JSON.stringify(c.id) + ', ' + JSON.stringify(otherUid) + ', ' + JSON.stringify(otherName) + ')">' +
+          html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + jsAttr(c.id) + ', ' + jsAttr(otherUid) + ', ' + jsAttr(otherName) + ')">' +
                     '<div class="chat-avatar"></div>' +
                     '<div class="chat-main">' +
                       '<div class="row1"><span class="name">' + otherName + '</span></div>' +
@@ -1456,8 +1485,8 @@
             '<h2>' + utama.nama + '</h2>' +
             (utama.bio ? '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">' + escapeHtml(utama.bio) + '</p>' : '') +
             '<div class="swipe-actions">' +
-              '<button class="btn-view" onclick="bukaLihatProfil(' + JSON.stringify(utama.uid) + ')">Lihat Profil</button>' +
-              '<button class="btn-like" id="likeBtn-' + utama.uid + '" onclick="sukaiUser(' + JSON.stringify(utama.uid) + ', ' + JSON.stringify(utama.nama) + ')">🤍 Like</button>' +
+              '<button class="btn-view" onclick="bukaLihatProfil(' + jsAttr(utama.uid) + ')">Lihat Profil</button>' +
+              '<button class="btn-like" id="likeBtn-' + utama.uid + '" onclick="sukaiUser(' + jsAttr(utama.uid) + ', ' + jsAttr(utama.nama) + ')">🤍 Like</button>' +
             '</div>' +
           '</div>' +
         '</div>';
@@ -1468,12 +1497,12 @@
         html +=
           '<div class="rec-card">' +
             '<div class="rec-photo" style="' + fotoStyle + (u.photoUrl ? '' : 'background:linear-gradient(160deg,#c9a4ff,#8a5cf5);') + '">' +
-              '<div class="heart clickable" id="likeHeart-' + u.uid + '" onclick="sukaiUser(' + JSON.stringify(u.uid) + ', ' + JSON.stringify(u.nama) + ')">🤍</div>' +
+              '<div class="heart clickable" id="likeHeart-' + u.uid + '" onclick="sukaiUser(' + jsAttr(u.uid) + ', ' + jsAttr(u.nama) + ')">🤍</div>' +
             '</div>' +
             '<div class="rec-info">' +
               '<p class="name">' + u.nama + '</p>' +
               (u.bio ? '<p class="loc">' + escapeHtml(u.bio.slice(0, 30)) + '</p>' : '<p class="loc">Anggota Duozy</p>') +
-              '<button class="rec-btn" onclick="bukaLihatProfil(' + JSON.stringify(u.uid) + ')">Lihat Profil</button>' +
+              '<button class="rec-btn" onclick="bukaLihatProfil(' + jsAttr(u.uid) + ')">Lihat Profil</button>' +
             '</div>' +
           '</div>';
       });
@@ -1651,7 +1680,7 @@
               '</div>' +
               '<div class="post-text">' + escapeHtml(m.text || '') + '</div>' +
               '<div class="post-actions">' +
-                '<span class="clickable" onclick="toggleLikeMomen(' + JSON.stringify(doc.id) + ', ' + sudahLike + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
+                '<span class="clickable" onclick="toggleLikeMomen(' + jsAttr(doc.id) + ', ' + sudahLike + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
                 '<span>💬 0</span>' +
               '</div>' +
             '</div>';
@@ -1670,6 +1699,108 @@
     var aksi = sudahLike ? firebase.firestore.FieldValue.arrayRemove(myUid) : firebase.firestore.FieldValue.arrayUnion(myUid);
     ref.update({ likes: aksi }).catch(function(e){
       tampilkanDebug('❌ Gagal update Like Momen: ' + e.message);
+    });
+  }
+
+  // ================= TEMAN BARU (pertemanan via Firestore) =================
+
+  var semuaUserTemanBaru = []; // {uid, nama, photoUrl, duozyId}
+  var daftarTemanSaya = []; // uid teman yang sudah ditambahkan
+
+  function muatTemanBaru(){
+    var container = document.getElementById('temanBaruContainer');
+    document.getElementById('cariTemanBaruInput').value = '';
+    if(!db || !auth.currentUser){ return; }
+
+    var myUid = auth.currentUser.uid;
+    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Memuat pengguna...</p>';
+
+    db.collection('friends').doc(myUid).get().then(function(friendDoc){
+      daftarTemanSaya = (friendDoc.exists && friendDoc.data().list) || [];
+      return db.collection('users').get();
+    }).then(function(snapshot){
+      semuaUserTemanBaru = [];
+      snapshot.forEach(function(doc){
+        if(doc.id === myUid) return;
+        var data = doc.data();
+        semuaUserTemanBaru.push({
+          uid: doc.id,
+          nama: data.name || 'Pengguna Duozy',
+          photoUrl: data.photoUrl || null,
+          duozyId: data.duozyId || ''
+        });
+      });
+      renderTemanBaru(semuaUserTemanBaru);
+    }).catch(function(e){
+      container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar pengguna.</p>';
+      tampilkanDebug('❌ Gagal memuat Teman Baru: ' + e.message);
+    });
+  }
+
+  function renderTemanBaru(daftar){
+    var container = document.getElementById('temanBaruContainer');
+    if(daftar.length === 0){
+      var adaKataKunci = document.getElementById('cariTemanBaruInput').value.trim().length > 0;
+      container.innerHTML = adaKataKunci ? tampilanKosongPencarian('tidak-ketemu') : tampilanKosongPencarian('kosong-total');
+      return;
+    }
+    var html = '';
+    daftar.forEach(function(u){
+      var sudahBerteman = daftarTemanSaya.indexOf(u.uid) !== -1;
+      var fotoStyle = u.photoUrl ? ('background-image:url(' + u.photoUrl + ');background-size:cover;background-position:center;') : '';
+      html +=
+        '<div class="chat-row">' +
+          '<div class="chat-avatar" style="' + fotoStyle + '"></div>' +
+          '<div class="chat-main">' +
+            '<div class="row1"><span class="name">' + u.nama + '</span></div>' +
+            (u.duozyId ? '<div class="row2"><span class="preview">🆔 ' + u.duozyId + '</span></div>' : '') +
+          '</div>' +
+          (sudahBerteman
+            ? '<span style="font-size:11.5px;color:var(--text-muted);font-weight:700;flex-shrink:0;">✓ Berteman</span>'
+            : '<button onclick="tambahTeman(' + jsAttr(u.uid) + ', ' + jsAttr(u.nama) + ', this)" style="flex-shrink:0;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:11.5px;font-weight:700;padding:8px 14px;border-radius:12px;">+ Tambah</button>') +
+        '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  function saringTemanBaru(){
+    var kataKunci = document.getElementById('cariTemanBaruInput').value.trim().toLowerCase();
+    if(!kataKunci){
+      renderTemanBaru(semuaUserTemanBaru);
+      return;
+    }
+    var hasil = semuaUserTemanBaru.filter(function(u){
+      return u.nama.toLowerCase().indexOf(kataKunci) !== -1 ||
+             u.duozyId.toLowerCase().indexOf(kataKunci) !== -1;
+    });
+    renderTemanBaru(hasil);
+  }
+
+  // Tambah teman: pertemanan dua arah, dan hitungan "Teman" di kedua profil ikut bertambah
+  function tambahTeman(targetUid, targetNama, tombolEl){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+
+    tombolEl.disabled = true;
+    tombolEl.textContent = 'Memproses...';
+
+    var myFriendRef = db.collection('friends').doc(myUid);
+    var targetFriendRef = db.collection('friends').doc(targetUid);
+
+    Promise.all([
+      myFriendRef.set({ list: firebase.firestore.FieldValue.arrayUnion(targetUid) }, { merge: true }),
+      targetFriendRef.set({ list: firebase.firestore.FieldValue.arrayUnion(myUid) }, { merge: true }),
+      db.collection('users').doc(myUid).update({ teman: firebase.firestore.FieldValue.increment(1) }),
+      db.collection('users').doc(targetUid).update({ teman: firebase.firestore.FieldValue.increment(1) })
+    ]).then(function(){
+      daftarTemanSaya.push(targetUid);
+      saringTemanBaru();
+      // Refresh statistik "Teman" di halaman Profil kalau sedang dibuka
+      muatProfilDariFirestore(myUid);
+    }).catch(function(e){
+      tombolEl.disabled = false;
+      tombolEl.textContent = '+ Tambah';
+      tampilkanDebug('❌ Gagal menambah teman: ' + e.message);
     });
   }
 
