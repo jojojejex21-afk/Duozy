@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>Duozy</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4a2a86">
@@ -816,14 +816,17 @@
   <div id="view-chatDetail" class="view" style="padding-bottom:0;">
     <div class="topbar" style="display:flex;align-items:center;gap:12px;">
       <div class="icon-btn clickable" onclick="kembaliApp('chat')">←</div>
-      <div class="chat-avatar" id="chatDetailAvatar" style="width:38px;height:38px;"></div>
-      <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
+      <div class="chat-avatar" id="chatDetailAvatar" style="width:38px;height:38px;background-size:cover;background-position:center;"></div>
+      <div style="flex:1;min-width:0;">
+        <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
+        <p id="chatDetailStatus" style="font-size:11px;color:var(--text-muted);margin-top:1px;"></p>
+      </div>
     </div>
-    <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:8px;background:var(--bg-app);">
+    <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:3px;background:var(--bg-app);">
       <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
     </div>
     <div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
-      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 14px;border-radius:20px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
+      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
       <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
     </div>
   </div>
@@ -1414,14 +1417,21 @@
   var unsubscribeNotifList = null;
 
   // Kirim 1 notifikasi ke seorang user. Dipanggil dari titik-titik aksi (like, komentar, dst).
-  function kirimNotifikasi(untukUid, tipe, teks){
+  function kirimNotifikasi(untukUid, tipe, teks, dataTambahan){
     if(!db || !untukUid || !auth.currentUser || untukUid === auth.currentUser.uid) return; // jangan notif diri sendiri
-    db.collection('notifications').doc(untukUid).collection('items').add({
+    var isi = {
       type: tipe,
       text: teks,
       read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(function(e){ tampilkanDebug('❌ Gagal kirim notifikasi: ' + e.message); });
+    };
+    if(dataTambahan){
+      if(dataTambahan.momentId){ isi.momentId = dataTambahan.momentId; }
+      if(dataTambahan.fromUid){ isi.fromUid = dataTambahan.fromUid; }
+      if(dataTambahan.fromName){ isi.fromName = dataTambahan.fromName; }
+    }
+    db.collection('notifications').doc(untukUid).collection('items').add(isi)
+      .catch(function(e){ tampilkanDebug('❌ Gagal kirim notifikasi: ' + e.message); });
   }
 
   // Pantau jumlah notifikasi belum dibaca, untuk titik merah di ikon lonceng
@@ -1443,6 +1453,8 @@
     return '🔔';
   }
 
+  var notifikasiCache = []; // dipakai supaya bisa navigasi saat notifikasi diklik, tanpa masalah kutip di HTML
+
   function bukaNotifikasi(){
     document.getElementById('notifikasiModal').classList.add('show');
     var container = document.getElementById('notifikasiListContainer');
@@ -1456,13 +1468,17 @@
         container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;margin-top:20px;">Belum ada notifikasi.</p>';
         return;
       }
+      notifikasiCache = [];
       var html = '';
       var belumDibaca = [];
       snapshot.forEach(function(doc){
         var n = doc.data();
-        html += '<div style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--card-line);">' +
+        var idx = notifikasiCache.length;
+        notifikasiCache.push(n);
+        html += '<div class="clickable" onclick="klikNotifikasi(' + idx + ')" style="display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--card-line);">' +
                   '<div style="font-size:18px;">' + ikonNotifikasi(n.type) + '</div>' +
                   '<div style="flex:1;"><p style="font-size:12.5px;color:var(--text-dark);">' + escapeHtml(n.text || '') + '</p></div>' +
+                  '<div style="color:var(--text-muted);font-size:14px;">›</div>' +
                 '</div>';
         if(!n.read){ belumDibaca.push(doc.ref); }
       });
@@ -1477,6 +1493,26 @@
       container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12px;">Gagal memuat notifikasi.</p>';
       tampilkanDebug('❌ Gagal memuat notifikasi: ' + e.message);
     });
+  }
+
+  // Bawa user ke halaman yang relevan sesuai jenis notifikasinya
+  function klikNotifikasi(idx){
+    var n = notifikasiCache[idx];
+    if(!n) return;
+    document.getElementById('notifikasiModal').classList.remove('show');
+
+    if(n.type === 'like' || n.type === 'comment'){
+      showView('momen');
+      if(n.type === 'comment' && n.momentId){
+        setTimeout(function(){ bukaKomentar(n.momentId, null); }, 200);
+      }
+    } else if(n.type === 'friend' || n.type === 'match'){
+      if(n.fromUid){
+        mulaiChatDengan(n.fromUid, n.fromName || 'Pengguna Duozy');
+      } else {
+        showView('chat');
+      }
+    }
   }
 
   function mulaiHeartbeatOnline(){
@@ -1656,15 +1692,45 @@
     });
   }
 
+  function labelTanggalChat(tanggal){
+    var sekarang = new Date();
+    var kemarin = new Date();
+    kemarin.setDate(sekarang.getDate() - 1);
+
+    if(tanggal.toDateString() === sekarang.toDateString()) return 'Hari ini';
+    if(tanggal.toDateString() === kemarin.toDateString()) return 'Kemarin';
+
+    var bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return tanggal.getDate() + ' ' + bulan[tanggal.getMonth()] + ' ' + tanggal.getFullYear();
+  }
+
   // Buka layar percakapan dan dengarkan pesan secara real-time
   function bukaChatDetail(chatId, otherUid, otherName){
-    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName };
+    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName, otherPhoto: null };
     document.getElementById('chatDetailName').textContent = otherName;
+    document.getElementById('chatDetailStatus').textContent = '';
+    var avatarEl = document.getElementById('chatDetailAvatar');
+    avatarEl.style.backgroundImage = '';
 
     var msgContainer = document.getElementById('chatMessagesContainer');
     msgContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>';
 
     showView('chatDetail');
+
+    // Ambil foto & status online lawan bicara sekali saat chat dibuka
+    if(db && otherUid){
+      db.collection('users').doc(otherUid).get().then(function(doc){
+        if(!doc.exists) return;
+        var data = doc.data();
+        if(data.photoUrl){
+          chatDetailAktif.otherPhoto = data.photoUrl;
+          avatarEl.style.backgroundImage = 'url(' + data.photoUrl + ')';
+        }
+        if(data.lastActive && (Date.now() - data.lastActive.toMillis()) < 2 * 60 * 1000){
+          document.getElementById('chatDetailStatus').textContent = '🟢 Online';
+        }
+      });
+    }
 
     if(unsubscribeChatMessages){ unsubscribeChatMessages(); }
 
@@ -1674,22 +1740,44 @@
         var myUid = auth.currentUser.uid;
         var html = '';
         var belumTerbaca = []; // ref pesan dari lawan bicara yang belum ditandai terbaca
+        var tanggalTerakhir = null;
 
         snapshot.forEach(function(doc){
           var m = doc.data();
           var milikSaya = m.senderId === myUid;
+          var waktu = m.createdAt ? m.createdAt.toDate() : new Date();
+
+          // Sisipkan pemisah tanggal kalau harinya berbeda dari pesan sebelumnya
+          var tanggalIni = waktu.toDateString();
+          if(tanggalIni !== tanggalTerakhir){
+            html += '<div style="text-align:center;margin:10px 0;">' +
+                      '<span style="background:rgba(0,0,0,0.06);color:var(--text-muted);font-size:10.5px;padding:4px 12px;border-radius:10px;">' + labelTanggalChat(waktu) + '</span>' +
+                    '</div>';
+            tanggalTerakhir = tanggalIni;
+          }
+
+          var jamMenit = waktu.getHours().toString().padStart(2,'0') + ':' + waktu.getMinutes().toString().padStart(2,'0');
 
           var centang = '';
           if(milikSaya){
             centang = m.read
-              ? ' <span style="opacity:0.9;">✓✓</span>'
-              : ' <span style="opacity:0.6;">✓</span>';
+              ? ' <span style="opacity:0.95;">✓✓</span>'
+              : ' <span style="opacity:0.65;">✓</span>';
           }
 
-          html += '<div style="align-self:' + (milikSaya ? 'flex-end' : 'flex-start') + ';max-width:75%;">' +
-                    '<div style="background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:9px 14px;border-radius:16px;font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.06);">' +
-                      escapeHtml(m.text || '') +
-                      '<span style="font-size:10px;">' + centang + '</span>' +
+          var fotoKecil = (!milikSaya)
+            ? '<div style="width:26px;height:26px;border-radius:50%;background:' + (chatDetailAktif.otherPhoto ? 'url(' + chatDetailAktif.otherPhoto + ')' : 'linear-gradient(135deg,#d9d4ff,#a884ff)') + ';background-size:cover;background-position:center;flex-shrink:0;margin-right:6px;align-self:flex-end;"></div>'
+            : '';
+
+          var bubbleRadius = milikSaya
+            ? '16px 16px 4px 16px'
+            : '16px 16px 16px 4px';
+
+          html += '<div style="display:flex;align-items:flex-end;justify-content:' + (milikSaya ? 'flex-end' : 'flex-start') + ';margin:2px 0;">' +
+                    (milikSaya ? '' : fotoKecil) +
+                    '<div style="max-width:72%;background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;border-radius:' + bubbleRadius + ';font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.07);">' +
+                      '<div>' + escapeHtml(m.text || '') + '</div>' +
+                      '<div style="font-size:9.5px;opacity:0.7;text-align:right;margin-top:2px;">' + jamMenit + centang + '</div>' +
                     '</div>' +
                   '</div>';
 
@@ -1941,7 +2029,7 @@
       matched: true
     }, { merge: true });
 
-    kirimNotifikasi(targetUid, 'match', 'Kamu dan ' + myNama + ' saling menyukai! It\'s a Match 🎉');
+    kirimNotifikasi(targetUid, 'match', 'Kamu dan ' + myNama + ' saling menyukai! It\'s a Match 🎉', { fromUid: myUid, fromName: myNama });
   }
 
   // ================= MOMEN (feed real-time via Firestore) =================
@@ -2057,7 +2145,7 @@
     var aksi = sudahLike ? firebase.firestore.FieldValue.arrayRemove(myUid) : firebase.firestore.FieldValue.arrayUnion(myUid);
     ref.update({ likes: aksi }).then(function(){
       if(!sudahLike){
-        kirimNotifikasi(authorUid, 'like', (auth.currentUser.displayName || 'Seseorang') + ' menyukai Momen kamu');
+        kirimNotifikasi(authorUid, 'like', (auth.currentUser.displayName || 'Seseorang') + ' menyukai Momen kamu', { momentId: momentId, fromUid: myUid, fromName: auth.currentUser.displayName });
       }
     }).catch(function(e){
       tampilkanDebug('❌ Gagal update Like Momen: ' + e.message);
@@ -2127,7 +2215,7 @@
       authorPhoto: fotoUserSaatIni,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
-      kirimNotifikasi(authorUidAktifDiKomentar, 'comment', (auth.currentUser.displayName || 'Seseorang') + ' mengomentari Momen kamu');
+      kirimNotifikasi(authorUidAktifDiKomentar, 'comment', (auth.currentUser.displayName || 'Seseorang') + ' mengomentari Momen kamu', { momentId: momentId, fromUid: auth.currentUser.uid, fromName: auth.currentUser.displayName });
       return db.collection('moments').doc(momentId).update({
         commentsCount: firebase.firestore.FieldValue.increment(1)
       });
@@ -2229,7 +2317,7 @@
     ]).then(function(){
       daftarTemanSaya.push(targetUid);
       saringTemanBaru();
-      kirimNotifikasi(targetUid, 'friend', (auth.currentUser.displayName || 'Seseorang') + ' menambahkanmu sebagai teman');
+      kirimNotifikasi(targetUid, 'friend', (auth.currentUser.displayName || 'Seseorang') + ' menambahkanmu sebagai teman', { fromUid: myUid, fromName: auth.currentUser.displayName });
       // Refresh statistik "Teman" di halaman Profil kalau sedang dibuka
       muatProfilDariFirestore(myUid);
     }).catch(function(e){
