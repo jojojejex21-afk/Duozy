@@ -742,6 +742,17 @@
         <textarea id="momenTextInput" placeholder="Lagi mikir apa nih?" maxlength="280"
           style="width:100%;min-height:90px;padding:12px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;color:var(--text-dark);outline:none;resize:none;font-family:inherit;"></textarea>
       </div>
+
+      <div id="momenFotoPreviewWrap" style="display:none;position:relative;margin-bottom:12px;">
+        <img id="momenFotoPreview" style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block;">
+        <button onclick="hapusFotoMomen()" style="position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;border:none;background:rgba(0,0,0,0.55);color:#fff;font-size:14px;">✕</button>
+      </div>
+
+      <label for="momenFotoInput" class="clickable" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--purple-brand);font-weight:700;margin-bottom:14px;">
+        📷 Tambah Foto
+      </label>
+      <input type="file" id="momenFotoInput" accept="image/*" style="display:none;" onchange="prosesFotoMomen(event)">
+
       <div class="auth-error" id="momenError"></div>
       <div class="modal-actions">
         <button class="modal-cancel" onclick="tutupBuatMomen()">Batal</button>
@@ -2151,14 +2162,53 @@
 
   // ================= MOMEN (feed real-time via Firestore) =================
 
+  var momenFotoBase64 = null;
+
   function bukaBuatMomen(){
     document.getElementById('momenTextInput').value = '';
     document.getElementById('momenError').textContent = '';
+    momenFotoBase64 = null;
+    document.getElementById('momenFotoPreviewWrap').style.display = 'none';
+    document.getElementById('momenFotoInput').value = '';
     document.getElementById('buatMomenModal').classList.add('show');
   }
 
   function tutupBuatMomen(){
     document.getElementById('buatMomenModal').classList.remove('show');
+  }
+
+  // Kompres foto Momen sebelum disimpan (maks ~800px sisi terpanjang) supaya hemat data
+  function prosesFotoMomen(event){
+    var file = event.target.files[0];
+    if(!file) return;
+
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        var maxSisi = 800;
+        var skala = Math.min(1, maxSisi / Math.max(img.width, img.height));
+        var w = Math.round(img.width * skala);
+        var h = Math.round(img.height * skala);
+
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+        momenFotoBase64 = canvas.toDataURL('image/jpeg', 0.72);
+        document.getElementById('momenFotoPreview').src = momenFotoBase64;
+        document.getElementById('momenFotoPreviewWrap').style.display = 'block';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function hapusFotoMomen(){
+    momenFotoBase64 = null;
+    document.getElementById('momenFotoInput').value = '';
+    document.getElementById('momenFotoPreviewWrap').style.display = 'none';
   }
 
   function postingMomen(){
@@ -2167,8 +2217,8 @@
     var btn = document.getElementById('momenSaveBtn');
     err.textContent = '';
 
-    if(!teks){
-      err.textContent = 'Tulis sesuatu dulu sebelum posting.';
+    if(!teks && !momenFotoBase64){
+      err.textContent = 'Tulis sesuatu atau tambahkan foto dulu sebelum posting.';
       return;
     }
     if(!auth.currentUser){
@@ -2179,14 +2229,17 @@
     btn.disabled = true;
     btn.textContent = 'Memposting...';
 
-    db.collection('moments').add({
+    var dataPost = {
       authorUid: auth.currentUser.uid,
       authorName: auth.currentUser.displayName || 'Pengguna Duozy',
       authorPhoto: fotoUserSaatIni,
       text: teks,
       likes: [],
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(){
+    };
+    if(momenFotoBase64){ dataPost.photoUrl = momenFotoBase64; }
+
+    db.collection('moments').add(dataPost).then(function(){
       tutupBuatMomen();
     }).catch(function(e){
       err.textContent = 'Gagal posting: ' + e.message;
@@ -2242,6 +2295,7 @@
                 '<div class="post-user"><p>' + escapeHtml(m.authorName || 'Pengguna Duozy') + '</p><small>' + waktuRelatif(m.createdAt) + '</small></div>' +
               '</div>' +
               '<div class="post-text">' + escapeHtml(m.text || '') + '</div>' +
+              (m.photoUrl ? '<img src="' + m.photoUrl + '" style="width:100%;max-height:320px;object-fit:cover;border-radius:12px;margin-bottom:10px;display:block;">' : '') +
               '<div class="post-actions">' +
                 '<span class="clickable" onclick="toggleLikeMomen(' + jsAttr(doc.id) + ', ' + sudahLike + ', ' + jsAttr(m.authorUid) + ')">' + (sudahLike ? '💗' : '🤍') + ' ' + likes.length + '</span>' +
                 '<span class="clickable" onclick="bukaKomentar(' + jsAttr(doc.id) + ', ' + jsAttr(m.authorUid) + ')">💬 ' + (m.commentsCount || 0) + '</span>' +
@@ -2504,7 +2558,9 @@
                 '</div>';
       }
 
-      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Ajak salah satu pengguna untuk main:</p>' +
+      html += '<button onclick="mulaiMainSendiri()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ffb199,#ff5da2);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sendiri</button>';
+
+      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Atau ajak teman sendiri:</p>' +
               '<div id="ularTanggaDaftarUser"><p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pengguna...</p></div>';
       container.innerHTML = html;
 
@@ -2527,6 +2583,75 @@
     }).catch(function(e){
       container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;">Gagal memuat data game.</p>';
       tampilkanDebug('❌ Gagal memuat Ular Tangga: ' + e.message);
+    });
+  }
+
+  var UT_BOT_UID = 'BOT_DUOZY';
+  var UT_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas','Wulan','Yoga'];
+
+  // "Main Sendiri": coba cari user lain yang sedang online dulu; kalau tidak ada,
+  // baru main lawan bot (namanya dibuat seperti nama orang biasa, bukan "Bot").
+  function mulaiMainSendiri(){
+    var container = document.getElementById('ularTanggaMulaiContainer');
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+
+    container.innerHTML = '<div style="text-align:center;margin-top:60px;">' +
+        '<div style="font-size:40px;margin-bottom:14px;">🔍</div>' +
+        '<p style="font-weight:700;color:var(--purple-brand);font-size:14px;">Mencari lawan...</p>' +
+      '</div>';
+
+    var duaMenitLalu = firebase.firestore.Timestamp.fromMillis(Date.now() - 2 * 60 * 1000);
+
+    setTimeout(function(){
+      db.collection('users').where('lastActive', '>', duaMenitLalu).get().then(function(snap){
+        var kandidat = [];
+        snap.forEach(function(doc){
+          if(doc.id === myUid) return;
+          kandidat.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
+        });
+
+        if(kandidat.length > 0){
+          var pilih = kandidat[Math.floor(Math.random() * kandidat.length)];
+          mulaiGameUlarTangga(pilih.uid, pilih.nama);
+        } else {
+          mulaiGameBot();
+        }
+      }).catch(function(e){
+        tampilkanDebug('❌ Gagal mencari lawan online: ' + e.message);
+        mulaiGameBot(); // tetap bisa main walau pencarian gagal
+      });
+    }, 1800); // jeda sebentar biar terasa seperti benar-benar mencari
+  }
+
+  function mulaiGameBot(){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+    var myNama = auth.currentUser.displayName || 'Kamu';
+    var namaBot = UT_NAMA_BOT_POOL[Math.floor(Math.random() * UT_NAMA_BOT_POOL.length)];
+
+    var playerNames = {};
+    playerNames[myUid] = myNama;
+    playerNames[UT_BOT_UID] = namaBot;
+
+    var positions = {};
+    positions[myUid] = 0;
+    positions[UT_BOT_UID] = 0;
+
+    db.collection('ulartangga').add({
+      players: [myUid, UT_BOT_UID],
+      playerNames: playerNames,
+      positions: positions,
+      turnUid: myUid,
+      status: 'playing',
+      winner: null,
+      lastRoll: 0,
+      vsBot: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(docRef){
+      bukaPapanUlarTangga(docRef.id);
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal membuat game bot: ' + e.message);
     });
   }
 
@@ -2565,6 +2690,7 @@
     showView('ularTanggaBoard');
     utLastRollDitampilkan = null; // reset supaya animasi dadu tetap jalan di game baru
     utFotoPemain = {}; // reset cache foto profil pemain
+    utBotSedangJalan = false;
     bangunGridUlarTangga();
 
     if(unsubscribeUlarTangga){ unsubscribeUlarTangga(); }
@@ -2583,6 +2709,7 @@
   // Ambil foto profil kedua pemain sekali saja per uid (di-cache, tidak query berulang)
   function muatFotoPemainUlarTangga(players){
     players.forEach(function(uid){
+      if(uid === UT_BOT_UID) return; // bot tidak punya profil di Firestore
       if(utFotoPemain[uid] !== undefined) return; // sudah pernah diambil (atau sedang diambil)
       utFotoPemain[uid] = null;
       db.collection('users').doc(uid).get().then(function(doc){
@@ -2649,6 +2776,9 @@
     } else {
       statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaLawan + '...';
     }
+
+    // Kalau lawannya bot dan sekarang giliran bot, jalankan otomatis
+    jalankanGiliranBotJikaPerlu(data);
 
     // ---- dadu (dengan animasi kocok tiap kali angkanya berubah) ----
     var diceEl = document.getElementById('utDiceDisplay');
@@ -2732,17 +2862,22 @@
   }
 
   function lemparDadu(){
+    lemparDaduUntuk(auth.currentUser.uid);
+  }
+
+  // Fungsi inti lempar dadu, bisa dipanggil untuk diri sendiri ATAU untuk bot
+  // (karena bot tidak punya "device" sendiri, giliran bot dijalankan dari HP lawannya).
+  function lemparDaduUntuk(pelemparUid){
     if(!db || !gameUlarTanggaAktifId || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
     var ref = db.collection('ulartangga').doc(gameUlarTanggaAktifId);
 
     ref.get().then(function(doc){
       var data = doc.data();
-      if(!data || data.status !== 'playing' || data.turnUid !== myUid) return;
+      if(!data || data.status !== 'playing' || data.turnUid !== pelemparUid) return;
 
       var roll = Math.floor(Math.random() * 6) + 1;
-      var lawanUid = data.players.filter(function(u){ return u !== myUid; })[0];
-      var posSekarang = data.positions[myUid] || 0;
+      var lawanUid = data.players.filter(function(u){ return u !== pelemparUid; })[0];
+      var posSekarang = data.positions[pelemparUid] || 0;
       var posBaru = Math.min(100, posSekarang + roll);
 
       if(ULAR_MAP[posBaru]){ posBaru = ULAR_MAP[posBaru]; }
@@ -2751,22 +2886,37 @@
       var menang = posBaru === 100;
       var updateData = {
         lastRoll: roll,
-        turnUid: menang ? myUid : lawanUid
+        turnUid: menang ? pelemparUid : lawanUid
       };
-      updateData['positions.' + myUid] = posBaru;
+      updateData['positions.' + pelemparUid] = posBaru;
       if(menang){
         updateData.status = 'finished';
-        updateData.winner = myUid;
+        updateData.winner = pelemparUid;
       }
 
       ref.update(updateData).then(function(){
-        if(menang){
-          kirimNotifikasi(lawanUid, 'game', (auth.currentUser.displayName || 'Lawanmu') + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
+        if(menang && lawanUid !== UT_BOT_UID){
+          var namaPelempar = data.playerNames[pelemparUid] || 'Lawanmu';
+          kirimNotifikasi(lawanUid, 'game', namaPelempar + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
         }
       });
     }).catch(function(e){
       tampilkanDebug('❌ Gagal melempar dadu: ' + e.message);
     });
+  }
+
+  // Kalau giliran bot, jalankan otomatis setelah jeda sebentar (biar terasa alami)
+  var utBotSedangJalan = false;
+  function jalankanGiliranBotJikaPerlu(data){
+    if(!data.vsBot || data.status !== 'playing') return;
+    if(data.turnUid !== UT_BOT_UID) return;
+    if(utBotSedangJalan) return;
+
+    utBotSedangJalan = true;
+    setTimeout(function(){
+      lemparDaduUntuk(UT_BOT_UID);
+      utBotSedangJalan = false;
+    }, 1200);
   }
 
   function bukaEditProfil(){
