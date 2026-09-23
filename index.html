@@ -63,14 +63,42 @@
   #view-chatDetail{ height:100vh; height:100dvh; min-height:0; }
 
   /* ================= ULAR TANGGA ================= */
+  #view-ularTanggaBoard .ut-header{
+    background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 70%, var(--pink-glow) 140%);
+    padding:16px 20px 20px; color:#fff;
+  }
+  #view-ularTanggaBoard .ut-header-row{ display:flex; align-items:center; gap:12px; }
+  #view-ularTanggaBoard .ut-header-row h1{ font-size:16px; font-weight:800; flex:1; }
+  #view-ularTanggaBoard .ut-header-sub{ font-size:11.5px; color:#d9d4ff; margin-top:2px; }
+  #view-ularTanggaBoard .ut-header .icon-btn{ background:rgba(255,255,255,0.14); border:none; color:#fff; }
+
+  .ut-status-wrap{ text-align:center; margin-bottom:14px; }
+  .ut-status-pill{
+    display:inline-block; padding:7px 18px; border-radius:20px;
+    background:#fff; box-shadow:0 2px 8px rgba(106,61,216,0.15);
+    font-size:12.5px; font-weight:700; color:var(--purple-brand);
+  }
+
+  .ut-board-frame{
+    padding:9px; border-radius:20px;
+    background:linear-gradient(150deg, var(--violet-mid), var(--purple-brand) 60%, var(--pink-glow));
+    max-width:360px; margin:0 auto; box-shadow:0 10px 24px rgba(106,61,216,0.28);
+  }
+
   .ut-cell{
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     position:relative; font-size:8px;
   }
+  .ut-cell.ut-cell-even{ background:#f6f4ff; }
+  .ut-cell.ut-cell-odd{ background:#ffffff; }
+  .ut-cell.ut-cell-start{ background:linear-gradient(135deg,#d7f8e6,#aef1cd) !important; }
+  .ut-cell.ut-cell-finish{ background:linear-gradient(135deg,#ffe3b0,#ffcf7d) !important; }
+  .ut-cell.ut-cell-ular{ background:linear-gradient(135deg,#ffd9e6,#ffb3cf) !important; }
+  .ut-cell.ut-cell-tangga{ background:linear-gradient(135deg,#d3f7e4,#a3edc7) !important; }
   .ut-cell-num{
-    position:absolute; top:2px; left:3px; font-size:7px; font-weight:700; color:var(--text-muted);
+    position:absolute; top:2px; left:3px; font-size:6.5px; font-weight:700; color:var(--text-muted); opacity:0.75;
   }
-  .ut-cell-icon{ font-size:12px; }
+  .ut-cell-icon{ font-size:13px; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.15)); }
 
   .ut-token{
     position:absolute;
@@ -81,7 +109,7 @@
     transform:translate(-50%,-50%);
     transition:left 0.45s cubic-bezier(.4,1.4,.6,1), top 0.45s cubic-bezier(.4,1.4,.6,1);
     display:flex; align-items:center; justify-content:center;
-    font-size:9px;
+    font-size:9px; font-weight:800; color:#fff;
     z-index:2;
   }
   .ut-token.giliran{ animation:ut-pulse 1.1s ease-in-out infinite; z-index:3; }
@@ -91,8 +119,11 @@
   }
 
   .ut-dice{
-    width:56px; height:56px; background:#fff; border:2px solid var(--card-line); border-radius:12px;
-    display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px rgba(0,0,0,0.08);
+    width:60px; height:60px;
+    background:linear-gradient(160deg,#ffffff,#f1eefd);
+    border:none; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 6px 14px rgba(106,61,216,0.22), inset 0 0 0 1.5px var(--card-line);
   }
   .ut-dice.ut-shake{ animation:ut-shake 0.5s ease; }
   @keyframes ut-shake{
@@ -104,30 +135,81 @@
   }
   .ut-dice-grid{
     display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
-    width:34px; height:34px; gap:2px;
+    width:36px; height:36px; gap:2px;
   }
   .ut-dice-grid span{ border-radius:50%; }
-  .ut-dice-grid span.on{ background:var(--purple-brand); }
+  .ut-dice-grid span.on{ background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow)); }
 
   .ut-roll-btn{
-    padding:14px 28px; border-radius:14px; border:none;
+    padding:15px 30px; border-radius:16px; border:none;
     background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
     color:#fff; font-weight:700; font-size:14px;
+    box-shadow:0 6px 14px rgba(106,61,216,0.3);
   }
   .ut-roll-btn:disabled{
-    background:#dcd8ea; color:#a9a4c2; cursor:not-allowed;
+    background:#dcd8ea; color:#a9a4c2; cursor:not-allowed; box-shadow:none;
   }
 
+  .ut-vs-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:20px; }
   .ut-player-card{
-    background:#fff; border-radius:14px; padding:10px 16px; text-align:center;
-    border:2px solid transparent; box-shadow:0 2px 6px rgba(0,0,0,0.06); flex:1; max-width:140px;
+    background:#fff; border-radius:16px; padding:12px 14px; text-align:center;
+    border:2px solid transparent; box-shadow:0 3px 10px rgba(0,0,0,0.06); flex:1; max-width:150px;
   }
   .ut-player-card.giliran{
     border-color:var(--purple-brand);
     background:linear-gradient(180deg,#fff, #f5f0ff);
+    box-shadow:0 6px 16px rgba(106,61,216,0.2);
+  }
+  .ut-player-avatar{
+    width:38px; height:38px; border-radius:50%; margin:0 auto 6px;
+    border:2.5px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.18);
+    display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; font-weight:700;
+  }
+  .ut-player-bar-track{ width:100%; height:5px; border-radius:4px; background:var(--card-line); margin-top:7px; overflow:hidden; }
+  .ut-player-bar-fill{ height:100%; border-radius:4px; transition:width 0.4s ease; }
+  .ut-vs-badge{
+    width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
+    color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 2px 6px rgba(106,61,216,0.3);
   }
 
   a, .clickable{ cursor:pointer; }
+
+  /* ================= DUOZY MATCH (matching cepat) ================= */
+  #view-soulGame{ padding:0; }
+  .sg-bg{
+    min-height:100vh; min-height:100dvh;
+    background:
+      radial-gradient(circle at 30% 10%, rgba(255,111,165,0.20), transparent 45%),
+      radial-gradient(circle at 75% 75%, rgba(79,172,254,0.18), transparent 50%),
+      linear-gradient(160deg, var(--navy-deep) 0%, #1c1650 60%, var(--violet-mid) 130%);
+    display:flex; flex-direction:column; color:#fff; padding:18px 20px 40px;
+  }
+  .sg-topbar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:60px; }
+  .sg-topbar h1{ font-size:17px; font-weight:800; }
+  .sg-icon-btn{ background:rgba(255,255,255,0.08); border:none; color:#fff; }
+  .sg-avatars{ display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:50px; min-height:80px; }
+  .sg-avatar{ width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; opacity:0.55; transform:scale(0.85); transition:all 0.3s ease; flex-shrink:0; }
+  .sg-avatar.sg-center{
+    width:80px; height:80px; font-size:34px; opacity:1; transform:scale(1);
+    border:2px solid rgba(255,255,255,0.55);
+    animation: sg-pulse 1.1s ease-in-out infinite;
+  }
+  @keyframes sg-pulse{
+    0%,100%{ box-shadow:0 0 0 6px rgba(255,111,165,0.15), 0 6px 18px rgba(0,0,0,0.35); }
+    50%{ box-shadow:0 0 0 12px rgba(255,111,165,0.05), 0 6px 18px rgba(0,0,0,0.35); }
+  }
+  .sg-status{ text-align:center; margin-bottom:auto; }
+  .sg-title{
+    font-size:26px; font-weight:800; margin-bottom:12px;
+    background:linear-gradient(90deg,var(--pink-glow),#a884ff);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    transition:background 0.3s ease;
+  }
+  .sg-title.sg-found{ background:linear-gradient(90deg,#3fd695,#4facfe); -webkit-background-clip:text; background-clip:text; }
+  .sg-sub{ font-size:13.5px; color:#c9c3e8; line-height:1.6; max-width:280px; margin:0 auto; }
+  .sg-action{ text-align:center; padding-top:40px; }
+  .sg-warn{ font-size:12px; color:var(--pink-glow); margin-top:14px; font-weight:600; }
 
   /* ================= SPLASH ================= */
   #view-splash{
@@ -922,6 +1004,11 @@
       </div>
     </div>
     <div class="content">
+      <div class="banner clickable" onclick="showView('soulGame')" style="cursor:pointer;background:linear-gradient(120deg,var(--navy-deep),var(--violet-mid) 70%,var(--pink-glow) 140%);">
+        <div class="banner-text"><p class="big">💫 Duozy Match</p><p class="small">Temukan teman ngobrol baru!</p></div>
+        <div class="banner-icon">🎭</div>
+      </div>
+
       <div class="banner clickable" onclick="showView('ularTanggaMulai')" style="cursor:pointer;">
         <div class="banner-text"><p class="big">🐍🪜 Ular Tangga</p><p class="small">Main sekarang!</p></div>
         <div class="banner-icon">🎲</div>
@@ -945,6 +1032,26 @@
     </div>
   </div>
 
+  <!-- ================= DUOZY MATCH (matching cepat) ================= -->
+  <div id="view-soulGame" class="view" style="padding-bottom:0;">
+    <div class="sg-bg">
+      <div class="sg-topbar">
+        <div class="icon-btn sg-icon-btn clickable" onclick="tutupSoulGame()">☰</div>
+        <h1>Duozy Match</h1>
+        <div class="icon-btn sg-icon-btn clickable" onclick="tutupSoulGame()">✕</div>
+      </div>
+      <div class="sg-avatars" id="sgAvatarRow"></div>
+      <div class="sg-status">
+        <p class="sg-title" id="sgTitleText">memasangkan</p>
+        <p class="sg-sub">Mengobrol dengan baik, temui orang yang tepat dengan cepat</p>
+      </div>
+      <div class="sg-action">
+        <button class="ut-roll-btn" id="sgPercepatBtn" onclick="percepatSoulGame()">Percepat</button>
+        <p class="sg-warn" id="sgWarnText" style="display:none;">Ada lebih sedikit orang di filter saat ini.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= ULAR TANGGA: PILIH LAWAN ================= -->
   <div id="view-ularTanggaMulai" class="view">
     <div class="topbar">
@@ -959,26 +1066,48 @@
 
   <!-- ================= ULAR TANGGA: PAPAN PERMAINAN ================= -->
   <div id="view-ularTanggaBoard" class="view" style="padding-bottom:0;">
-    <div class="topbar" style="display:flex;align-items:center;gap:12px;">
-      <div class="icon-btn clickable" onclick="kembaliApp('game')">←</div>
-      <h1 style="font-size:15px;flex:1;">🐍🪜 Ular Tangga</h1>
+    <div class="ut-header">
+      <div class="ut-header-row">
+        <div class="icon-btn clickable" onclick="kembaliApp('game')">←</div>
+        <div style="flex:1;">
+          <h1>🐍🪜 Ular Tangga</h1>
+          <div class="ut-header-sub" id="utHeaderSub">Memuat lawan...</div>
+        </div>
+      </div>
     </div>
-    <div class="content" style="padding:14px 16px 20px;overflow-y:auto;">
-      <div id="utStatusBar" style="text-align:center;font-size:13px;font-weight:700;color:var(--purple-brand);margin-bottom:12px;">Memuat game...</div>
-
-      <div id="utBoard" style="position:relative;aspect-ratio:1;background:var(--card-line);border:2px solid var(--purple-brand);border-radius:10px;overflow:hidden;max-width:360px;margin:0 auto;box-shadow:0 6px 18px rgba(106,61,216,0.18);">
-        <div id="utGrid" style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;background:var(--card-line);"></div>
-        <div id="utTokenLayer" style="position:absolute;inset:0;pointer-events:none;"></div>
+    <div class="content" style="padding:16px 16px 24px;overflow-y:auto;">
+      <div class="ut-status-wrap">
+        <span class="ut-status-pill" id="utStatusBar">Memuat game...</span>
       </div>
 
-      <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:20px;">
+      <div class="ut-board-frame">
+        <div id="utBoard" style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;">
+          <div id="utGrid" style="position:absolute;inset:0;display:grid;grid-template-columns:repeat(10,1fr);grid-template-rows:repeat(10,1fr);gap:1px;background:var(--card-line);"></div>
+          <div id="utTokenLayer" style="position:absolute;inset:0;pointer-events:none;"></div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:22px;">
         <div id="utDiceDisplay" class="ut-dice">
           <div class="ut-dice-grid" id="utDiceDots"></div>
         </div>
         <button id="utRollBtn" class="ut-roll-btn" onclick="lemparDadu()">Lempar Dadu</button>
       </div>
 
-      <div id="utPlayersInfo" style="display:flex;justify-content:center;gap:14px;margin-top:18px;"></div>
+      <div class="ut-vs-row" id="utPlayersInfo"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL HASIL ULAR TANGGA ================= -->
+  <div class="modal-overlay" id="utSelesaiModal">
+    <div class="modal-sheet" style="text-align:center;">
+      <div id="utSelesaiEmoji" style="font-size:52px;margin-bottom:8px;">🏆</div>
+      <h2 id="utSelesaiTitle" style="margin-bottom:6px;">Kamu Menang!</h2>
+      <p id="utSelesaiText" style="font-size:13px;color:var(--text-muted);margin-bottom:18px;"></p>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="tutupUtSelesaiModal()">Kembali</button>
+        <button class="modal-save" onclick="mainLagiUlarTangga()">Main Lagi</button>
+      </div>
     </div>
   </div>
 
@@ -1186,7 +1315,7 @@
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
-  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard']; // halaman tanpa bottom nav, header sendiri
+  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame']; // halaman tanpa bottom nav, header sendiri
   var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
 
   function showView(name, opts){
@@ -1217,6 +1346,11 @@
       unsubscribeUlarTangga();
       unsubscribeUlarTangga = null;
     }
+    // Hentikan animasi & pencarian Duozy Match kalau pindah keluar dari halamannya
+    if(name !== 'soulGame'){
+      if(sgShuffleInterval){ clearInterval(sgShuffleInterval); sgShuffleInterval = null; }
+      if(sgMatchTimeout){ clearTimeout(sgMatchTimeout); sgMatchTimeout = null; }
+    }
     // Muat daftar user kalau masuk ke halaman pilih teman
     if(name === 'pilihTeman'){ muatDaftarUser(); }
     if(name === 'dating'){ muatRekomendasiDating(); }
@@ -1224,6 +1358,7 @@
     if(name === 'home'){ muatUserOnline(); }
     if(name === 'temanBaru'){ muatTemanBaru(); }
     if(name === 'ularTanggaMulai'){ muatUlarTanggaMulai(); }
+    if(name === 'soulGame'){ mulaiSoulGame(); }
 
     // Hubungkan ke tombol/gesture "kembali" bawaan HP, supaya menutup halaman ini
     // kembali ke halaman sebelumnya di dalam app — bukan langsung keluar app.
@@ -1514,14 +1649,12 @@
         avatarEl.style.backgroundSize = 'cover';
         avatarEl.style.backgroundPosition = 'center';
         avatarEl.textContent = '';
-      } else if(data.avatarEmoji){
-        avatarEl.style.backgroundImage = 'none';
-        avatarEl.style.background = data.avatarColor || 'linear-gradient(135deg,#d9d4ff,#a884ff)';
-        avatarEl.style.display = 'flex';
-        avatarEl.style.alignItems = 'center';
-        avatarEl.style.justifyContent = 'center';
-        avatarEl.style.fontSize = '32px';
-        avatarEl.textContent = data.avatarEmoji;
+      } else if(data.avatarImg){
+        avatarEl.style.background = 'var(--bg-app)';
+        avatarEl.style.backgroundImage = 'url(' + data.avatarImg + ')';
+        avatarEl.style.backgroundSize = 'cover';
+        avatarEl.style.backgroundPosition = 'center';
+        avatarEl.textContent = '';
       }
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memuat data profil: ' + e.message);
@@ -1679,8 +1812,7 @@
             nama: data.name || 'Pengguna Duozy',
             lokasi: data.location || '',
             photoUrl: data.photoUrl || null,
-            avatarEmoji: data.avatarEmoji || null,
-            avatarColor: data.avatarColor || null
+            avatarImg: data.avatarImg || null
           });
         });
 
@@ -1692,12 +1824,12 @@
         }
 
         container.innerHTML = orang.map(function(o){
-          var avatarStyle = o.photoUrl
-            ? 'background-image:url(' + o.photoUrl + ');background-size:cover;background-position:center;'
-            : (o.avatarEmoji ? o.avatarColor + ';' : '');
-          var avatarInner = (!o.photoUrl && o.avatarEmoji) ? o.avatarEmoji : '';
+          var gambar = o.photoUrl || o.avatarImg;
+          var avatarStyle = gambar
+            ? 'background-image:url(' + gambar + ');background-size:cover;background-position:center;'
+            : '';
           return '<div class="online-person">' +
-                   '<div class="online-avatar" style="' + avatarStyle + 'display:flex;align-items:center;justify-content:center;font-size:20px;">' + avatarInner + '</div>' +
+                   '<div class="online-avatar" style="' + avatarStyle + 'display:flex;align-items:center;justify-content:center;font-size:20px;"></div>' +
                    '<span>' + escapeHtml(o.nama) + '</span>' +
                    (o.lokasi ? '<small>' + escapeHtml(o.lokasi) + '</small>' : '') +
                  '</div>';
@@ -1818,6 +1950,109 @@
     }).catch(function(e){
       tampilkanDebug('❌ Gagal memulai chat: ' + e.message);
     });
+  }
+
+  // ================= DUOZY MATCH (matching cepat) =================
+
+  // Render ulang baris avatar dengan urutan acak; avatar tengah (index 2) dibesarkan & berdenyut,
+  // dipanggil berulang lewat interval supaya terasa seperti "mengocok" kandidat.
+  function renderSgAvatarRow(){
+    var row = document.getElementById('sgAvatarRow');
+    if(!row) return;
+    var acak = [];
+    for(var i = 0; i < 5; i++){
+      acak.push(daftarAvatarPreset[Math.floor(Math.random() * daftarAvatarPreset.length)]);
+    }
+    row.innerHTML = acak.map(function(a, i){
+      var tengah = (i === 2);
+      return '<div class="sg-avatar' + (tengah ? ' sg-center' : '') + '" style="background-image:url(' + a.img + ');background-size:cover;background-position:center;"></div>';
+    }).join('');
+  }
+
+  function mulaiSoulGame(){
+    if(!auth.currentUser) return;
+    sgSudahMatch = false;
+
+    document.getElementById('sgWarnText').style.display = 'none';
+    document.getElementById('sgPercepatBtn').style.display = '';
+    document.getElementById('sgPercepatBtn').disabled = false;
+    document.getElementById('sgPercepatBtn').textContent = 'Percepat';
+    var titleEl = document.getElementById('sgTitleText');
+    titleEl.textContent = 'memasangkan';
+    titleEl.classList.remove('sg-found');
+
+    renderSgAvatarRow();
+    if(sgShuffleInterval) clearInterval(sgShuffleInterval);
+    sgShuffleInterval = setInterval(renderSgAvatarRow, 450);
+
+    if(sgMatchTimeout) clearTimeout(sgMatchTimeout);
+    sgMatchTimeout = setTimeout(function(){ carikanSoulMatch(); }, 4500);
+  }
+
+  // Tombol "Percepat": langsung cari kandidat sekarang, tidak usah menunggu jeda animasi.
+  function percepatSoulGame(){
+    if(sgSudahMatch) return;
+    document.getElementById('sgPercepatBtn').disabled = true;
+    document.getElementById('sgPercepatBtn').textContent = 'Mencari...';
+    if(sgMatchTimeout) clearTimeout(sgMatchTimeout);
+    carikanSoulMatch();
+  }
+
+  // Cari kandidat dari pengguna yang sedang online (lastActive < 2 menit), pola sama seperti
+  // pencarian lawan Ular Tangga, lalu pilih satu secara acak.
+  function carikanSoulMatch(){
+    if(!db || !auth.currentUser || sgSudahMatch) return;
+    var myUid = auth.currentUser.uid;
+    var duaMenitLalu = firebase.firestore.Timestamp.fromMillis(Date.now() - 2 * 60 * 1000);
+
+    db.collection('users').where('lastActive', '>', duaMenitLalu).get().then(function(snap){
+      if(sgSudahMatch) return;
+      var kandidat = [];
+      snap.forEach(function(doc){
+        if(doc.id === myUid) return;
+        kandidat.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
+      });
+
+      if(kandidat.length > 0){
+        var pilih = kandidat[Math.floor(Math.random() * kandidat.length)];
+        tampilkanSoulMatchKetemu(pilih.uid, pilih.nama);
+      } else {
+        document.getElementById('sgWarnText').style.display = 'block';
+        document.getElementById('sgPercepatBtn').disabled = false;
+        document.getElementById('sgPercepatBtn').textContent = 'Percepat';
+        // coba cari lagi otomatis setelah beberapa saat, selama masih di halaman ini
+        if(sgMatchTimeout) clearTimeout(sgMatchTimeout);
+        sgMatchTimeout = setTimeout(function(){ carikanSoulMatch(); }, 5000);
+      }
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal mencari pasangan Duozy Match: ' + e.message);
+      document.getElementById('sgWarnText').style.display = 'block';
+      document.getElementById('sgPercepatBtn').disabled = false;
+      document.getElementById('sgPercepatBtn').textContent = 'Percepat';
+    });
+  }
+
+  // Kandidat ditemukan: hentikan animasi, tampilkan status "ditemukan", lalu buka chat dengannya.
+  function tampilkanSoulMatchKetemu(uid, nama){
+    sgSudahMatch = true;
+    if(sgShuffleInterval){ clearInterval(sgShuffleInterval); sgShuffleInterval = null; }
+    if(sgMatchTimeout){ clearTimeout(sgMatchTimeout); sgMatchTimeout = null; }
+
+    var titleEl = document.getElementById('sgTitleText');
+    titleEl.textContent = 'ditemukan! 🎉';
+    titleEl.classList.add('sg-found');
+    document.getElementById('sgPercepatBtn').style.display = 'none';
+    document.getElementById('sgWarnText').style.display = 'none';
+
+    setTimeout(function(){
+      mulaiChatDengan(uid, nama);
+    }, 1300);
+  }
+
+  function tutupSoulGame(){
+    if(sgShuffleInterval){ clearInterval(sgShuffleInterval); sgShuffleInterval = null; }
+    if(sgMatchTimeout){ clearTimeout(sgMatchTimeout); sgMatchTimeout = null; }
+    kembaliApp('game');
   }
 
   function labelTanggalChat(tanggal){
@@ -2499,23 +2734,28 @@
   }
 
   // Daftar avatar preset (emoji + warna) — alternatif kalau tidak mau upload foto asli
-  var daftarAvatarPreset = [
-    { emoji: '🦄', color: 'linear-gradient(135deg,#ffb2d9,#a884ff)' },
-    { emoji: '🐱', color: 'linear-gradient(135deg,#ffd08a,#ff9d5c)' },
-    { emoji: '🐶', color: 'linear-gradient(135deg,#8bf0c0,#3fd695)' },
-    { emoji: '🌸', color: 'linear-gradient(135deg,#ff9ac4,#ff5da2)' },
-    { emoji: '🐼', color: 'linear-gradient(135deg,#c9c9c9,#8a8a8a)' },
-    { emoji: '🦊', color: 'linear-gradient(135deg,#ffb199,#ff5da2)' },
-    { emoji: '🐸', color: 'linear-gradient(135deg,#b7f0a0,#3fd695)' },
-    { emoji: '⭐', color: 'linear-gradient(135deg,#7fd4ff,#4a7dfe)' }
+var daftarAvatarPreset = [
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM0ZmFjZmUiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzFhMmE2YyIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjMwIiByPSIyMiIgZmlsbD0iI2ZmZmZmZiIgb3BhY2l0eT0iMC4wOCIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3MCIgcj0iMzAiIGZpbGw9IiMwMGYyZmUiIG9wYWNpdHk9IjAuMSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTIiIHI9IjUyIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTUwIDEwMCBRMTAwIDQwIDE1MCAxMDAgTDE1MCA4NSBRMTAwIDU1IDUwIDg1IFoiIGZpbGw9IiMxYzI1NDEiLz48cmVjdCB4PSI0MCIgeT0iODIiIHdpZHRoPSIxMjAiIGhlaWdodD0iMTQiIHJ4PSI3IiBmaWxsPSIjMDBlNWZmIi8+PGNpcmNsZSBjeD0iNzgiIGN5PSIxMTIiIHI9IjciIGZpbGw9IiMwYjEzMmIiLz48Y2lyY2xlIGN4PSIxMjIiIGN5PSIxMTIiIHI9IjciIGZpbGw9IiMwYjEzMmIiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjEwOSIgcj0iMiIgZmlsbD0iI2ZmZiIvPjxjaXJjbGUgY3g9IjEyNCIgY3k9IjEwOSIgcj0iMiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik04NSAxMzggUTEwMCAxNDggMTE1IDEzOCIgc3Ryb2tlPSIjN2E0YTJhIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjYwIiB5PSIxNTAiIHdpZHRoPSI4MCIgaGVpZ2h0PSIzNCIgcng9IjE0IiBmaWxsPSIjMGYzNDYwIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSI2MCIgcj0iNiIgZmlsbD0iIzAwZTVmZiIgb3BhY2l0eT0iMC43Ii8+PC9zdmc+', gender: 'L' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjk5NjYiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmNWU2MiIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjI1IiBjeT0iMzAiIHI9IjE4IiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjEiLz4KPGNpcmNsZSBjeD0iMTc1IiBjeT0iMTUwIiByPSIyNiIgZmlsbD0iI2ZmZTI5ZiIgb3BhY2l0eT0iMC4xMiIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTIiIHI9IjUyIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTQ2IDk2IFExMDAgNjAgMTU0IDk2IEwxNTQgMTA4IFExMDAgODQgNDYgMTA4IFoiIGZpbGw9IiNmZjU3MjIiLz48Y2lyY2xlIGN4PSIxMzIiIGN5PSI5OCIgcj0iOSIgZmlsbD0iI2ZmNTcyMiIvPjxjaXJjbGUgY3g9Ijc4IiBjeT0iMTE0IiByPSI2LjUiIGZpbGw9IiMyYjFiMGUiLz48Y2lyY2xlIGN4PSIxMjIiIGN5PSIxMTQiIHI9IjYuNSIgZmlsbD0iIzJiMWIwZSIvPjxwYXRoIGQ9Ik02NCAxMzIgcTM2IDIyIDcyIDAiIHN0cm9rZT0iIzdhM2QxYSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNTUiLz48cGF0aCBkPSJNODQgMTQwIFExMDAgMTUwIDExNiAxNDAiIHN0cm9rZT0iIzdhM2QxYSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cmVjdCB4PSI1OCIgeT0iMTUwIiB3aWR0aD0iODQiIGhlaWdodD0iMzQiIHJ4PSIxNCIgZmlsbD0iI2M2MjgyOCIvPjwvc3ZnPg==', gender: 'L' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM1NmFiMmYiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzEzNGUxYyIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjQwIiByPSIyMCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4wOCIvPgo8Y2lyY2xlIGN4PSIzMCIgY3k9IjE1MCIgcj0iMjQiIGZpbGw9IiNhOGUwNjMiIG9wYWNpdHk9IjAuMTUiLz4KPGNpcmNsZSBjeD0iMTAwIiBjeT0iMTEyIiByPSI1MiIgZmlsbD0idXJsKCNmYWNlKSIvPjxwYXRoIGQ9Ik00OCA5NCBRMTAwIDQ4IDE1MiA5NCBMMTUyIDc4IFExMDAgNDAgNDggNzggWiIgZmlsbD0iIzJlNGExZiIvPjxyZWN0IHg9IjYyIiB5PSIxMDQiIHdpZHRoPSIzNCIgaGVpZ2h0PSIyMCIgcng9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFiMWIxYiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PHJlY3QgeD0iMTA0IiB5PSIxMDQiIHdpZHRoPSIzNCIgaGVpZ2h0PSIyMCIgcng9IjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzFiMWIxYiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGxpbmUgeDE9Ijk2IiB5MT0iMTEyIiB4Mj0iMTA0IiB5Mj0iMTEyIiBzdHJva2U9IiMxYjFiMWIiIHN0cm9rZS13aWR0aD0iNCIvPjxjaXJjbGUgY3g9Ijc5IiBjeT0iMTE0IiByPSI0LjUiIGZpbGw9IiMyYjFiMGUiLz48Y2lyY2xlIGN4PSIxMjEiIGN5PSIxMTQiIHI9IjQuNSIgZmlsbD0iIzJiMWIwZSIvPjxwYXRoIGQ9Ik04NiAxNDAgUTEwMCAxNDYgMTE0IDE0MCIgc3Ryb2tlPSIjN2EzZDFhIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjU4IiB5PSIxNTAiIHdpZHRoPSI4NCIgaGVpZ2h0PSIzNCIgcng9IjE0IiBmaWxsPSIjM2U2YjFmIi8+PC9zdmc+', gender: 'L' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmNzk3MWUiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzhhNGIwMCIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjE1MCIgcj0iMjIiIGZpbGw9IiNmZmYyYzIiIG9wYWNpdHk9IjAuMTUiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSI0MCIgcj0iMTYiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMSIvPgo8Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTIiIHI9IjUyIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTUyIDg4IEw2NCA2MiBMODAgODQgTDEwMCA1NiBMMTIwIDg0IEwxMzYgNjIgTDE0OCA4OCBaIiBmaWxsPSIjZmZkNzAwIiBzdHJva2U9IiNjOThmMDAiIHN0cm9rZS13aWR0aD0iMyIvPjxjaXJjbGUgY3g9IjEwMCIgY3k9IjY2IiByPSI1IiBmaWxsPSIjZTUzOTM1Ii8+PGNpcmNsZSBjeD0iNzkiIGN5PSIxMTYiIHI9IjYuNSIgZmlsbD0iIzJiMWIwZSIvPjxjaXJjbGUgY3g9IjEyMSIgY3k9IjExNiIgcj0iNi41IiBmaWxsPSIjMmIxYjBlIi8+PHBhdGggZD0iTTg0IDE0MiBRMTAwIDE1MCAxMTYgMTQyIiBzdHJva2U9IiM3YTNkMWEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHJlY3QgeD0iNTgiIHk9IjE1MCIgd2lkdGg9Ijg0IiBoZWlnaHQ9IjM0IiByeD0iMTQiIGZpbGw9IiM2YTNkMDAiLz48L3N2Zz4=', gender: 'L' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM3ZjAwZmYiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzJiMDA1NyIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjMwIiBjeT0iMTUwIiByPSIyNiIgZmlsbD0iI2UwYWFmZiIgb3BhY2l0eT0iMC4xNCIvPgo8Y2lyY2xlIGN4PSIxNzAiIGN5PSIzMCIgcj0iMTgiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMSIvPgo8ZWxsaXBzZSBjeD0iMTAwIiBjeT0iMTE2IiByeD0iNTAiIHJ5PSI1NiIgZmlsbD0iI2M5YTRmZiIvPjxlbGxpcHNlIGN4PSI3OCIgY3k9IjEwOCIgcng9IjEzIiByeT0iMTciIGZpbGw9IiMxYjBiMmUiLz48ZWxsaXBzZSBjeD0iMTIyIiBjeT0iMTA4IiByeD0iMTMiIHJ5PSIxNyIgZmlsbD0iIzFiMGIyZSIvPjxlbGxpcHNlIGN4PSI4MSIgY3k9IjEwMyIgcng9IjQiIHJ5PSI1IiBmaWxsPSIjMDBmMmZlIi8+PGVsbGlwc2UgY3g9IjEyNSIgY3k9IjEwMyIgcng9IjQiIHJ5PSI1IiBmaWxsPSIjMDBmMmZlIi8+PHBhdGggZD0iTTg4IDE0NCBRMTAwIDE1MCAxMTIgMTQ0IiBzdHJva2U9IiMzYjFhNWMiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHBhdGggZD0iTTcwIDY4IFE2MCAzMCA3OCAyMCIgc3Ryb2tlPSIjYzlhNGZmIiBzdHJva2Utd2lkdGg9IjEwIiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMTMwIDY4IFExNDAgMzAgMTIyIDIwIiBzdHJva2U9IiNjOWE0ZmYiIHN0cm9rZS13aWR0aD0iMTAiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjxyZWN0IHg9IjYwIiB5PSIxNTIiIHdpZHRoPSI4MCIgaGVpZ2h0PSIzMiIgcng9IjE0IiBmaWxsPSIjNGIwMDgyIi8+PC9zdmc+', gender: 'L' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjlhOWUiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2M5MTg0YSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjQwIiByPSIyMCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4xMiIvPgo8Y2lyY2xlIGN4PSIyNSIgY3k9IjE2MCIgcj0iMjQiIGZpbGw9IiNmZmQ2ZTAiIG9wYWNpdHk9IjAuMTgiLz4KPHBhdGggZD0iTTQwIDEzMCBRMzQgNjAgMTAwIDUyIFExNjYgNjAgMTYwIDEzMCBMMTUwIDE5MCBMNTAgMTkwIFoiIGZpbGw9IiM3YTJhNGEiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTYiIHI9IjUwIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTUwIDEwOCBRNDYgNjYgMTAwIDYwIFExNTQgNjYgMTUwIDEwOCIgZmlsbD0iIzdhMmE0YSIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMTE4IiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PGNpcmNsZSBjeD0iMTIwIiBjeT0iMTE4IiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PGNpcmNsZSBjeD0iNjMiIGN5PSIxMjgiIHI9IjgiIGZpbGw9IiNmZjhmYTMiIG9wYWNpdHk9IjAuNTUiLz48Y2lyY2xlIGN4PSIxMzciIGN5PSIxMjgiIHI9IjgiIGZpbGw9IiNmZjhmYTMiIG9wYWNpdHk9IjAuNTUiLz48cGF0aCBkPSJNODggMTQ0IFExMDAgMTUyIDExMiAxNDQiIHN0cm9rZT0iI2MyMTg1YiIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cGF0aCBkPSJNMTMyIDU4IGwxNCAtMTQgbDYgMTAgbC0xNCAxMiBaIiBmaWxsPSIjZmY0NzdlIi8+PHJlY3QgeD0iNTgiIHk9IjE1MCIgd2lkdGg9Ijg0IiBoZWlnaHQ9IjM0IiByeD0iMTYiIGZpbGw9IiNkNjMzNmMiLz48L3N2Zz4=', gender: 'P' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNhOGU2Y2YiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzJmN2E1YyIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjE1MCIgcj0iMjAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMTQiLz4KPGNpcmNsZSBjeD0iMjgiIGN5PSI0MCIgcj0iMTYiIGZpbGw9IiNmZmQzZTAiIG9wYWNpdHk9IjAuMTgiLz4KPHBhdGggZD0iTTQyIDEyMiBRMzYgNTggMTAwIDUwIFExNjQgNTggMTU4IDEyMiBMMTQ4IDE4NiBMNTIgMTg2IFoiIGZpbGw9IiM2YjQ0MjMiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTgiIHI9IjUwIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTUyIDEwNiBRNDggNjggMTAwIDYyIFExNTIgNjggMTQ4IDEwNiIgZmlsbD0iIzZiNDQyMyIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMTIwIiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PGNpcmNsZSBjeD0iMTIwIiBjeT0iMTIwIiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PHBhdGggZD0iTTg4IDE0NiBRMTAwIDE1NCAxMTIgMTQ2IiBzdHJva2U9IiM3YTNkMWEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PGNpcmNsZSBjeD0iOTQiIGN5PSI2MiIgcj0iNyIgZmlsbD0iI2ZmOWFjNCIvPjxjaXJjbGUgY3g9IjgzIiBjeT0iNzciIHI9IjciIGZpbGw9IiNmZmYxNzYiLz48Y2lyY2xlIGN4PSI2NSIgY3k9IjcxIiByPSI3IiBmaWxsPSIjZmY5YWM0Ii8+PGNpcmNsZSBjeD0iNjUiIGN5PSI1MyIgcj0iNyIgZmlsbD0iI2ZmZjE3NiIvPjxjaXJjbGUgY3g9IjgzIiBjeT0iNDciIHI9IjciIGZpbGw9IiNmZjlhYzQiLz48Y2lyY2xlIGN4PSI3OCIgY3k9IjYyIiByPSI2IiBmaWxsPSIjZjU3ZjE3Ii8+PHJlY3QgeD0iNTgiIHk9IjE1MiIgd2lkdGg9Ijg0IiBoZWlnaHQ9IjMyIiByeD0iMTYiIGZpbGw9IiMyZjllNmYiLz48L3N2Zz4=', gender: 'P' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiM4ZTJkZTIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzI0MDA0NiIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjMwIiBjeT0iNDAiIHI9IjMiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuOSIvPgo8Y2lyY2xlIGN4PSI2MCIgY3k9IjI1IiByPSIyIiBmaWxsPSIjZmZmIiBvcGFjaXR5PSIwLjgiLz4KPGNpcmNsZSBjeD0iMTUwIiBjeT0iMzUiIHI9IjMiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuOCIvPgo8Y2lyY2xlIGN4PSIxNzUiIGN5PSIxNDAiIHI9IjIiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuNyIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE1MCIgcj0iMiIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC43Ii8+CjxwYXRoIGQ9Ik00MCAxMjAgUTM0IDU1IDEwMCA0OCBRMTY2IDU1IDE2MCAxMjAgTDE1MiAxOTIgTDQ4IDE5MiBaIiBmaWxsPSIjMWIxMDM1Ii8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTE2IiByPSI1MCIgZmlsbD0idXJsKCNmYWNlKSIvPjxwYXRoIGQ9Ik01MCAxMDYgUTQ2IDY1IDEwMCA1OCBRMTU0IDY1IDE1MCAxMDYiIGZpbGw9IiMxYjEwMzUiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjExOCIgcj0iMTIiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2UwYWFmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGNpcmNsZSBjeD0iMTIwIiBjeT0iMTE4IiByPSIxMiIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZTBhYWZmIiBzdHJva2Utd2lkdGg9IjQiLz48bGluZSB4MT0iOTIiIHkxPSIxMTgiIHgyPSIxMDgiIHkyPSIxMTgiIHN0cm9rZT0iI2UwYWFmZiIgc3Ryb2tlLXdpZHRoPSI0Ii8+PGNpcmNsZSBjeD0iODAiIGN5PSIxMTgiIHI9IjQiIGZpbGw9IiMyYjFiMGUiLz48Y2lyY2xlIGN4PSIxMjAiIGN5PSIxMTgiIHI9IjQiIGZpbGw9IiMyYjFiMGUiLz48cGF0aCBkPSJNODggMTQ0IFExMDAgMTUwIDExMiAxNDQiIHN0cm9rZT0iIzNiMWE1YyIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cmVjdCB4PSI1OCIgeT0iMTUyIiB3aWR0aD0iODQiIGhlaWdodD0iMzIiIHJ4PSIxNiIgZmlsbD0iIzRhMTM3MiIvPjwvc3ZnPg==', gender: 'P' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmOWQ0MjMiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2U5N2ExYSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjE1MCIgcj0iMjAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9IjAuMTUiLz4KPGNpcmNsZSBjeD0iMjUiIGN5PSIzNSIgcj0iMTYiIGZpbGw9IiNmZmY1YzIiIG9wYWNpdHk9IjAuMiIvPgo8Y2lyY2xlIGN4PSI0NiIgY3k9IjEyMCIgcj0iMTYiIGZpbGw9IiM4YTVhMmIiLz48Y2lyY2xlIGN4PSIxNTQiIGN5PSIxMjAiIHI9IjE2IiBmaWxsPSIjOGE1YTJiIi8+PGNpcmNsZSBjeD0iMTAwIiBjeT0iMTE2IiByPSI1MCIgZmlsbD0idXJsKCNmYWNlKSIvPjxwYXRoIGQ9Ik01MCAxMDQgUTQ2IDYyIDEwMCA1NiBRMTU0IDYyIDE1MCAxMDQiIGZpbGw9IiM4YTVhMmIiLz48Y2lyY2xlIGN4PSI4MCIgY3k9IjExOCIgcj0iNiIgZmlsbD0iIzJiMWIwZSIvPjxjaXJjbGUgY3g9IjEyMCIgY3k9IjExOCIgcj0iNiIgZmlsbD0iIzJiMWIwZSIvPjxjaXJjbGUgY3g9IjYzIiBjeT0iMTI4IiByPSI4IiBmaWxsPSIjZmY4ZmEzIiBvcGFjaXR5PSIwLjU1Ii8+PGNpcmNsZSBjeD0iMTM3IiBjeT0iMTI4IiByPSI4IiBmaWxsPSIjZmY4ZmEzIiBvcGFjaXR5PSIwLjU1Ii8+PHBhdGggZD0iTTg0IDE0NCBRMTAwIDE1NiAxMTYgMTQ0IiBzdHJva2U9IiM3YTNkMWEiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+PHJlY3QgeD0iNTgiIHk9IjE1MCIgd2lkdGg9Ijg0IiBoZWlnaHQ9IjM0IiByeD0iMTYiIGZpbGw9IiNmNTdmMTciLz48L3N2Zz4=', gender: 'P' },
+    { img: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyMDAgMjAwIj4KPGRlZnM+CiAgPHJhZGlhbEdyYWRpZW50IGlkPSJiZyIgY3g9IjM1JSIgY3k9IjMwJSIgcj0iODAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZjQxNmMiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iIzdhMGMyZSIvPgogIDwvcmFkaWFsR3JhZGllbnQ+CiAgPGxpbmVhckdyYWRpZW50IGlkPSJmYWNlIiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0b3AtY29sb3I9IiNmZmUwYzIiLz4KICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3RvcC1jb2xvcj0iI2ZmY2Y5ZSIvPgogIDwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9InVybCgjYmcpIi8+CjxjaXJjbGUgY3g9IjE3MCIgY3k9IjQwIiByPSIxOCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iMC4xMiIvPgo8Y2lyY2xlIGN4PSIyNSIgY3k9IjE2MCIgcj0iMjIiIGZpbGw9IiNmZmQwZGMiIG9wYWNpdHk9IjAuMTUiLz4KPHBhdGggZD0iTTM4IDExOCBRMzIgNTAgMTAwIDQ0IFExNjggNTAgMTYyIDExOCBMMTU0IDE5NCBMNDYgMTk0IFoiIGZpbGw9IiMyYjBhMTIiLz48Y2lyY2xlIGN4PSIxMDAiIGN5PSIxMTYiIHI9IjUwIiBmaWxsPSJ1cmwoI2ZhY2UpIi8+PHBhdGggZD0iTTQ4IDEwNCBRNDQgNjQgMTAwIDU4IFExNTYgNjQgMTUyIDEwNCIgZmlsbD0iIzJiMGExMiIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iMTE4IiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PGNpcmNsZSBjeD0iMTIwIiBjeT0iMTE4IiByPSI2IiBmaWxsPSIjMmIxYjBlIi8+PGNpcmNsZSBjeD0iNjYiIGN5PSIxNDAiIHI9IjQiIGZpbGw9IiNmZmQ3MDAiLz48Y2lyY2xlIGN4PSIxMzQiIGN5PSIxNDAiIHI9IjQiIGZpbGw9IiNmZmQ3MDAiLz48cGF0aCBkPSJNODggMTQ2IFExMDAgMTU0IDExMiAxNDYiIHN0cm9rZT0iIzdhMGMyZSIgc3Ryb2tlLXdpZHRoPSI0IiBmaWxsPSJub25lIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz48cmVjdCB4PSI1OCIgeT0iMTUyIiB3aWR0aD0iODQiIGhlaWdodD0iMzIiIHJ4PSIxNiIgZmlsbD0iIzdhMGMyZSIvPjwvc3ZnPg==', gender: 'P' }
   ];
-  var avatarPresetTerpilih = null; // {emoji, color} kalau user pilih preset (bukan upload foto)
+  var avatarPresetTerpilih = null; // {img, gender} kalau user pilih preset avatar (bukan upload foto)
 
   // ================= ULAR TANGGA (papan 10x10 via Firestore) =================
 
   var ULAR_MAP = {16:6, 47:26, 49:11, 56:53, 62:19, 64:60, 87:24, 93:73, 95:75, 98:78};
   var TANGGA_MAP = {1:38, 4:14, 9:31, 21:42, 28:84, 36:44, 51:67, 71:91, 80:100};
   var unsubscribeUlarTangga = null;
+  var sgShuffleInterval = null; // interval animasi kocok avatar Duozy Match
+  var sgMatchTimeout = null;    // timer pencarian pasangan Duozy Match
+  var sgSudahMatch = false;     // penanda supaya tidak match dobel
   var gameUlarTanggaAktifId = null;
   var urutanPapanCache = null;
 
@@ -2691,6 +2931,8 @@
     utLastRollDitampilkan = null; // reset supaya animasi dadu tetap jalan di game baru
     utFotoPemain = {}; // reset cache foto profil pemain
     utBotSedangJalan = false;
+    utSelesaiModalDitampilkan = false; // reset supaya modal hasil bisa muncul lagi di game baru
+    document.getElementById('utSelesaiModal').classList.remove('show');
     bangunGridUlarTangga();
 
     if(unsubscribeUlarTangga){ unsubscribeUlarTangga(); }
@@ -2735,12 +2977,14 @@
       var row = Math.floor(idx / 10);
       var col = idx % 10;
       var papanGanjil = (row + col) % 2 === 1;
+      var kelas = 'ut-cell ' + (papanGanjil ? 'ut-cell-even' : 'ut-cell-odd');
       var isiKhusus = '';
-      var bgKhusus = papanGanjil ? 'rgba(106,61,216,0.05)' : '#fff';
-      if(ULAR_MAP[kotak]){ isiKhusus = '🐍'; bgKhusus = '#ffe3ec'; }
-      else if(TANGGA_MAP[kotak]){ isiKhusus = '🪜'; bgKhusus = '#e3f9ee'; }
+      if(kotak === 1){ kelas += ' ut-cell-start'; }
+      else if(kotak === 100){ kelas += ' ut-cell-finish'; }
+      if(ULAR_MAP[kotak]){ isiKhusus = '🐍'; kelas += ' ut-cell-ular'; }
+      else if(TANGGA_MAP[kotak]){ isiKhusus = '🪜'; kelas += ' ut-cell-tangga'; }
 
-      html += '<div class="ut-cell" style="background:' + bgKhusus + ';">' +
+      html += '<div class="' + kelas + '">' +
                 '<span class="ut-cell-num">' + kotak + '</span>' +
                 '<span class="ut-cell-icon">' + isiKhusus + '</span>' +
               '</div>';
@@ -2759,6 +3003,7 @@
   }
 
   var utLastRollDitampilkan = null;
+  var utSelesaiModalDitampilkan = false; // supaya modal hasil cuma muncul sekali per game
 
   function renderPapanUlarTangga(data){
     var myUid = auth.currentUser.uid;
@@ -2768,6 +3013,10 @@
     var posSaya = data.positions[myUid] || 0;
     var posLawan = data.positions[lawanUid] || 0;
     var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
+
+    // ---- subjudul header: lawan main siapa ----
+    document.getElementById('utHeaderSub').textContent =
+      (lawanUid === UT_BOT_UID ? 'Lawan main: 🤖 ' : 'Lawan main: ') + namaLawan;
 
     // ---- status ----
     var statusEl = document.getElementById('utStatusBar');
@@ -2811,9 +3060,11 @@
     tokenSaya.style.backgroundImage = fotoSaya ? 'url(' + fotoSaya + ')' : 'none';
     tokenSaya.style.backgroundSize = 'cover';
     tokenSaya.style.backgroundPosition = 'center';
+    tokenSaya.textContent = fotoSaya ? '' : hurufAwal(namaSaya);
     tokenLawan.style.backgroundImage = fotoLawan ? 'url(' + fotoLawan + ')' : 'none';
     tokenLawan.style.backgroundSize = 'cover';
     tokenLawan.style.backgroundPosition = 'center';
+    tokenLawan.textContent = fotoLawan ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan));
     var posMe = posisiPersenKotak(posSaya);
     var posOpp = posisiPersenKotak(posLawan);
     // Kalau dua token di kotak yang sama, geser dikit biar kelihatan berdua
@@ -2828,19 +3079,53 @@
     tokenSaya.classList.toggle('giliran', giliranSaya);
     tokenLawan.classList.toggle('giliran', !giliranSaya && data.status === 'playing');
 
-    // ---- info pemain ----
+    // ---- info pemain (avatar besar + nama + progress bar kotak dari 100) ----
     document.getElementById('utPlayersInfo').innerHTML =
       '<div class="ut-player-card' + (giliranSaya ? ' giliran' : '') + '">' +
-        '<div style="width:22px;height:22px;border-radius:50%;background:' + (utFotoPemain[myUid] ? 'url(' + utFotoPemain[myUid] + ') center/cover' : 'var(--purple-brand)') + ';margin:0 auto 4px;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.15);"></div>' +
+        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[myUid] ? 'url(' + utFotoPemain[myUid] + ') center/cover' : 'var(--purple-brand)') + ';">' + (utFotoPemain[myUid] ? '' : hurufAwal(namaSaya)) + '</div>' +
         '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaSaya) + '</p>' +
-        '<p style="font-size:11px;color:var(--text-muted);">Kotak ' + posSaya + '</p>' +
+        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posSaya + '/100</p>' +
+        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posSaya + '%;background:var(--purple-brand);"></div></div>' +
       '</div>' +
+      '<div class="ut-vs-badge">VS</div>' +
       '<div class="ut-player-card' + (!giliranSaya && data.status==='playing' ? ' giliran' : '') + '">' +
-        '<div style="width:22px;height:22px;border-radius:50%;background:' + (utFotoPemain[lawanUid] ? 'url(' + utFotoPemain[lawanUid] + ') center/cover' : 'var(--pink-glow)') + ';margin:0 auto 4px;border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,0.15);"></div>' +
+        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[lawanUid] ? 'url(' + utFotoPemain[lawanUid] + ') center/cover' : 'var(--pink-glow)') + ';">' + (utFotoPemain[lawanUid] ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan))) + '</div>' +
         '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaLawan) + '</p>' +
-        '<p style="font-size:11px;color:var(--text-muted);">Kotak ' + posLawan + '</p>' +
+        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posLawan + '/100</p>' +
+        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posLawan + '%;background:var(--pink-glow);"></div></div>' +
       '</div>';
+
+    // ---- modal hasil akhir (muncul sekali saat game selesai) ----
+    if(data.status === 'finished' && !utSelesaiModalDitampilkan){
+      utSelesaiModalDitampilkan = true;
+      var menang = data.winner === myUid;
+      document.getElementById('utSelesaiEmoji').textContent = menang ? '🏆' : '💜';
+      document.getElementById('utSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaLawan + ' Menang';
+      document.getElementById('utSelesaiText').textContent = menang
+        ? 'Selamat, kamu duluan sampai kotak 100!'
+        : 'Jangan menyerah, coba lagi yuk!';
+      setTimeout(function(){
+        document.getElementById('utSelesaiModal').classList.add('show');
+      }, 500);
+    }
   }
+
+  // Ambil huruf pertama nama untuk avatar fallback saat belum punya foto profil
+  function hurufAwal(nama){
+    return (nama || '?').trim().charAt(0).toUpperCase();
+  }
+
+  function tutupUtSelesaiModal(){
+    document.getElementById('utSelesaiModal').classList.remove('show');
+    kembaliApp('game');
+  }
+
+  function mainLagiUlarTangga(){
+    document.getElementById('utSelesaiModal').classList.remove('show');
+    showView('ularTanggaMulai');
+  }
+
+
 
   // Bikin pola titik dadu (1-6) ala dadu asli, di grid 3x3
   function renderTitikDadu(n){
@@ -2936,7 +3221,7 @@
     // Render pilihan avatar preset
     var row = document.getElementById('avatarPresetRow');
     row.innerHTML = daftarAvatarPreset.map(function(a, i){
-      return '<div class="clickable" onclick="pilihAvatarPreset(' + i + ')" style="width:38px;height:38px;border-radius:50%;background:' + a.color + ';display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid #fff;box-shadow:0 0 0 1px var(--card-line);">' + a.emoji + '</div>';
+      return '<div class="clickable" onclick="pilihAvatarPreset(' + i + ')" style="width:44px;height:44px;border-radius:50%;background-image:url(' + a.img + ');background-size:cover;background-position:center;border:2px solid #fff;box-shadow:0 0 0 1.5px var(--card-line);"></div>';
     }).join('');
 
     // Render pilihan chip hobi & musik
@@ -2984,9 +3269,11 @@
     avatarPresetTerpilih = daftarAvatarPreset[index];
     fotoBaruBase64 = null; // preset dan upload foto saling menggantikan
     var preview = document.getElementById('editAvatarPreview');
-    preview.style.backgroundImage = 'none';
-    preview.style.background = avatarPresetTerpilih.color;
-    preview.textContent = avatarPresetTerpilih.emoji;
+    preview.style.background = 'var(--bg-app)';
+    preview.style.backgroundImage = 'url(' + avatarPresetTerpilih.img + ')';
+    preview.style.backgroundSize = 'cover';
+    preview.style.backgroundPosition = 'center';
+    preview.textContent = '';
   }
 
   function tutupEditProfil(){
@@ -3058,11 +3345,9 @@
     };
     if(fotoBaruBase64){
       dataUntukFirestore.photoUrl = fotoBaruBase64;
-      dataUntukFirestore.avatarEmoji = firebase.firestore.FieldValue.delete();
-      dataUntukFirestore.avatarColor = firebase.firestore.FieldValue.delete();
+      dataUntukFirestore.avatarImg = firebase.firestore.FieldValue.delete();
     } else if(avatarPresetTerpilih){
-      dataUntukFirestore.avatarEmoji = avatarPresetTerpilih.emoji;
-      dataUntukFirestore.avatarColor = avatarPresetTerpilih.color;
+      dataUntukFirestore.avatarImg = avatarPresetTerpilih.img;
       dataUntukFirestore.photoUrl = firebase.firestore.FieldValue.delete();
       fotoUserSaatIni = null;
     }
