@@ -416,14 +416,70 @@
   .menu-text p.desc{ font-size:11.5px; color:var(--text-muted); }
   .menu-arrow{ font-size:16px; color:var(--text-muted); }
 
-  /* ================= PROFIL ================= */
-  #view-profil .topbar{ background:transparent; border:none; padding:18px 20px 4px; }
-  .profile-head{ display:flex; align-items:center; gap:14px; padding:14px 0 18px; }
-  .profile-avatar{ width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); border:3px solid #fff; box-shadow:0 0 0 2px var(--pink-glow); flex-shrink:0; }
-  .profile-info p.name{ font-size:17px; font-weight:800; color:var(--text-dark); display:flex; align-items:center; gap:5px; }
-  .profile-info p.handle{ font-size:12px; color:var(--text-muted); margin:2px 0 4px; }
-  .profile-info p.loc{ font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:4px; }
-  .stats-row{ display:flex; background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 0; margin-bottom:16px; }
+  /* ================= PROFIL (ala Litmatch) ================= */
+  #view-profil{ padding-bottom:78px; }
+  #view-profil .content{ padding-top:0; }
+  .pf-banner{
+    background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 65%, var(--pink-glow) 140%);
+    padding:18px 20px 46px; position:relative;
+  }
+  .pf-banner .pf-topbar{ display:flex; align-items:center; justify-content:space-between; }
+  .pf-banner .pf-topbar h1{ color:#fff; font-size:16px; font-weight:800; }
+  .pf-banner .icon-btn{ background:rgba(255,255,255,0.16); border:none; color:#fff; }
+
+  .pf-avatar-wrap{ position:relative; margin:-40px 0 0 20px; width:84px; }
+  .profile-avatar.pf-avatar{
+    width:84px; height:84px; border:3.5px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,0.18);
+  }
+  .pf-badge-row{
+    position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:3px; background:#fff; border-radius:12px;
+    padding:2.5px 8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); white-space:nowrap;
+  }
+  .pf-badge-row span{ font-size:11px; font-weight:700; }
+  .pf-badge-row .pf-gender-l{ color:#4a7dfe; }
+  .pf-badge-row .pf-gender-p{ color:#ff5da2; }
+
+  .profile-info{ padding:14px 20px 0; }
+  .profile-info p.name{ font-size:18px; font-weight:800; color:var(--text-dark); display:flex; align-items:center; gap:5px; }
+  .profile-info p.loc{ font-size:11.5px; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-top:3px; }
+  .pf-id{
+    display:inline-flex; align-items:center; gap:4px; font-size:11px; color:var(--text-muted);
+    font-weight:600; margin-top:6px;
+  }
+
+  .pf-achieve-pill{
+    display:flex; align-items:center; justify-content:space-between; margin:14px 20px 0;
+    background:#fff; border:1px solid var(--card-line); border-radius:14px; padding:11px 14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.04);
+  }
+  .pf-achieve-pill span:first-child{ font-size:13px; font-weight:700; color:var(--text-dark); }
+  .pf-achieve-pill span.pf-achieve-arrow{ font-size:11.5px; color:var(--purple-brand); font-weight:700; }
+
+  .pf-status-row{ display:flex; align-items:center; gap:8px; margin:14px 20px 0; }
+  .pf-status-add{
+    font-size:12px; font-weight:700; color:var(--purple-brand); background:#f1ecff;
+    border:none; padding:7px 16px; border-radius:14px;
+  }
+  .pf-join-date{ font-size:11.5px; color:var(--text-muted); margin:10px 20px 0; display:flex; align-items:center; gap:5px; }
+
+  .pf-body{ padding:0 20px; }
+  .bio-text{ font-size:12.5px; color:var(--text-muted); margin-top:14px; line-height:1.5; }
+  .bio-text.pf-empty{ font-style:italic; color:#b6b0cf; }
+
+  .pf-cta-card{
+    background:#fff; border:1px solid var(--card-line); border-radius:18px; padding:26px 20px;
+    text-align:center; margin-top:18px; margin-bottom:6px;
+  }
+  .pf-cta-icon{ font-size:34px; margin-bottom:10px; }
+  .pf-cta-title{ font-size:13.5px; font-weight:700; color:var(--text-dark); margin-bottom:6px; line-height:1.4; }
+  .pf-cta-desc{ font-size:11.5px; color:var(--text-muted); line-height:1.5; margin-bottom:16px; }
+  .pf-cta-btn{
+    padding:11px 26px; border-radius:14px; border:none; font-size:12.5px; font-weight:700; color:#fff;
+    background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
+  }
+
+  .stats-row{ display:flex; background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 0; margin:18px 0 16px; }
   .stat{ flex:1; text-align:center; border-right:1px solid var(--card-line); }
   .stat:last-child{ border-right:none; }
   .stat p.num{ font-size:16px; font-weight:800; color:var(--text-dark); }
@@ -434,11 +490,11 @@
   .level-top p.xp{ font-size:11.5px; color:var(--text-muted); }
   .level-bar-track{ width:100%; height:7px; border-radius:8px; background:var(--bg-app); overflow:hidden; }
   .level-bar-fill{ width:56%; height:100%; border-radius:8px; background:linear-gradient(90deg, var(--purple-brand), var(--pink-glow)); }
-  .edit-btn{ width:100%; padding:12px 0; border-radius:14px; border:1px solid var(--card-line); background:#fff; color:var(--purple-brand); font-size:13.5px; font-weight:700; margin-bottom:20px; }
+  .edit-btn{ display:block; width:100%; padding:12px 0; border-radius:14px; border:1px solid var(--card-line); background:#fff; color:var(--purple-brand); font-size:13.5px; font-weight:700; margin-bottom:20px; }
   .section-title{ font-size:13.5px; font-weight:700; color:var(--text-dark); margin-bottom:10px; }
   .tag-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
   .tag-row span{ font-size:12px; background:#fff; border:1px solid var(--card-line); color:var(--purple-brand); padding:6px 14px; border-radius:16px; font-weight:600; }
-  .plist{ display:flex; flex-direction:column; background:#fff; border-radius:16px; border:1px solid var(--card-line); overflow:hidden; }
+  .plist{ display:flex; flex-direction:column; background:#fff; border-radius:16px; border:1px solid var(--card-line); overflow:hidden; margin-bottom:20px; }
   .prow{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--card-line); }
   .prow:last-child{ border-bottom:none; }
   .prow .m-icon{ font-size:17px; width:22px; text-align:center; }
@@ -617,6 +673,42 @@
   .modal-cancel{ background:var(--bg-app); color:var(--text-dark); }
   .modal-save{ background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow)); color:#fff; }
   .modal-save:disabled{ opacity:0.7; }
+
+  /* ================= MENU OPSI CHAT (bottom sheet) ================= */
+  .sheet-menu-item{ display:flex; align-items:center; gap:14px; padding:14px 22px; font-size:14px; font-weight:600; color:var(--text-dark); }
+  .sheet-menu-item:active{ background:var(--bg-app); }
+  .sheet-menu-item.danger{ color:var(--heart-red); }
+  .sheet-icon{ font-size:17px; width:22px; text-align:center; flex-shrink:0; }
+  .sheet-cancel-btn{ width:100%; padding:14px 0; border-radius:26px; border:1px solid var(--card-line); background:#fff; font-size:14px; font-weight:700; color:var(--text-dark); }
+
+  /* ================= MEDIA CHAT (foto/video biasa & sekali lihat) ================= */
+  .chat-attach-btn{ width:36px; height:36px; border-radius:50%; border:none; background:var(--bg-app); color:var(--purple-brand); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+  .msg-media-thumb{ display:block; max-width:100%; border-radius:12px; cursor:pointer; }
+  .msg-media-video{ position:relative; }
+  .msg-media-video::after{ content:'▶'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:34px; height:34px; border-radius:50%; background:rgba(0,0,0,0.45); color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; pointer-events:none; }
+  .msg-viewonce-bubble{
+    display:flex; align-items:center; gap:8px; padding:10px 14px; border-radius:14px; font-size:12.5px; font-weight:600; cursor:pointer;
+    background:rgba(255,255,255,0.16);
+  }
+  .msg-viewonce-bubble.opened{ opacity:0.55; cursor:default; }
+  .msg-viewonce-bubble .vo-icon{ font-size:16px; }
+
+  #mediaViewerOverlay{
+    display:none; position:fixed; inset:0; background:#000; z-index:300;
+    align-items:center; justify-content:center; flex-direction:column;
+  }
+  #mediaViewerOverlay.show{ display:flex; }
+  #mediaViewerOverlay .mv-close{
+    position:absolute; top:calc(16px + env(safe-area-inset-top,0px)); right:16px; width:36px; height:36px; border-radius:50%;
+    background:rgba(255,255,255,0.15); color:#fff; border:none; font-size:16px; z-index:2;
+  }
+  #mediaViewerOverlay img, #mediaViewerOverlay video{ max-width:100%; max-height:85vh; border-radius:8px; }
+  #mediaViewerOverlay .mv-caption{ color:rgba(255,255,255,0.7); font-size:11.5px; margin-top:14px; text-align:center; padding:0 30px; }
+
+  .chat-bg-swatch{ width:46px; height:46px; border-radius:12px; border:2px solid transparent; flex-shrink:0; }
+  .chat-bg-swatch.selected{ border-color:var(--purple-brand); }
+
+  .media-grid-item{ width:100%; aspect-ratio:1; border-radius:10px; background-size:cover; background-position:center; background-color:var(--bg-app); cursor:pointer; }
 </style>
 </head>
 <body>
@@ -980,15 +1072,81 @@
         <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
         <p id="chatDetailStatus" style="font-size:11px;color:var(--text-muted);margin-top:1px;"></p>
       </div>
+      <div class="icon-btn clickable" onclick="bukaMenuOpsiChat()">⋯</div>
     </div>
     <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:3px;background:var(--bg-app);">
       <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
     </div>
-    <div style="display:flex;gap:10px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
-      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
+    <div style="display:flex;gap:8px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
+      <button class="chat-attach-btn clickable" onclick="document.getElementById('chatMediaInput').click()" title="Kirim foto/video">🖼️</button>
+      <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;min-width:0;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
       <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
     </div>
+    <input type="file" id="chatMediaInput" accept="image/*,video/*" style="display:none;" onchange="prosesMediaChatDipilih(event)">
   </div>
+
+  <!-- ================= MENU OPSI CHAT (bottom sheet ala Litmatch) ================= -->
+  <div class="modal-overlay" id="chatOptionsModal">
+    <div class="modal-sheet" style="padding:12px 0 max(18px, env(safe-area-inset-bottom,0px));">
+      <div class="sheet-menu-item clickable" onclick="bagikanKontakChat()"><span class="sheet-icon">📤</span> Bagikan Kontak</div>
+      <div class="sheet-menu-item clickable" onclick="toggleSematkanChat()"><span class="sheet-icon">📌</span> <span id="chatOptSematkanLabel">Sematkan</span></div>
+      <div class="sheet-menu-item clickable" onclick="bukaSuntingAlias()"><span class="sheet-icon">✏️</span> Sunting Alias</div>
+      <div class="sheet-menu-item clickable" onclick="bukaSemuaMediaChat()"><span class="sheet-icon">🖼️</span> Semua Media</div>
+      <div class="sheet-menu-item clickable" onclick="bukaLatarBelakangChat()"><span class="sheet-icon">🎨</span> Atur Latar Belakang Obrolan</div>
+      <div class="sheet-menu-item clickable" onclick="bukaCariHistoriChat()"><span class="sheet-icon">🔍</span> Cari Histori Chat</div>
+      <div class="sheet-menu-item clickable" onclick="blokirUserChat()"><span class="sheet-icon">🚫</span> Blokir</div>
+      <div class="sheet-menu-item danger clickable" onclick="laporkanUserChat()"><span class="sheet-icon">🚩</span> Laporkan</div>
+      <div style="padding:12px 22px 0;">
+        <button class="sheet-cancel-btn" onclick="tutupModalId('chatOptionsModal')">Batalkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= PILIH JENIS KIRIM MEDIA (biasa / sekali lihat) ================= -->
+  <div class="modal-overlay" id="kirimMediaModal">
+    <div class="modal-sheet" style="text-align:center;">
+      <h2 style="margin-bottom:4px;">Kirim Media</h2>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px;">Pratinjau di bawah, pilih cara mengirimnya.</p>
+      <div id="kirimMediaPreviewWrap" style="border-radius:14px;overflow:hidden;background:#000;max-height:280px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="batalkanKirimMedia()">Batal</button>
+        <button class="modal-save" onclick="kirimMediaChat(false)">Kirim Biasa</button>
+      </div>
+      <button onclick="kirimMediaChat(true)" style="width:100%;margin-top:10px;padding:12px 0;border-radius:14px;border:none;background:#1c1650;color:#fff;font-size:13.5px;font-weight:700;">🔥 Kirim Sekali Lihat</button>
+    </div>
+  </div>
+
+  <!-- ================= SEMUA MEDIA DALAM CHAT ================= -->
+  <div class="modal-overlay" id="semuaMediaModal">
+    <div class="modal-sheet" style="max-height:75vh;overflow-y:auto;">
+      <h2>Semua Media</h2>
+      <div id="semuaMediaGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+        <p style="grid-column:1/-1;font-size:12px;color:var(--text-muted);">Memuat media...</p>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" style="flex:1;" onclick="tutupModalId('semuaMediaModal')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= LATAR BELAKANG OBROLAN ================= -->
+  <div class="modal-overlay" id="latarBelakangModal">
+    <div class="modal-sheet">
+      <h2>Latar Belakang Obrolan</h2>
+      <div id="chatBgSwatchRow" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;"></div>
+      <div class="modal-actions">
+        <button class="modal-cancel" style="flex:1;" onclick="tutupModalId('latarBelakangModal')">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= VIEWER FULLSCREEN (foto/video, termasuk sekali lihat) ================= -->
+  <div id="mediaViewerOverlay">
+    <button class="mv-close" onclick="tutupMediaViewer()">✕</button>
+    <div id="mediaViewerContent"></div>
+    <p class="mv-caption" id="mediaViewerCaption"></p>
+  </div>
+
 
   <!-- ================= GAME ================= -->
   <div id="view-game" class="view">
@@ -1137,48 +1295,72 @@
 
   <!-- ================= PROFIL ================= -->
   <div id="view-profil" class="view">
-    <div class="topbar">
-      <h1>Profil</h1>
-      <div class="icon-btn">⚙️</div>
+    <div class="pf-banner">
+      <div class="pf-topbar">
+        <h1>Profil</h1>
+        <div class="icon-btn">⚙️</div>
+      </div>
     </div>
     <div class="content">
-      <div class="profile-head">
-        <div class="profile-avatar" id="profileAvatar"></div>
-        <div class="profile-info">
-          <p class="name" id="profileName">Rara ✓</p>
-          <p class="handle" id="profileHandle">@rara_21</p>
-          <p class="loc" id="profileLoc" style="display:none;">📍 <span id="profileLocText"></span></p>
-          <p class="clickable" id="profileDuozyId" onclick="salinIdDuozy()" style="font-size:11px;color:var(--purple-brand);font-weight:700;margin-top:4px;display:none;">🆔 — 📋</p>
+      <div class="pf-avatar-wrap">
+        <div class="profile-avatar pf-avatar" id="profileAvatar"></div>
+        <div class="pf-badge-row">
+          <span>🇮🇩</span>
+          <span id="profileGenderBadge" style="display:none;"></span>
         </div>
       </div>
-      <p class="bio-text" id="profileBio" style="font-size:12.5px;color:var(--text-muted);margin:-10px 0 16px;line-height:1.5;"></p>
-
-      <div id="profileDetailTags" style="display:none;flex-wrap:wrap;gap:8px;margin:-6px 0 16px;">
-      </div>
-      <div class="stats-row">
-        <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
-        <div class="stat"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
-        <div class="stat"><p class="num" id="statPengikut">0</p><p class="label">Pengikut</p></div>
+      <div class="profile-info">
+        <p class="name" id="profileName">Rara ✓</p>
+        <p class="loc" id="profileLoc" style="display:none;">📍 <span id="profileLocText"></span></p>
+        <p class="pf-id clickable" id="profileDuozyId" onclick="salinIdDuozy()" style="display:none;">🆔 — 📋</p>
       </div>
 
-      <div class="level-card">
-        <div class="level-top"><p class="title" id="profileLevel">💜 Level 1</p><p class="xp" id="profileXp">0 / 1000 XP</p></div>
-        <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
+      <div class="pf-achieve-pill">
+        <span id="profileLevel">💜 Level 1</span>
+        <span class="pf-achieve-arrow">Lihat pencapaian ›</span>
       </div>
 
-      <button class="edit-btn" onclick="bukaEditProfil()">Edit Profil</button>
+      <p class="pf-join-date" id="profileJoinDate" style="display:none;">📅 Bergabung <span id="profileJoinDateText"></span></p>
 
-      <p class="section-title">Favorit Saya</p>
-      <div class="tag-row" id="favoritRow">
-        <span style="color:var(--text-muted);background:transparent;border:none;">Belum ada favorit</span>
-      </div>
+      <div class="pf-body">
+        <p class="bio-text" id="profileBio"></p>
 
-      <div class="plist">
-        <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label">Momen Saya</div><div class="m-arrow">›</div></div>
-        <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label">Couple Saya</div><div class="m-arrow">›</div></div>
-        <div class="prow"><div class="m-icon">⚙️</div><div class="m-label">Pengaturan</div><div class="m-arrow">›</div></div>
-        <div class="prow"><div class="m-icon">❓</div><div class="m-label">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
-        <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label">Keluar</div><div class="m-arrow">›</div></div>
+        <div id="profileDetailTags" style="display:none;flex-wrap:wrap;gap:8px;margin-top:12px;">
+        </div>
+
+        <!-- CTA lengkapi profil, muncul kalau bio & favorit masih kosong -->
+        <div class="pf-cta-card" id="profileCtaCard" style="display:none;">
+          <div class="pf-cta-icon">✍️</div>
+          <p class="pf-cta-title">Belum melengkapi profil nih!</p>
+          <p class="pf-cta-desc">Tambahkan status, zodiak, MBTI, dan favoritmu biar makin dikenal &amp; gampang dapat teman baru.</p>
+          <button class="pf-cta-btn" onclick="bukaEditProfil()">Lengkapi Sekarang</button>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
+          <div class="stat"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
+          <div class="stat"><p class="num" id="statPengikut">0</p><p class="label">Pengikut</p></div>
+        </div>
+
+        <div class="level-card">
+          <div class="level-top"><p class="title" id="profileLevelCard">💜 Level 1</p><p class="xp" id="profileXp">0 / 1000 XP</p></div>
+          <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
+        </div>
+
+        <button class="edit-btn" onclick="bukaEditProfil()">Edit Profil</button>
+
+        <p class="section-title">Favorit Saya</p>
+        <div class="tag-row" id="favoritRow">
+          <span style="color:var(--text-muted);background:transparent;border:none;">Belum ada favorit</span>
+        </div>
+
+        <div class="plist">
+          <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label">Momen Saya</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label">Couple Saya</div><div class="m-arrow">›</div></div>
+          <div class="prow"><div class="m-icon">⚙️</div><div class="m-label">Pengaturan</div><div class="m-arrow">›</div></div>
+          <div class="prow"><div class="m-icon">❓</div><div class="m-label">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
+          <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label">Keluar</div><div class="m-arrow">›</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1274,6 +1456,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 <script>
   // Penangkap error untuk debugging (dicatat ke console saja, tidak tampil di layar)
@@ -1292,6 +1475,7 @@
   var firebaseReady = false;
   var auth = null;
   var db = null;
+  var storage = null;
   try{
     var firebaseConfig = {
       apiKey: "AIzaSyCdsiaPo41OpoV17Cj7F29xV5Yjw-StVo0",
@@ -1304,6 +1488,7 @@
     firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
+    storage = firebase.storage();
     firebaseReady = true;
     tampilkanDebug('✅ Firebase berhasil dimuat');
   }catch(e){
@@ -1337,6 +1522,15 @@
     if(name !== 'chatDetail' && unsubscribeChatMessages){
       unsubscribeChatMessages();
       unsubscribeChatMessages = null;
+    }
+    // Tutup modal & viewer media chat kalau pindah keluar dari halaman chat detail
+    if(name !== 'chatDetail'){
+      ['chatOptionsModal','kirimMediaModal','semuaMediaModal','latarBelakangModal'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.classList.remove('show');
+      });
+      var mv = document.getElementById('mediaViewerOverlay');
+      if(mv && mv.classList.contains('show')){ tutupMediaViewer(); }
     }
     if(name !== 'momen' && unsubscribeMomenFeed){
       unsubscribeMomenFeed();
@@ -1594,8 +1788,32 @@
       var xp = data.xp || 0;
       var xpTarget = level * 1000;
       document.getElementById('profileLevel').textContent = '💜 Level ' + level;
+      document.getElementById('profileLevelCard').textContent = '💜 Level ' + level;
       document.getElementById('profileXp').textContent = xp + ' / ' + xpTarget + ' XP';
       document.getElementById('levelBarFill').style.width = Math.min(100, (xp / xpTarget) * 100) + '%';
+
+      var genderBadgeEl = document.getElementById('profileGenderBadge');
+      if(data.gender === 'Laki-laki'){
+        genderBadgeEl.textContent = '♂ L';
+        genderBadgeEl.className = 'pf-gender-l';
+        genderBadgeEl.style.display = 'inline';
+      } else if(data.gender === 'Perempuan'){
+        genderBadgeEl.textContent = '♀ P';
+        genderBadgeEl.className = 'pf-gender-p';
+        genderBadgeEl.style.display = 'inline';
+      } else {
+        genderBadgeEl.style.display = 'none';
+      }
+
+      var joinDateEl = document.getElementById('profileJoinDate');
+      if(data.createdAt && data.createdAt.toDate){
+        var bulanNama = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+        var tgl = data.createdAt.toDate();
+        document.getElementById('profileJoinDateText').textContent = bulanNama[tgl.getMonth()] + ' ' + tgl.getFullYear();
+        joinDateEl.style.display = 'flex';
+      } else {
+        joinDateEl.style.display = 'none';
+      }
 
       var favoritRow = document.getElementById('favoritRow');
       if(data.favorit && data.favorit.length > 0){
@@ -1605,8 +1823,18 @@
       }
 
       var bioEl = document.getElementById('profileBio');
-      if(data.bio){ bioEl.textContent = data.bio; bioEl.style.display = 'block'; }
-      else { bioEl.style.display = 'none'; }
+      if(data.bio){
+        bioEl.textContent = data.bio;
+        bioEl.classList.remove('pf-empty');
+      } else {
+        bioEl.textContent = 'Belum ada status. Ketuk "Edit Profil" untuk menambahkan~';
+        bioEl.classList.add('pf-empty');
+      }
+
+      // Kartu ajakan lengkapi profil, muncul kalau bio & favorit masih kosong
+      var ctaEl = document.getElementById('profileCtaCard');
+      var profilMasihKosong = !data.bio && (!data.favorit || data.favorit.length === 0) && !data.zodiak && !data.mbti;
+      ctaEl.style.display = profilMasihKosong ? 'block' : 'none';
 
       var locEl = document.getElementById('profileLoc');
       if(data.location){
@@ -2068,8 +2296,21 @@
   }
 
   // Buka layar percakapan dan dengarkan pesan secara real-time
+  var CHAT_BG_PRESETS = [
+    { id: 'default', css: 'var(--bg-app)' },
+    { id: 'peach', css: 'linear-gradient(160deg,#fff3e6,#ffe1c2)' },
+    { id: 'mint', css: 'linear-gradient(160deg,#e8fbf1,#c9f3dd)' },
+    { id: 'sky', css: 'linear-gradient(160deg,#e8f3ff,#cfe6ff)' },
+    { id: 'lavender', css: 'linear-gradient(160deg,#f1ecff,#e0d3ff)' },
+    { id: 'blossom', css: 'linear-gradient(160deg,#ffe9f2,#ffd0e3)' },
+    { id: 'dark', css: 'linear-gradient(160deg,#1c1b2e,#2c2a4a)' }
+  ];
+  var mediaChatDipilih = null; // { file, isVideo } — media yang lagi dipilih sebelum dikirim
+  var mediaViewerAktif = null; // { chatId, msgId, storagePath } kalau sedang lihat media sekali-lihat
+  var chatPesanCache = []; // [{id, text}] pesan teks di chat aktif, buat fitur cari histori chat
+
   function bukaChatDetail(chatId, otherUid, otherName){
-    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName, otherPhoto: null };
+    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName, otherPhoto: null, aliasMap: {}, pinnedMap: {} };
     document.getElementById('chatDetailName').textContent = otherName;
     document.getElementById('chatDetailStatus').textContent = '';
     var avatarEl = document.getElementById('chatDetailAvatar');
@@ -2077,6 +2318,11 @@
 
     var msgContainer = document.getElementById('chatMessagesContainer');
     msgContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>';
+
+    // Terapkan latar belakang obrolan yang tersimpan (per HP, per chat)
+    var bgTersimpan = localStorage.getItem('chatBg_' + chatId) || 'default';
+    var bgPreset = CHAT_BG_PRESETS.filter(function(b){ return b.id === bgTersimpan; })[0] || CHAT_BG_PRESETS[0];
+    msgContainer.style.background = bgPreset.css;
 
     showView('chatDetail');
 
@@ -2095,6 +2341,22 @@
       });
     }
 
+    // Ambil alias & status sematkan punya kita sendiri untuk chat ini
+    if(db && auth.currentUser){
+      db.collection('chats').doc(chatId).get().then(function(doc){
+        if(!doc.exists || !chatDetailAktif || chatDetailAktif.chatId !== chatId) return;
+        var data = doc.data();
+        var myUid = auth.currentUser.uid;
+        chatDetailAktif.aliasMap = data.aliasMap || {};
+        chatDetailAktif.pinnedMap = data.pinnedMap || {};
+        var aliasSaya = chatDetailAktif.aliasMap[myUid];
+        if(aliasSaya){
+          chatDetailAktif.otherName = aliasSaya;
+          document.getElementById('chatDetailName').textContent = aliasSaya;
+        }
+      });
+    }
+
     if(unsubscribeChatMessages){ unsubscribeChatMessages(); }
 
     unsubscribeChatMessages = db.collection('chats').doc(chatId).collection('messages')
@@ -2104,6 +2366,7 @@
         var html = '';
         var belumTerbaca = []; // ref pesan dari lawan bicara yang belum ditandai terbaca
         var tanggalTerakhir = null;
+        chatPesanCache = [];
 
         snapshot.forEach(function(doc){
           var m = doc.data();
@@ -2136,11 +2399,37 @@
             ? '16px 16px 4px 16px'
             : '16px 16px 16px 4px';
 
-          html += '<div style="display:flex;align-items:flex-end;justify-content:' + (milikSaya ? 'flex-end' : 'flex-start') + ';margin:2px 0;">' +
+          // ---- isi bubble: teks biasa, atau foto/video (biasa maupun sekali-lihat) ----
+          var isMedia = (m.type === 'image' || m.type === 'video');
+          var isiPesan;
+          var bubbleExtraStyle = '';
+
+          if(isMedia && m.viewOnce){
+            if(!m.mediaUrl){
+              isiPesan = '<div class="msg-viewonce-bubble opened"><span class="vo-icon">🚫</span> Sudah dilihat</div>';
+            } else if(milikSaya){
+              isiPesan = '<div class="msg-viewonce-bubble opened"><span class="vo-icon">🔥</span> Terkirim · Sekali Lihat</div>';
+            } else {
+              var infoLihat = jsAttr({ chatId: chatId, msgId: doc.id, storagePath: m.storagePath || null });
+              isiPesan = '<div class="msg-viewonce-bubble clickable" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',' + infoLihat + ')"><span class="vo-icon">🔥</span> Ketuk untuk lihat · Sekali Lihat</div>';
+            }
+          } else if(isMedia){
+            bubbleExtraStyle = 'background:transparent;padding:0;box-shadow:none;';
+            if(m.type === 'video'){
+              isiPesan = '<div class="msg-media-video clickable" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',null)"><video src="' + m.mediaUrl + '" class="msg-media-thumb" style="max-height:220px;width:100%;object-fit:cover;" muted></video></div>';
+            } else {
+              isiPesan = '<img class="msg-media-thumb clickable" src="' + m.mediaUrl + '" style="max-height:260px;object-fit:cover;" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',null)">';
+            }
+          } else {
+            isiPesan = '<div>' + escapeHtml(m.text || '') + '</div>';
+            chatPesanCache.push({ id: doc.id, text: m.text || '' });
+          }
+
+          html += '<div id="chat-msg-' + doc.id + '" style="display:flex;align-items:flex-end;justify-content:' + (milikSaya ? 'flex-end' : 'flex-start') + ';margin:2px 0;">' +
                     (milikSaya ? '' : fotoKecil) +
-                    '<div style="max-width:72%;background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;border-radius:' + bubbleRadius + ';font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.07);">' +
-                      '<div>' + escapeHtml(m.text || '') + '</div>' +
-                      '<div style="font-size:9.5px;opacity:0.7;text-align:right;margin-top:2px;">' + jamMenit + centang + '</div>' +
+                    '<div style="max-width:72%;' + bubbleExtraStyle + (bubbleExtraStyle ? '' : ('background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;')) + 'border-radius:' + bubbleRadius + ';font-size:13px;line-height:1.4;' + (bubbleExtraStyle ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.07);') + '">' +
+                      isiPesan +
+                      '<div style="font-size:9.5px;opacity:0.7;text-align:right;margin-top:2px;' + (bubbleExtraStyle ? 'color:var(--text-muted);padding:3px 2px 0;' : '') + '">' + jamMenit + centang + '</div>' +
                     '</div>' +
                   '</div>';
 
@@ -2160,6 +2449,283 @@
         tampilkanDebug('❌ Gagal memuat pesan: ' + e.message);
       });
   }
+
+  // ================= MENU OPSI CHAT =================
+
+  function tutupModalId(id){
+    document.getElementById(id).classList.remove('show');
+  }
+
+  function bukaMenuOpsiChat(){
+    if(!chatDetailAktif) return;
+    var myUid = auth.currentUser.uid;
+    var sudahDipin = !!(chatDetailAktif.pinnedMap && chatDetailAktif.pinnedMap[myUid]);
+    document.getElementById('chatOptSematkanLabel').textContent = sudahDipin ? 'Lepas Sematan' : 'Sematkan';
+    document.getElementById('chatOptionsModal').classList.add('show');
+  }
+
+  function bagikanKontakChat(){
+    tutupModalId('chatOptionsModal');
+    if(!chatDetailAktif) return;
+    var teks = 'Kontak Duozy: ' + chatDetailAktif.otherName;
+    if(navigator.share){
+      navigator.share({ title: 'Bagikan Kontak', text: teks }).catch(function(){});
+    } else if(navigator.clipboard){
+      navigator.clipboard.writeText(teks).then(function(){ alert('Info kontak disalin ke clipboard.'); });
+    } else {
+      alert(teks);
+    }
+  }
+
+  function toggleSematkanChat(){
+    if(!chatDetailAktif || !db) return;
+    var myUid = auth.currentUser.uid;
+    var chatId = chatDetailAktif.chatId;
+    var sudahDipin = !!(chatDetailAktif.pinnedMap && chatDetailAktif.pinnedMap[myUid]);
+    var field = 'pinnedMap.' + myUid;
+    var update = {};
+    update[field] = !sudahDipin;
+    db.collection('chats').doc(chatId).set(update, { merge: true }).then(function(){
+      chatDetailAktif.pinnedMap[myUid] = !sudahDipin;
+      tutupModalId('chatOptionsModal');
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal menyematkan chat: ' + e.message);
+      alert('Gagal menyematkan chat.');
+    });
+  }
+
+  function bukaSuntingAlias(){
+    if(!chatDetailAktif) return;
+    tutupModalId('chatOptionsModal');
+    var myUid = auth.currentUser.uid;
+    var aliasSaatIni = (chatDetailAktif.aliasMap && chatDetailAktif.aliasMap[myUid]) || '';
+    var aliasBaru = window.prompt('Sunting alias untuk ' + chatDetailAktif.otherName + ':', aliasSaatIni);
+    if(aliasBaru === null) return; // dibatalkan
+    aliasBaru = aliasBaru.trim();
+    var chatId = chatDetailAktif.chatId;
+    var field = 'aliasMap.' + myUid;
+    var update = {};
+    update[field] = aliasBaru || firebase.firestore.FieldValue.delete();
+    db.collection('chats').doc(chatId).set(update, { merge: true }).then(function(){
+      chatDetailAktif.aliasMap[myUid] = aliasBaru;
+      document.getElementById('chatDetailName').textContent = aliasBaru || chatDetailAktif.otherName;
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal menyimpan alias: ' + e.message);
+      alert('Gagal menyimpan alias.');
+    });
+  }
+
+  function bukaSemuaMediaChat(){
+    if(!chatDetailAktif || !db) return;
+    tutupModalId('chatOptionsModal');
+    var grid = document.getElementById('semuaMediaGrid');
+    grid.innerHTML = '<p style="grid-column:1/-1;font-size:12px;color:var(--text-muted);">Memuat media...</p>';
+    document.getElementById('semuaMediaModal').classList.add('show');
+
+    db.collection('chats').doc(chatDetailAktif.chatId).collection('messages')
+      .orderBy('createdAt', 'desc').get().then(function(snap){
+        var html = '';
+        snap.forEach(function(doc){
+          var m = doc.data();
+          if((m.type !== 'image' && m.type !== 'video') || !m.mediaUrl) return; // lewati sekali-lihat yang sudah hilang
+          if(m.type === 'video'){
+            html += '<div class="media-grid-item" style="display:flex;align-items:center;justify-content:center;background:#000;" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',null)"><span style="color:#fff;font-size:20px;">▶</span></div>';
+          } else {
+            html += '<div class="media-grid-item" style="background-image:url(' + m.mediaUrl + ');" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',null)"></div>';
+          }
+        });
+        grid.innerHTML = html || '<p style="grid-column:1/-1;font-size:12px;color:var(--text-muted);">Belum ada media di chat ini.</p>';
+      }).catch(function(e){
+        grid.innerHTML = '<p style="grid-column:1/-1;font-size:12px;color:var(--heart-red);">Gagal memuat media.</p>';
+        tampilkanDebug('❌ Gagal memuat semua media: ' + e.message);
+      });
+  }
+
+  function bukaLatarBelakangChat(){
+    if(!chatDetailAktif) return;
+    tutupModalId('chatOptionsModal');
+    var chatId = chatDetailAktif.chatId;
+    var aktif = localStorage.getItem('chatBg_' + chatId) || 'default';
+    var row = document.getElementById('chatBgSwatchRow');
+    row.innerHTML = CHAT_BG_PRESETS.map(function(b){
+      return '<div class="chat-bg-swatch clickable' + (b.id === aktif ? ' selected' : '') + '" style="background:' + b.css + ';" onclick="pilihLatarBelakangChat(' + jsAttr(b.id) + ')"></div>';
+    }).join('');
+    document.getElementById('latarBelakangModal').classList.add('show');
+  }
+
+  function pilihLatarBelakangChat(id){
+    if(!chatDetailAktif) return;
+    var chatId = chatDetailAktif.chatId;
+    localStorage.setItem('chatBg_' + chatId, id);
+    var preset = CHAT_BG_PRESETS.filter(function(b){ return b.id === id; })[0] || CHAT_BG_PRESETS[0];
+    document.getElementById('chatMessagesContainer').style.background = preset.css;
+    document.querySelectorAll('#chatBgSwatchRow .chat-bg-swatch').forEach(function(el){ el.classList.remove('selected'); });
+    bukaLatarBelakangChat(); // render ulang biar highlight pilihan ter-update
+  }
+
+  function bukaCariHistoriChat(){
+    tutupModalId('chatOptionsModal');
+    if(chatPesanCache.length === 0){
+      alert('Belum ada pesan teks untuk dicari di chat ini.');
+      return;
+    }
+    var kataKunci = window.prompt('Cari kata di histori chat ini:');
+    if(!kataKunci) return;
+    kataKunci = kataKunci.toLowerCase();
+    var hasil = chatPesanCache.filter(function(p){ return p.text.toLowerCase().indexOf(kataKunci) !== -1; });
+    if(hasil.length === 0){
+      alert('Tidak ditemukan pesan dengan kata "' + kataKunci + '".');
+      return;
+    }
+    var target = document.getElementById('chat-msg-' + hasil[hasil.length - 1].id);
+    if(target){
+      target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      target.style.transition = 'background 0.3s ease';
+      target.style.background = 'rgba(255,213,79,0.35)';
+      setTimeout(function(){ target.style.background = ''; }, 1500);
+    }
+    if(hasil.length > 1){
+      alert('Ditemukan ' + hasil.length + ' pesan cocok. Menampilkan yang terbaru.');
+    }
+  }
+
+  function blokirUserChat(){
+    if(!chatDetailAktif || !db) return;
+    tutupModalId('chatOptionsModal');
+    var nama = chatDetailAktif.otherName;
+    if(!confirm('Blokir ' + nama + '? Kamu tidak akan menerima pesan darinya lagi.')) return;
+    var myUid = auth.currentUser.uid;
+    db.collection('users').doc(myUid).set({
+      blockedUsers: firebase.firestore.FieldValue.arrayUnion(chatDetailAktif.otherUid)
+    }, { merge: true }).then(function(){
+      alert(nama + ' berhasil diblokir.');
+      kembaliApp('chat');
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal memblokir user: ' + e.message);
+      alert('Gagal memblokir. Coba lagi ya.');
+    });
+  }
+
+  function laporkanUserChat(){
+    if(!chatDetailAktif || !db) return;
+    tutupModalId('chatOptionsModal');
+    var alasan = window.prompt('Kenapa kamu melaporkan ' + chatDetailAktif.otherName + '? Jelaskan singkat:');
+    if(!alasan || !alasan.trim()) return;
+    db.collection('reports').add({
+      reporterId: auth.currentUser.uid,
+      reportedUid: chatDetailAktif.otherUid,
+      reportedName: chatDetailAktif.otherName,
+      chatId: chatDetailAktif.chatId,
+      reason: alasan.trim(),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(){
+      alert('Laporan terkirim. Terima kasih sudah menjaga komunitas Duozy tetap aman.');
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal mengirim laporan: ' + e.message);
+      alert('Gagal mengirim laporan. Coba lagi ya.');
+    });
+  }
+
+  // ================= KIRIM FOTO/VIDEO (biasa & sekali lihat ala WA) =================
+
+  function prosesMediaChatDipilih(event){
+    var file = event.target.files && event.target.files[0];
+    event.target.value = ''; // reset supaya bisa pilih file yang sama lagi nanti
+    if(!file || !chatDetailAktif) return;
+
+    var isVideo = file.type.indexOf('video') === 0;
+    var maxSize = isVideo ? 30 * 1024 * 1024 : 8 * 1024 * 1024;
+    if(file.size > maxSize){
+      alert('Ukuran file terlalu besar. Maksimal ' + (isVideo ? '30MB untuk video' : '8MB untuk foto') + '.');
+      return;
+    }
+
+    mediaChatDipilih = { file: file, isVideo: isVideo };
+    var reader = new FileReader();
+    reader.onload = function(e){
+      var wrap = document.getElementById('kirimMediaPreviewWrap');
+      wrap.innerHTML = isVideo
+        ? '<video src="' + e.target.result + '" controls style="max-width:100%;max-height:280px;"></video>'
+        : '<img src="' + e.target.result + '" style="max-width:100%;max-height:280px;display:block;">';
+      document.getElementById('kirimMediaModal').classList.add('show');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function batalkanKirimMedia(){
+    mediaChatDipilih = null;
+    document.getElementById('kirimMediaPreviewWrap').innerHTML = '';
+    tutupModalId('kirimMediaModal');
+  }
+
+  function kirimMediaChat(viewOnce){
+    if(!mediaChatDipilih || !chatDetailAktif || !storage){ return; }
+    var chatId = chatDetailAktif.chatId;
+    var myUid = auth.currentUser.uid;
+    var file = mediaChatDipilih.file;
+    var isVideo = mediaChatDipilih.isVideo;
+    mediaChatDipilih = null;
+    document.getElementById('kirimMediaPreviewWrap').innerHTML = '';
+    tutupModalId('kirimMediaModal');
+
+    var namaFile = Date.now() + '_' + Math.random().toString(36).slice(2) + (isVideo ? '.mp4' : '.jpg');
+    var path = 'chat_media/' + chatId + '/' + namaFile;
+    var ref = storage.ref().child(path);
+
+    tampilkanDebug('⏳ Mengunggah media chat...');
+    ref.put(file).then(function(snap){
+      return snap.ref.getDownloadURL();
+    }).then(function(url){
+      return db.collection('chats').doc(chatId).collection('messages').add({
+        type: isVideo ? 'video' : 'image',
+        mediaUrl: url,
+        storagePath: path,
+        viewOnce: !!viewOnce,
+        senderId: myUid,
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }).then(function(){
+      return db.collection('chats').doc(chatId).set({
+        lastMessage: viewOnce ? '🔥 Media sekali lihat' : (isVideo ? '🎥 Video' : '📷 Foto'),
+        lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastSenderId: myUid
+      }, { merge: true });
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal mengirim media: ' + e.message);
+      alert('Gagal mengirim media. Coba lagi ya.');
+    });
+  }
+
+  function bukaMediaViewer(url, type, viewOnceInfo){
+    var content = document.getElementById('mediaViewerContent');
+    content.innerHTML = (type === 'video')
+      ? '<video src="' + url + '" controls autoplay style="max-width:100%;max-height:85vh;border-radius:8px;"></video>'
+      : '<img src="' + url + '" style="max-width:100%;max-height:85vh;border-radius:8px;">';
+    document.getElementById('mediaViewerCaption').textContent = viewOnceInfo
+      ? '🔥 Sekali lihat — media ini akan hilang setelah kamu tutup'
+      : '';
+    document.getElementById('mediaViewerOverlay').classList.add('show');
+    mediaViewerAktif = viewOnceInfo || null;
+  }
+
+  function tutupMediaViewer(){
+    document.getElementById('mediaViewerOverlay').classList.remove('show');
+    document.getElementById('mediaViewerContent').innerHTML = '';
+    if(mediaViewerAktif){
+      var info = mediaViewerAktif;
+      mediaViewerAktif = null;
+      db.collection('chats').doc(info.chatId).collection('messages').doc(info.msgId).update({
+        mediaUrl: firebase.firestore.FieldValue.delete(),
+        opened: true
+      }).catch(function(e){ tampilkanDebug('❌ Gagal menandai media sekali-lihat: ' + e.message); });
+      if(info.storagePath && storage){
+        storage.ref().child(info.storagePath).delete().catch(function(){ /* mungkin sudah terhapus, abaikan */ });
+      }
+    }
+  }
+
+
 
   function escapeHtml(text){
     var div = document.createElement('div');
@@ -2219,8 +2785,11 @@
         var chats = [];
         snapshot.forEach(function(doc){ chats.push({ id: doc.id, data: doc.data() }); });
 
-        // Urutkan manual (terbaru dulu) supaya tidak butuh index gabungan Firestore
+        // Urutkan: yang disematkan naik ke atas dulu, baru berdasarkan pesan terbaru
         chats.sort(function(a, b){
+          var pinA = !!(a.data.pinnedMap && a.data.pinnedMap[myUid]);
+          var pinB = !!(b.data.pinnedMap && b.data.pinnedMap[myUid]);
+          if(pinA !== pinB) return pinA ? -1 : 1;
           var ta = a.data.lastMessageAt ? a.data.lastMessageAt.toMillis() : 0;
           var tb = b.data.lastMessageAt ? b.data.lastMessageAt.toMillis() : 0;
           return tb - ta;
@@ -2229,12 +2798,15 @@
         var html = '';
         chats.forEach(function(c){
           var otherUid = c.data.participants.filter(function(uid){ return uid !== myUid; })[0];
-          var otherName = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
+          var namaAsli = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
+          var alias = c.data.aliasMap && c.data.aliasMap[myUid];
+          var otherName = alias || namaAsli;
+          var dipin = !!(c.data.pinnedMap && c.data.pinnedMap[myUid]);
           var preview = c.data.lastMessage || 'Belum ada pesan';
           html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + jsAttr(c.id) + ', ' + jsAttr(otherUid) + ', ' + jsAttr(otherName) + ')">' +
                     '<div class="chat-avatar"></div>' +
                     '<div class="chat-main">' +
-                      '<div class="row1"><span class="name">' + otherName + '</span></div>' +
+                      '<div class="row1"><span class="name">' + (dipin ? '📌 ' : '') + escapeHtml(otherName) + '</span></div>' +
                       '<div class="row2"><span class="preview">' + escapeHtml(preview) + '</span></div>' +
                     '</div>' +
                   '</div>';
@@ -3386,9 +3958,7 @@ var daftarAvatarPreset = [
     if(!splashDone || !authChecked) return;
     if(authUser){
       var nameEl = document.getElementById('profileName');
-      var handleEl = document.getElementById('profileHandle');
       if(authUser.displayName){ nameEl.textContent = authUser.displayName + ' ✓'; }
-      if(authUser.email){ handleEl.textContent = '@' + authUser.email.split('@')[0]; }
       pastikanProfilAda(authUser).then(function(){
         muatProfilDariFirestore(authUser.uid);
       });
