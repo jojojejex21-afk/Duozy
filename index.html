@@ -150,28 +150,52 @@
     background:#dcd8ea; color:#a9a4c2; cursor:not-allowed; box-shadow:none;
   }
 
-  .ut-vs-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:20px; }
-  .ut-player-card{
-    background:#fff; border-radius:16px; padding:12px 14px; text-align:center;
-    border:2px solid transparent; box-shadow:0 3px 10px rgba(0,0,0,0.06); flex:1; max-width:150px;
+  /* Strip avatar 4 pemain di atas papan */
+  .ut-players-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; padding:14px 0 2px; }
+  .ut-pchip{
+    background:#fff; border:2px solid transparent; border-radius:14px;
+    padding:8px 4px; text-align:center; transition:.25s;
+    box-shadow:0 3px 8px rgba(30,20,80,0.06);
   }
-  .ut-player-card.giliran{
+  .ut-pchip.giliran{
     border-color:var(--purple-brand);
-    background:linear-gradient(180deg,#fff, #f5f0ff);
-    box-shadow:0 6px 16px rgba(106,61,216,0.2);
+    background:linear-gradient(180deg,#fff,#f5f0ff);
+    transform:translateY(-3px);
+    box-shadow:0 6px 14px rgba(106,61,216,0.22);
   }
-  .ut-player-avatar{
-    width:38px; height:38px; border-radius:50%; margin:0 auto 6px;
-    border:2.5px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.18);
-    display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; font-weight:700;
+  .ut-pchip-avatar{
+    width:34px; height:34px; border-radius:50%; margin:0 auto 4px;
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center;
+    font-size:13px; font-weight:800; color:#fff;
+    border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.18);
   }
-  .ut-player-bar-track{ width:100%; height:5px; border-radius:4px; background:var(--card-line); margin-top:7px; overflow:hidden; }
-  .ut-player-bar-fill{ height:100%; border-radius:4px; transition:width 0.4s ease; }
-  .ut-vs-badge{
-    width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
-    color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
-    box-shadow:0 2px 6px rgba(106,61,216,0.3);
+  .ut-pchip-name{
+    font-size:9.5px; font-weight:700; color:var(--text-dark);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
+  .ut-pchip-pos{ font-size:8.5px; color:var(--text-muted); margin-top:1px; }
+
+  /* Papan skor (posisi semua pemain) di bawah dadu */
+  .ut-scoreboard{ display:flex; flex-direction:column; gap:7px; margin-top:20px; }
+  .ut-score-row{
+    display:flex; align-items:center; gap:10px;
+    background:#fff; border-radius:13px; padding:9px 13px;
+    box-shadow:0 2px 8px rgba(30,20,80,0.06);
+    border:1.5px solid transparent;
+  }
+  .ut-score-row.giliran{ border-color:var(--purple-brand); }
+  .ut-score-avatar{
+    width:28px; height:28px; border-radius:50%; flex-shrink:0;
+    background-size:cover; background-position:center;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:800; color:#fff;
+  }
+  .ut-score-info{ flex:1; min-width:0; }
+  .ut-score-name{ font-size:11.5px; font-weight:700; color:var(--text-dark); display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ut-score-bar-track{ width:100%; height:5px; border-radius:4px; background:var(--card-line); margin-top:4px; overflow:hidden; }
+  .ut-score-bar-fill{ height:100%; border-radius:4px; transition:width .4s ease; }
+  .ut-score-num{ font-size:10.5px; font-weight:800; color:var(--text-muted); flex-shrink:0; }
 
   a, .clickable{ cursor:pointer; }
 
@@ -1234,8 +1258,10 @@
         </div>
       </div>
     </div>
-    <div class="content" style="padding:16px 16px 24px;overflow-y:auto;">
-      <div class="ut-status-wrap">
+    <div class="content" style="padding:0 16px 24px;overflow-y:auto;">
+      <div class="ut-players-strip" id="utPlayersStrip"></div>
+
+      <div class="ut-status-wrap" style="margin-top:14px;">
         <span class="ut-status-pill" id="utStatusBar">Memuat game...</span>
       </div>
 
@@ -1253,7 +1279,7 @@
         <button id="utRollBtn" class="ut-roll-btn" onclick="lemparDadu()">Lempar Dadu</button>
       </div>
 
-      <div class="ut-vs-row" id="utPlayersInfo"></div>
+      <div class="ut-scoreboard" id="utScoreboard"></div>
     </div>
   </div>
 
@@ -3440,7 +3466,10 @@ var daftarAvatarPreset = [
   ];
   var avatarPresetTerpilih = null; // {img, gender} kalau user pilih preset avatar (bukan upload foto)
 
-  // ================= ULAR TANGGA (papan 10x10 via Firestore) =================
+  // ================= ULAR TANGGA (papan 10x10, sampai 4 pemain, via Firestore) =================
+  // Slot yang tidak terisi user asli yang online akan diisi otomatis oleh "bot" yang
+  // tampil dengan nama & foto seperti orang biasa (bukan ditandai sebagai bot),
+  // supaya papan selalu ramai 4 pemain walau aplikasi lagi sepi.
 
   var ULAR_MAP = {16:6, 47:26, 49:11, 56:53, 62:19, 64:60, 87:24, 93:73, 95:75, 98:78};
   var TANGGA_MAP = {1:38, 4:14, 9:31, 21:42, 28:84, 36:44, 51:67, 71:91, 80:100};
@@ -3450,6 +3479,11 @@ var daftarAvatarPreset = [
   var sgSudahMatch = false;     // penanda supaya tidak match dobel
   var gameUlarTanggaAktifId = null;
   var urutanPapanCache = null;
+  var UT_MAKS_PEMAIN = 4;
+  var UT_WARNA_PEMAIN = ['#6a3dd8', '#c33fa0', '#4facfe', '#f7971e'];
+  // Nama & foto untuk bot — sengaja dibuat seperti profil orang biasa (pakai avatar
+  // preset SVG yang sama dengan yang dipakai user asli) supaya tidak kelihatan seperti bot.
+  var UT_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas','Wulan','Yoga','Citra','Reza','Intan','Galih'];
 
   function urutanPapanUlarTangga(){
     if(urutanPapanCache) return urutanPapanCache;
@@ -3482,17 +3516,16 @@ var daftarAvatarPreset = [
 
       var html = '';
       if(gameAktif){
-        var lawanUid = gameAktif.data.players.filter(function(u){ return u !== myUid; })[0];
-        var lawanNama = (gameAktif.data.playerNames && gameAktif.data.playerNames[lawanUid]) || 'Lawan';
+        var jumlahLawan = gameAktif.data.players.length - 1;
         html += '<div style="background:#fff;border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-bottom:20px;text-align:center;">' +
-                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu sedang main lawan <b>' + escapeHtml(lawanNama) + '</b></p>' +
+                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu masih punya game yang berjalan (' + (jumlahLawan+1) + ' pemain)</p>' +
                   '<button onclick="bukaPapanUlarTangga(' + jsAttr(gameAktif.id) + ')" style="padding:10px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-weight:700;font-size:13px;">Lanjutkan Game</button>' +
                 '</div>';
       }
 
-      html += '<button onclick="mulaiMainSendiri()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ffb199,#ff5da2);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sendiri</button>';
+      html += '<button onclick="mulaiMainSendiri()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ffb199,#ff5da2);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sekarang (4 Pemain)</button>';
 
-      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Atau ajak teman sendiri:</p>' +
+      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Atau ajak teman sendiri 1 lawan 1:</p>' +
               '<div id="ularTanggaDaftarUser"><p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pengguna...</p></div>';
       container.innerHTML = html;
 
@@ -3518,11 +3551,18 @@ var daftarAvatarPreset = [
     });
   }
 
-  var UT_BOT_UID = 'BOT_DUOZY';
-  var UT_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas','Wulan','Yoga'];
+  // Ambil profil bot acak dari kumpulan avatar preset yang sama dengan avatar user asli,
+  // supaya bot tidak kelihatan beda / mencurigakan dibanding pemain sungguhan.
+  function ambilProfilBotAcak(namaDipakai, fotoDipakai){
+    var namaTersedia = UT_NAMA_BOT_POOL.filter(function(n){ return namaDipakai.indexOf(n) === -1; });
+    var nama = (namaTersedia.length ? namaTersedia : UT_NAMA_BOT_POOL)[Math.floor(Math.random() * (namaTersedia.length ? namaTersedia.length : UT_NAMA_BOT_POOL.length))];
+    var fotoTersedia = daftarAvatarPreset.filter(function(a){ return fotoDipakai.indexOf(a.img) === -1; });
+    var foto = (fotoTersedia.length ? fotoTersedia : daftarAvatarPreset)[Math.floor(Math.random() * (fotoTersedia.length ? fotoTersedia.length : daftarAvatarPreset.length))];
+    return { nama: nama, foto: foto.img };
+  }
 
-  // "Main Sendiri": coba cari user lain yang sedang online dulu; kalau tidak ada,
-  // baru main lawan bot (namanya dibuat seperti nama orang biasa, bukan "Bot").
+  // "Main Sekarang": cari sebanyak mungkin user lain yang sedang online (maks 3),
+  // sisa slot sampai total 4 pemain diisi bot berwajah "orang" supaya papan tetap ramai.
   function mulaiMainSendiri(){
     var container = document.getElementById('ularTanggaMulaiContainer');
     if(!db || !auth.currentUser) return;
@@ -3540,74 +3580,98 @@ var daftarAvatarPreset = [
         var kandidat = [];
         snap.forEach(function(doc){
           if(doc.id === myUid) return;
-          kandidat.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
+          var d = doc.data();
+          kandidat.push({ uid: doc.id, nama: d.name || 'Pengguna Duozy', foto: d.photoUrl || null });
         });
-
-        if(kandidat.length > 0){
-          var pilih = kandidat[Math.floor(Math.random() * kandidat.length)];
-          mulaiGameUlarTangga(pilih.uid, pilih.nama);
-        } else {
-          mulaiGameBot();
-        }
+        // acak urutan kandidat online, ambil maksimal 3 (sisanya slot bot)
+        kandidat.sort(function(){ return Math.random() - 0.5; });
+        kandidat = kandidat.slice(0, UT_MAKS_PEMAIN - 1);
+        mulaiGameMultiPemain(kandidat);
       }).catch(function(e){
         tampilkanDebug('❌ Gagal mencari lawan online: ' + e.message);
-        mulaiGameBot(); // tetap bisa main walau pencarian gagal
+        mulaiGameMultiPemain([]); // tetap bisa main (lawan semua bot) walau pencarian gagal
       });
     }, 1800); // jeda sebentar biar terasa seperti benar-benar mencari
   }
 
-  function mulaiGameBot(){
+  // Bangun game baru berisi diri sendiri + user online yang ditemukan + bot pengisi slot kosong.
+  function mulaiGameMultiPemain(kandidatOnline){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
     var myNama = auth.currentUser.displayName || 'Kamu';
-    var namaBot = UT_NAMA_BOT_POOL[Math.floor(Math.random() * UT_NAMA_BOT_POOL.length)];
 
-    var playerNames = {};
-    playerNames[myUid] = myNama;
-    playerNames[UT_BOT_UID] = namaBot;
+    var players = [myUid];
+    var playerNames = {}; playerNames[myUid] = myNama;
+    var playerPhotos = {}; playerPhotos[myUid] = null; // diambil dari Firestore saat papan dibuka
+    var playerIsBot = {}; playerIsBot[myUid] = false;
+    var positions = {}; positions[myUid] = 0;
+    var namaDipakai = [myNama];
+    var fotoDipakai = [];
+    var adaBot = false;
 
-    var positions = {};
-    positions[myUid] = 0;
-    positions[UT_BOT_UID] = 0;
+    kandidatOnline.forEach(function(k){
+      players.push(k.uid);
+      playerNames[k.uid] = k.nama;
+      playerPhotos[k.uid] = k.foto || null;
+      playerIsBot[k.uid] = false;
+      positions[k.uid] = 0;
+      namaDipakai.push(k.nama);
+      if(k.foto) fotoDipakai.push(k.foto);
+    });
+
+    var sisaSlot = UT_MAKS_PEMAIN - players.length;
+    for(var i = 0; i < sisaSlot; i++){
+      var botUid = 'BOT_' + Date.now() + '_' + i;
+      var profil = ambilProfilBotAcak(namaDipakai, fotoDipakai);
+      players.push(botUid);
+      playerNames[botUid] = profil.nama;
+      playerPhotos[botUid] = profil.foto;
+      playerIsBot[botUid] = true;
+      positions[botUid] = 0;
+      namaDipakai.push(profil.nama);
+      fotoDipakai.push(profil.foto);
+      adaBot = true;
+    }
 
     db.collection('ulartangga').add({
-      players: [myUid, UT_BOT_UID],
+      players: players,
       playerNames: playerNames,
+      playerPhotos: playerPhotos,
+      playerIsBot: playerIsBot,
       positions: positions,
-      turnUid: myUid,
+      turnUid: players[0],
       status: 'playing',
       winner: null,
       lastRoll: 0,
-      vsBot: true,
+      vsBot: adaBot,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(docRef){
       bukaPapanUlarTangga(docRef.id);
     }).catch(function(e){
-      tampilkanDebug('❌ Gagal membuat game bot: ' + e.message);
+      tampilkanDebug('❌ Gagal membuat game: ' + e.message);
     });
   }
 
+  // "Ajak Main" satu teman tertentu langsung 1 lawan 1 (tanpa bot pengisi).
   function mulaiGameUlarTangga(targetUid, targetNama){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
     var myNama = auth.currentUser.displayName || 'Kamu';
 
-    var playerNames = {};
-    playerNames[myUid] = myNama;
-    playerNames[targetUid] = targetNama;
-
-    var positions = {};
-    positions[myUid] = 0;
-    positions[targetUid] = 0;
+    var playerNames = {}; playerNames[myUid] = myNama; playerNames[targetUid] = targetNama;
+    var playerIsBot = {}; playerIsBot[myUid] = false; playerIsBot[targetUid] = false;
+    var positions = {}; positions[myUid] = 0; positions[targetUid] = 0;
 
     db.collection('ulartangga').add({
       players: [myUid, targetUid],
       playerNames: playerNames,
+      playerIsBot: playerIsBot,
       positions: positions,
       turnUid: myUid,
       status: 'playing',
       winner: null,
       lastRoll: 0,
+      vsBot: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(docRef){
       kirimNotifikasi(targetUid, 'game', myNama + ' mengajakmu main Ular Tangga!', { fromUid: myUid, fromName: myNama, gameId: docRef.id });
@@ -3622,7 +3686,7 @@ var daftarAvatarPreset = [
     showView('ularTanggaBoard');
     utLastRollDitampilkan = null; // reset supaya animasi dadu tetap jalan di game baru
     utFotoPemain = {}; // reset cache foto profil pemain
-    utBotSedangJalan = false;
+    utBotSedangJalan = {};
     utSelesaiModalDitampilkan = false; // reset supaya modal hasil bisa muncul lagi di game baru
     document.getElementById('utSelesaiModal').classList.remove('show');
     bangunGridUlarTangga();
@@ -3631,7 +3695,7 @@ var daftarAvatarPreset = [
     unsubscribeUlarTangga = db.collection('ulartangga').doc(gameId).onSnapshot(function(doc){
       if(!doc.exists) return;
       var data = doc.data();
-      muatFotoPemainUlarTangga(data.players);
+      muatFotoPemainUlarTangga(data);
       renderPapanUlarTangga(data);
     }, function(e){
       tampilkanDebug('❌ Gagal memuat papan game: ' + e.message);
@@ -3640,10 +3704,15 @@ var daftarAvatarPreset = [
 
   var utFotoPemain = {};
 
-  // Ambil foto profil kedua pemain sekali saja per uid (di-cache, tidak query berulang)
-  function muatFotoPemainUlarTangga(players){
-    players.forEach(function(uid){
-      if(uid === UT_BOT_UID) return; // bot tidak punya profil di Firestore
+  // Ambil foto profil pemain asli sekali saja per uid (di-cache, tidak query berulang).
+  // Untuk bot, fotonya sudah tersimpan langsung di dokumen game (playerPhotos).
+  function muatFotoPemainUlarTangga(data){
+    data.players.forEach(function(uid){
+      var isBot = data.playerIsBot && data.playerIsBot[uid];
+      if(isBot){
+        utFotoPemain[uid] = (data.playerPhotos && data.playerPhotos[uid]) || null;
+        return;
+      }
       if(utFotoPemain[uid] !== undefined) return; // sudah pernah diambil (atau sedang diambil)
       utFotoPemain[uid] = null;
       db.collection('users').doc(uid).get().then(function(doc){
@@ -3699,26 +3768,23 @@ var daftarAvatarPreset = [
 
   function renderPapanUlarTangga(data){
     var myUid = auth.currentUser.uid;
-    var lawanUid = data.players.filter(function(u){ return u !== myUid; })[0];
-    var namaSaya = data.playerNames[myUid] || 'Kamu';
-    var namaLawan = data.playerNames[lawanUid] || 'Lawan';
-    var posSaya = data.positions[myUid] || 0;
-    var posLawan = data.positions[lawanUid] || 0;
-    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
+    var players = data.players || [];
 
-    // ---- subjudul header: lawan main siapa ----
-    document.getElementById('utHeaderSub').textContent =
-      (lawanUid === UT_BOT_UID ? 'Lawan main: 🤖 ' : 'Lawan main: ') + namaLawan;
+    // ---- subjudul header ----
+    document.getElementById('utHeaderSub').textContent = (players.length) + ' pemain di papan';
 
     // ---- status ----
     var statusEl = document.getElementById('utStatusBar');
+    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
     if(data.status === 'finished'){
-      statusEl.textContent = (data.winner === myUid) ? '🎉 Kamu Menang!' : '😢 ' + namaLawan + ' Menang';
+      var namaMenang = (data.playerNames && data.playerNames[data.winner]) || 'Pemain';
+      statusEl.textContent = (data.winner === myUid) ? '🎉 Kamu Menang!' : '🏆 ' + namaMenang + ' Menang';
     } else {
-      statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaLawan + '...';
+      var namaGiliran = (data.playerNames && data.playerNames[data.turnUid]) || 'Pemain';
+      statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaGiliran + '...';
     }
 
-    // Kalau lawannya bot dan sekarang giliran bot, jalankan otomatis
+    // Kalau giliran sekarang bot, jalankan otomatis (client manapun yang papannya lagi terbuka)
     jalankanGiliranBotJikaPerlu(data);
 
     // ---- dadu (dengan animasi kocok tiap kali angkanya berubah) ----
@@ -3736,63 +3802,90 @@ var daftarAvatarPreset = [
     btn.disabled = !giliranSaya;
     btn.textContent = data.status === 'finished' ? 'Game Selesai' : (giliranSaya ? 'Lempar Dadu' : 'Menunggu...');
 
-    // ---- token (dipindah posisinya, bukan digambar ulang, supaya bisa meluncur halus) ----
-    var layer = document.getElementById('utTokenLayer');
-    var tokenSaya = document.getElementById('utTokenMe');
-    var tokenLawan = document.getElementById('utTokenOpp');
-    if(!tokenSaya){
-      layer.innerHTML =
-        '<div id="utTokenMe" class="ut-token" style="background:var(--purple-brand);"></div>' +
-        '<div id="utTokenOpp" class="ut-token" style="background:var(--pink-glow);"></div>';
-      tokenSaya = document.getElementById('utTokenMe');
-      tokenLawan = document.getElementById('utTokenOpp');
-    }
-    var fotoSaya = utFotoPemain[myUid];
-    var fotoLawan = utFotoPemain[lawanUid];
-    tokenSaya.style.backgroundImage = fotoSaya ? 'url(' + fotoSaya + ')' : 'none';
-    tokenSaya.style.backgroundSize = 'cover';
-    tokenSaya.style.backgroundPosition = 'center';
-    tokenSaya.textContent = fotoSaya ? '' : hurufAwal(namaSaya);
-    tokenLawan.style.backgroundImage = fotoLawan ? 'url(' + fotoLawan + ')' : 'none';
-    tokenLawan.style.backgroundSize = 'cover';
-    tokenLawan.style.backgroundPosition = 'center';
-    tokenLawan.textContent = fotoLawan ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan));
-    var posMe = posisiPersenKotak(posSaya);
-    var posOpp = posisiPersenKotak(posLawan);
-    // Kalau dua token di kotak yang sama, geser dikit biar kelihatan berdua
-    if(posSaya === posLawan && posSaya !== 0){
-      posMe.left = 'calc(' + posMe.left + ' - 6%)';
-      posOpp.left = 'calc(' + posOpp.left + ' + 6%)';
-    }
-    tokenSaya.style.left = posMe.left;
-    tokenSaya.style.top = posMe.top;
-    tokenLawan.style.left = posOpp.left;
-    tokenLawan.style.top = posOpp.top;
-    tokenSaya.classList.toggle('giliran', giliranSaya);
-    tokenLawan.classList.toggle('giliran', !giliranSaya && data.status === 'playing');
+    // ---- strip avatar pemain di atas papan ----
+    var stripHtml = '';
+    players.forEach(function(uid, idx){
+      var nama = (data.playerNames && data.playerNames[uid]) || 'Pemain';
+      var foto = utFotoPemain[uid];
+      var warna = UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length];
+      var aktif = data.status === 'playing' && data.turnUid === uid;
+      stripHtml += '<div class="ut-pchip' + (aktif ? ' giliran' : '') + '">' +
+          '<div class="ut-pchip-avatar" style="background-color:' + warna + ';' + (foto ? ('background-image:url(' + foto + ');') : '') + '">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
+          '<div class="ut-pchip-name">' + escapeHtml(uid === myUid ? 'Kamu' : nama) + '</div>' +
+          '<div class="ut-pchip-pos">Kotak ' + (data.positions ? (data.positions[uid] || 0) : 0) + '</div>' +
+        '</div>';
+    });
+    document.getElementById('utPlayersStrip').innerHTML = stripHtml;
 
-    // ---- info pemain (avatar besar + nama + progress bar kotak dari 100) ----
-    document.getElementById('utPlayersInfo').innerHTML =
-      '<div class="ut-player-card' + (giliranSaya ? ' giliran' : '') + '">' +
-        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[myUid] ? 'url(' + utFotoPemain[myUid] + ') center/cover' : 'var(--purple-brand)') + ';">' + (utFotoPemain[myUid] ? '' : hurufAwal(namaSaya)) + '</div>' +
-        '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaSaya) + '</p>' +
-        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posSaya + '/100</p>' +
-        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posSaya + '%;background:var(--purple-brand);"></div></div>' +
-      '</div>' +
-      '<div class="ut-vs-badge">VS</div>' +
-      '<div class="ut-player-card' + (!giliranSaya && data.status==='playing' ? ' giliran' : '') + '">' +
-        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[lawanUid] ? 'url(' + utFotoPemain[lawanUid] + ') center/cover' : 'var(--pink-glow)') + ';">' + (utFotoPemain[lawanUid] ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan))) + '</div>' +
-        '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaLawan) + '</p>' +
-        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posLawan + '/100</p>' +
-        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posLawan + '%;background:var(--pink-glow);"></div></div>' +
-      '</div>';
+    // ---- token di papan (dipindah posisinya, bukan digambar ulang, supaya bisa meluncur halus) ----
+    var layer = document.getElementById('utTokenLayer');
+    if(layer.children.length !== players.length){
+      var tokenHtml = '';
+      players.forEach(function(uid, idx){
+        tokenHtml += '<div id="utToken_' + idx + '" class="ut-token" style="background-color:' + UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length] + ';"></div>';
+      });
+      layer.innerHTML = tokenHtml;
+    }
+    // hitung kotak yang sama-sama ditempati beberapa token, biar digeser dikit supaya kelihatan semua
+    var pengelompokanKotak = {};
+    players.forEach(function(uid){
+      var pos = (data.positions ? (data.positions[uid] || 0) : 0);
+      pengelompokanKotak[pos] = (pengelompokanKotak[pos] || 0) + 1;
+    });
+    var urutanDiKotak = {};
+    players.forEach(function(uid, idx){
+      var pos = (data.positions ? (data.positions[uid] || 0) : 0);
+      var totalDiKotak = pengelompokanKotak[pos];
+      var indexDiKotak = urutanDiKotak[pos] || 0;
+      urutanDiKotak[pos] = indexDiKotak + 1;
+
+      var token = document.getElementById('utToken_' + idx);
+      var foto = utFotoPemain[uid];
+      token.style.backgroundImage = foto ? ('url(' + foto + ')') : 'none';
+      token.style.backgroundSize = 'cover';
+      token.style.backgroundPosition = 'center';
+      var nama = (data.playerNames && data.playerNames[uid]) || '?';
+      token.textContent = foto ? '' : hurufAwal(nama);
+
+      var koordinat = posisiPersenKotak(pos);
+      var offsetX = totalDiKotak > 1 ? (indexDiKotak - (totalDiKotak - 1) / 2) * 7 : 0;
+      token.style.left = 'calc(' + koordinat.left + ' + ' + offsetX + '%)';
+      token.style.top = koordinat.top;
+      token.classList.toggle('giliran', data.status === 'playing' && data.turnUid === uid);
+    });
+
+    // ---- papan skor (posisi semua pemain, urut dari yang terdepan) ----
+    var urutSkor = players.slice().sort(function(a, b){
+      var pa = data.positions ? (data.positions[a] || 0) : 0;
+      var pb = data.positions ? (data.positions[b] || 0) : 0;
+      return pb - pa;
+    });
+    var skorHtml = '';
+    urutSkor.forEach(function(uid){
+      var idx = players.indexOf(uid);
+      var nama = (data.playerNames && data.playerNames[uid]) || 'Pemain';
+      var pos = data.positions ? (data.positions[uid] || 0) : 0;
+      var foto = utFotoPemain[uid];
+      var warna = UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length];
+      var aktif = data.status === 'playing' && data.turnUid === uid;
+      skorHtml += '<div class="ut-score-row' + (aktif ? ' giliran' : '') + '">' +
+          '<div class="ut-score-avatar" style="background-color:' + warna + ';' + (foto ? ('background-image:url(' + foto + ');') : '') + '">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
+          '<div class="ut-score-info">' +
+            '<div class="ut-score-name">' + escapeHtml(uid === myUid ? 'Kamu' : nama) + (uid === myUid ? ' <span style="color:var(--purple-brand);">(kamu)</span>' : '') + '</div>' +
+            '<div class="ut-score-bar-track"><div class="ut-score-bar-fill" style="width:' + pos + '%;background:' + warna + ';"></div></div>' +
+          '</div>' +
+          '<div class="ut-score-num">' + pos + '/100</div>' +
+        '</div>';
+    });
+    document.getElementById('utScoreboard').innerHTML = skorHtml;
 
     // ---- modal hasil akhir (muncul sekali saat game selesai) ----
     if(data.status === 'finished' && !utSelesaiModalDitampilkan){
       utSelesaiModalDitampilkan = true;
       var menang = data.winner === myUid;
+      var namaPemenang = (data.playerNames && data.playerNames[data.winner]) || 'Pemain lain';
       document.getElementById('utSelesaiEmoji').textContent = menang ? '🏆' : '💜';
-      document.getElementById('utSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaLawan + ' Menang';
+      document.getElementById('utSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaPemenang + ' Menang';
       document.getElementById('utSelesaiText').textContent = menang
         ? 'Selamat, kamu duluan sampai kotak 100!'
         : 'Jangan menyerah, coba lagi yuk!';
@@ -3843,7 +3936,8 @@ var daftarAvatarPreset = [
   }
 
   // Fungsi inti lempar dadu, bisa dipanggil untuk diri sendiri ATAU untuk bot
-  // (karena bot tidak punya "device" sendiri, giliran bot dijalankan dari HP lawannya).
+  // (karena bot tidak punya "device" sendiri, giliran bot dijalankan dari HP pemain asli
+  // yang papannya lagi terbuka).
   function lemparDaduUntuk(pelemparUid){
     if(!db || !gameUlarTanggaAktifId || !auth.currentUser) return;
     var ref = db.collection('ulartangga').doc(gameUlarTanggaAktifId);
@@ -3853,7 +3947,6 @@ var daftarAvatarPreset = [
       if(!data || data.status !== 'playing' || data.turnUid !== pelemparUid) return;
 
       var roll = Math.floor(Math.random() * 6) + 1;
-      var lawanUid = data.players.filter(function(u){ return u !== pelemparUid; })[0];
       var posSekarang = data.positions[pelemparUid] || 0;
       var posBaru = Math.min(100, posSekarang + roll);
 
@@ -3861,9 +3954,13 @@ var daftarAvatarPreset = [
       else if(TANGGA_MAP[posBaru]){ posBaru = TANGGA_MAP[posBaru]; }
 
       var menang = posBaru === 100;
+      var idxSekarang = data.players.indexOf(pelemparUid);
+      var idxBerikut = (idxSekarang + 1) % data.players.length;
+      var uidBerikut = data.players[idxBerikut];
+
       var updateData = {
         lastRoll: roll,
-        turnUid: menang ? pelemparUid : lawanUid
+        turnUid: menang ? pelemparUid : uidBerikut
       };
       updateData['positions.' + pelemparUid] = posBaru;
       if(menang){
@@ -3872,9 +3969,13 @@ var daftarAvatarPreset = [
       }
 
       ref.update(updateData).then(function(){
-        if(menang && lawanUid !== UT_BOT_UID){
+        if(menang){
           var namaPelempar = data.playerNames[pelemparUid] || 'Lawanmu';
-          kirimNotifikasi(lawanUid, 'game', namaPelempar + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
+          data.players.forEach(function(uid){
+            if(uid === pelemparUid) return;
+            if(data.playerIsBot && data.playerIsBot[uid]) return; // bot tidak perlu notifikasi
+            kirimNotifikasi(uid, 'game', namaPelempar + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
+          });
         }
       });
     }).catch(function(e){
@@ -3882,18 +3983,21 @@ var daftarAvatarPreset = [
     });
   }
 
-  // Kalau giliran bot, jalankan otomatis setelah jeda sebentar (biar terasa alami)
-  var utBotSedangJalan = false;
+  // Kalau giliran bot, jalankan otomatis setelah jeda sebentar (biar terasa alami).
+  // Dilacak per-uid bot supaya beberapa bot di game yang sama tidak saling tabrak.
+  var utBotSedangJalan = {};
   function jalankanGiliranBotJikaPerlu(data){
     if(!data.vsBot || data.status !== 'playing') return;
-    if(data.turnUid !== UT_BOT_UID) return;
-    if(utBotSedangJalan) return;
+    var isBotGiliran = data.playerIsBot && data.playerIsBot[data.turnUid];
+    if(!isBotGiliran) return;
+    if(utBotSedangJalan[data.turnUid]) return;
 
-    utBotSedangJalan = true;
+    var uidGiliran = data.turnUid;
+    utBotSedangJalan[uidGiliran] = true;
     setTimeout(function(){
-      lemparDaduUntuk(UT_BOT_UID);
-      utBotSedangJalan = false;
-    }, 1200);
+      lemparDaduUntuk(uidGiliran);
+      utBotSedangJalan[uidGiliran] = false;
+    }, 1100 + Math.random() * 500);
   }
 
   function bukaEditProfil(){
