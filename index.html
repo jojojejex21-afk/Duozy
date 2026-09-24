@@ -274,6 +274,7 @@
   .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; color:var(--text-muted); font-weight:600; }
   .nav-item.active{ color:var(--purple-brand); }
   .nav-icon{ font-size:19px; }
+  #chatNavBadge{ border-color:#fff; }
 
   /* ================= HOME ================= */
   #view-home .header{
@@ -1072,17 +1073,17 @@
         <h1 id="chatDetailName" style="font-size:15px;">Nama Teman</h1>
         <p id="chatDetailStatus" style="font-size:11px;color:var(--text-muted);margin-top:1px;"></p>
       </div>
-      <div class="icon-btn clickable" onclick="bukaMenuOpsiChat()">⋯</div>
+      <div class="icon-btn clickable" onclick="bukaMenuOpsiChat()" style="background:var(--bg-app);border:none;font-weight:800;letter-spacing:1px;color:var(--purple-brand);">⋯</div>
     </div>
     <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:3px;background:var(--bg-app);">
       <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
     </div>
     <div style="display:flex;gap:8px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
-      <button class="chat-attach-btn clickable" onclick="document.getElementById('chatMediaInput').click()" title="Kirim foto/video">🖼️</button>
+      <button class="chat-attach-btn clickable" onclick="bukaPemilihMediaChat()" title="Kirim foto">🖼️</button>
       <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;min-width:0;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
       <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
     </div>
-    <input type="file" id="chatMediaInput" accept="image/*,video/*" style="display:none;" onchange="prosesMediaChatDipilih(event)">
+    <input type="file" id="chatMediaInput" accept="image/*" style="display:none;" onchange="prosesMediaChatDipilih(event)">
   </div>
 
   <!-- ================= MENU OPSI CHAT (bottom sheet ala Litmatch) ================= -->
@@ -1445,7 +1446,7 @@
   <div class="bottom-nav" id="bottomNav">
     <div class="nav-item" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div>Beranda</div>
     <div class="nav-item" data-view="momen" onclick="showView('momen')"><div class="nav-icon">📸</div>Momen</div>
-    <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon">💬</div>Chat</div>
+    <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon" style="position:relative;">💬<span class="dot-badge" id="chatNavBadge" style="display:none;"></span></div>Chat</div>
     <div class="nav-item" data-view="game" onclick="showView('game')"><div class="nav-icon">🎮</div>Game</div>
     <div class="nav-item" data-view="profil" onclick="showView('profil')"><div class="nav-icon">👤</div>Profil</div>
   </div>
@@ -1456,7 +1457,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
 
 <script>
   // Penangkap error untuk debugging (dicatat ke console saja, tidak tampil di layar)
@@ -1475,7 +1475,6 @@
   var firebaseReady = false;
   var auth = null;
   var db = null;
-  var storage = null;
   try{
     var firebaseConfig = {
       apiKey: "AIzaSyCdsiaPo41OpoV17Cj7F29xV5Yjw-StVo0",
@@ -1488,23 +1487,27 @@
     firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     db = firebase.firestore();
-    storage = firebase.storage();
     firebaseReady = true;
     tampilkanDebug('✅ Firebase berhasil dimuat');
   }catch(e){
     console.error('Firebase gagal dimuat (cek koneksi internet):', e);
     tampilkanDebug('❌ Firebase gagal dimuat: ' + e.message);
   }
+  // Catatan: Firebase Storage TIDAK dipakai di app ini secara sengaja — Storage sekarang
+  // wajib paket Blaze (berbayar) walau cuma pemakaian kecil. Semua foto (profil, Momen,
+  // chat) disimpan sebagai teks base64 langsung di Firestore supaya tetap modal 0.
 </script>
 
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
   var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame']; // halaman tanpa bottom nav, header sendiri
+  var currentViewName = null; // nama view yang lagi aktif sekarang
   var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
 
   function showView(name, opts){
     opts = opts || {};
+    currentViewName = name; // dipakai buat cek "lagi buka chat ini gak" sebelum kasih notifikasi
     document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
     document.getElementById('view-' + name).classList.add('active');
 
@@ -1911,6 +1914,7 @@
       if(dataTambahan.fromUid){ isi.fromUid = dataTambahan.fromUid; }
       if(dataTambahan.fromName){ isi.fromName = dataTambahan.fromName; }
       if(dataTambahan.gameId){ isi.gameId = dataTambahan.gameId; }
+      if(dataTambahan.chatId){ isi.chatId = dataTambahan.chatId; }
     }
     db.collection('notifications').doc(untukUid).collection('items').add(isi)
       .catch(function(e){ tampilkanDebug('❌ Gagal kirim notifikasi: ' + e.message); });
@@ -1933,6 +1937,7 @@
     if(tipe === 'friend') return '👥';
     if(tipe === 'match') return '🎉';
     if(tipe === 'game') return '🎲';
+    if(tipe === 'chat') return '✉️';
     return '🔔';
   }
 
@@ -2000,6 +2005,14 @@
         bukaPapanUlarTangga(n.gameId);
       } else {
         showView('ularTanggaMulai');
+      }
+    } else if(n.type === 'chat'){
+      if(n.chatId && n.fromUid){
+        bukaChatDetail(n.chatId, n.fromUid, n.fromName || 'Pengguna Duozy');
+      } else if(n.fromUid){
+        mulaiChatDengan(n.fromUid, n.fromName || 'Pengguna Duozy');
+      } else {
+        showView('chat');
       }
     }
   }
@@ -2305,8 +2318,8 @@
     { id: 'blossom', css: 'linear-gradient(160deg,#ffe9f2,#ffd0e3)' },
     { id: 'dark', css: 'linear-gradient(160deg,#1c1b2e,#2c2a4a)' }
   ];
-  var mediaChatDipilih = null; // { file, isVideo } — media yang lagi dipilih sebelum dikirim
-  var mediaViewerAktif = null; // { chatId, msgId, storagePath } kalau sedang lihat media sekali-lihat
+  var mediaChatDipilih = null; // string base64 foto (sudah dikompres) yang lagi dipilih sebelum dikirim
+  var mediaViewerAktif = null; // { chatId, msgId } kalau sedang lihat foto sekali-lihat
   var chatPesanCache = []; // [{id, text}] pesan teks di chat aktif, buat fitur cari histori chat
 
   function bukaChatDetail(chatId, otherUid, otherName){
@@ -2325,6 +2338,15 @@
     msgContainer.style.background = bgPreset.css;
 
     showView('chatDetail');
+
+    // Reset hitungan belum-dibaca kita untuk chat ini, karena baru saja dibuka
+    if(db && auth.currentUser){
+      var fieldUnread = 'unread.' + auth.currentUser.uid;
+      var updateUnread = {};
+      updateUnread[fieldUnread] = 0;
+      db.collection('chats').doc(chatId).set(updateUnread, { merge: true })
+        .catch(function(e){ tampilkanDebug('❌ Gagal reset unread: ' + e.message); });
+    }
 
     // Ambil foto & status online lawan bicara sekali saat chat dibuka
     if(db && otherUid){
@@ -2410,7 +2432,7 @@
             } else if(milikSaya){
               isiPesan = '<div class="msg-viewonce-bubble opened"><span class="vo-icon">🔥</span> Terkirim · Sekali Lihat</div>';
             } else {
-              var infoLihat = jsAttr({ chatId: chatId, msgId: doc.id, storagePath: m.storagePath || null });
+              var infoLihat = jsAttr({ chatId: chatId, msgId: doc.id });
               isiPesan = '<div class="msg-viewonce-bubble clickable" onclick="bukaMediaViewer(' + jsAttr(m.mediaUrl) + ',' + jsAttr(m.type) + ',' + infoLihat + ')"><span class="vo-icon">🔥</span> Ketuk untuk lihat · Sekali Lihat</div>';
             }
           } else if(isMedia){
@@ -2628,26 +2650,48 @@
 
   // ================= KIRIM FOTO/VIDEO (biasa & sekali lihat ala WA) =================
 
+  function bukaPemilihMediaChat(){
+    document.getElementById('chatMediaInput').click();
+  }
+
+  // Kompres foto sebelum dikirim, sama seperti fitur Momen: di-resize maks 800px & dipadatkan
+  // ke JPEG, lalu disimpan sebagai teks base64 langsung di Firestore. Tidak butuh Firebase
+  // Storage / paket Blaze — cocok untuk prinsip modal 0 Duozy.
   function prosesMediaChatDipilih(event){
     var file = event.target.files && event.target.files[0];
     event.target.value = ''; // reset supaya bisa pilih file yang sama lagi nanti
     if(!file || !chatDetailAktif) return;
 
-    var isVideo = file.type.indexOf('video') === 0;
-    var maxSize = isVideo ? 30 * 1024 * 1024 : 8 * 1024 * 1024;
-    if(file.size > maxSize){
-      alert('Ukuran file terlalu besar. Maksimal ' + (isVideo ? '30MB untuk video' : '8MB untuk foto') + '.');
+    if(file.type.indexOf('image') !== 0){
+      alert('Untuk sekarang, chat baru bisa kirim foto (video menyusul kalau Duozy sudah bisa upgrade paket Firebase).');
       return;
     }
 
-    mediaChatDipilih = { file: file, isVideo: isVideo };
     var reader = new FileReader();
     reader.onload = function(e){
-      var wrap = document.getElementById('kirimMediaPreviewWrap');
-      wrap.innerHTML = isVideo
-        ? '<video src="' + e.target.result + '" controls style="max-width:100%;max-height:280px;"></video>'
-        : '<img src="' + e.target.result + '" style="max-width:100%;max-height:280px;display:block;">';
-      document.getElementById('kirimMediaModal').classList.add('show');
+      var img = new Image();
+      img.onload = function(){
+        var maxSisi = 800;
+        var skala = Math.min(1, maxSisi / Math.max(img.width, img.height));
+        var w = Math.round(img.width * skala);
+        var h = Math.round(img.height * skala);
+
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+
+        mediaChatDipilih = canvas.toDataURL('image/jpeg', 0.72);
+
+        var wrap = document.getElementById('kirimMediaPreviewWrap');
+        wrap.innerHTML = '<img src="' + mediaChatDipilih + '" style="max-width:100%;max-height:280px;display:block;">';
+        document.getElementById('kirimMediaModal').classList.add('show');
+      };
+      img.onerror = function(){ alert('Gagal membaca gambar. Coba pilih foto lain.'); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){
+      alert('Gagal membaca file. Coba pilih file lain.');
     };
     reader.readAsDataURL(file);
   }
@@ -2659,41 +2703,39 @@
   }
 
   function kirimMediaChat(viewOnce){
-    if(!mediaChatDipilih || !chatDetailAktif || !storage){ return; }
+    if(!mediaChatDipilih || !chatDetailAktif){ return; }
+    if(!auth.currentUser){
+      alert('Sesi login kamu bermasalah. Coba login ulang.');
+      return;
+    }
+
     var chatId = chatDetailAktif.chatId;
+    var otherUid = chatDetailAktif.otherUid;
     var myUid = auth.currentUser.uid;
-    var file = mediaChatDipilih.file;
-    var isVideo = mediaChatDipilih.isVideo;
+    var fotoBase64 = mediaChatDipilih;
     mediaChatDipilih = null;
     document.getElementById('kirimMediaPreviewWrap').innerHTML = '';
     tutupModalId('kirimMediaModal');
 
-    var namaFile = Date.now() + '_' + Math.random().toString(36).slice(2) + (isVideo ? '.mp4' : '.jpg');
-    var path = 'chat_media/' + chatId + '/' + namaFile;
-    var ref = storage.ref().child(path);
-
-    tampilkanDebug('⏳ Mengunggah media chat...');
-    ref.put(file).then(function(snap){
-      return snap.ref.getDownloadURL();
-    }).then(function(url){
-      return db.collection('chats').doc(chatId).collection('messages').add({
-        type: isVideo ? 'video' : 'image',
-        mediaUrl: url,
-        storagePath: path,
-        viewOnce: !!viewOnce,
-        senderId: myUid,
-        read: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+    db.collection('chats').doc(chatId).collection('messages').add({
+      type: 'image',
+      mediaUrl: fotoBase64,
+      viewOnce: !!viewOnce,
+      senderId: myUid,
+      read: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(){
       return db.collection('chats').doc(chatId).set({
-        lastMessage: viewOnce ? '🔥 Media sekali lihat' : (isVideo ? '🎥 Video' : '📷 Foto'),
+        lastMessage: viewOnce ? '🔥 Foto sekali lihat' : '📷 Foto',
         lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastSenderId: myUid
       }, { merge: true });
+    }).then(function(){
+      tandaiPesanBaruTerkirim(chatId, otherUid, viewOnce ? '🔥 Foto sekali lihat' : '📷 Foto');
     }).catch(function(e){
-      tampilkanDebug('❌ Gagal mengirim media: ' + e.message);
-      alert('Gagal mengirim media. Coba lagi ya.');
+      console.error('Gagal mengirim foto chat:', e);
+      tampilkanDebug('❌ Gagal mengirim foto: ' + (e.code || '') + ' ' + e.message);
+      alert('Gagal mengirim foto. Coba lagi ya.\n\nDetail: ' + (e.code || e.message || 'tidak diketahui'));
     });
   }
 
@@ -2703,7 +2745,7 @@
       ? '<video src="' + url + '" controls autoplay style="max-width:100%;max-height:85vh;border-radius:8px;"></video>'
       : '<img src="' + url + '" style="max-width:100%;max-height:85vh;border-radius:8px;">';
     document.getElementById('mediaViewerCaption').textContent = viewOnceInfo
-      ? '🔥 Sekali lihat — media ini akan hilang setelah kamu tutup'
+      ? '🔥 Sekali lihat — foto ini akan hilang setelah kamu tutup'
       : '';
     document.getElementById('mediaViewerOverlay').classList.add('show');
     mediaViewerAktif = viewOnceInfo || null;
@@ -2715,13 +2757,13 @@
     if(mediaViewerAktif){
       var info = mediaViewerAktif;
       mediaViewerAktif = null;
+      // Cukup hapus field foto dari Firestore — sudah cukup untuk "menghilang", tidak ada
+      // file terpisah di Storage yang perlu dibersihkan karena fotonya disimpan langsung
+      // sebagai base64 di dalam dokumen pesan.
       db.collection('chats').doc(info.chatId).collection('messages').doc(info.msgId).update({
         mediaUrl: firebase.firestore.FieldValue.delete(),
         opened: true
       }).catch(function(e){ tampilkanDebug('❌ Gagal menandai media sekali-lihat: ' + e.message); });
-      if(info.storagePath && storage){
-        storage.ref().child(info.storagePath).delete().catch(function(){ /* mungkin sudah terhapus, abaikan */ });
-      }
     }
   }
 
@@ -2749,6 +2791,7 @@
 
     var myUid = auth.currentUser.uid;
     var chatId = chatDetailAktif.chatId;
+    var otherUid = chatDetailAktif.otherUid;
     input.value = '';
 
     db.collection('chats').doc(chatId).collection('messages').add({
@@ -2762,24 +2805,46 @@
         lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastSenderId: myUid
       }, { merge: true });
+    }).then(function(){
+      tandaiPesanBaruTerkirim(chatId, otherUid, teks);
     }).catch(function(e){
       tampilkanDebug('❌ Gagal mengirim pesan: ' + e.message);
     });
   }
 
+  // Naikkan hitungan belum-dibaca punya lawan bicara + kirim ke pusat notifikasi,
+  // dipanggil tiap kali berhasil mengirim pesan (teks maupun foto).
+  function tandaiPesanBaruTerkirim(chatId, otherUid, previewText){
+    if(!db || !otherUid) return;
+    var myUid = auth.currentUser.uid;
+    var myName = auth.currentUser.displayName || 'Pengguna Duozy';
+    var field = 'unread.' + otherUid;
+    var update = {};
+    update[field] = firebase.firestore.FieldValue.increment(1);
+    db.collection('chats').doc(chatId).set(update, { merge: true })
+      .catch(function(e){ tampilkanDebug('❌ Gagal update jumlah belum dibaca: ' + e.message); });
+    kirimNotifikasi(otherUid, 'chat', myName + ': ' + previewText, { fromUid: myUid, fromName: myName, chatId: chatId });
+  }
+
   // Dengarkan daftar chat milik user secara real-time untuk halaman Chat (list)
+  var chatListPertamaKaliDimuat = false; // supaya tidak nge-notif semua chat lama pas app baru dibuka
+  var terakhirDinotifChat = {}; // { chatId: millis lastMessageAt } biar gak notif dobel
+
   function muatDaftarChat(){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
     var container = document.getElementById('chatListContainer');
 
     if(unsubscribeChatList){ unsubscribeChatList(); }
+    chatListPertamaKaliDimuat = false;
 
     unsubscribeChatList = db.collection('chats')
       .where('participants', 'array-contains', myUid)
       .onSnapshot(function(snapshot){
         if(snapshot.empty){
           container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:30px;">Belum ada chat. Ketuk ✎ untuk mulai chat baru.</p>';
+          chatListPertamaKaliDimuat = true;
+          perbaruiBadgeChatNav(0);
           return;
         }
         var chats = [];
@@ -2796,27 +2861,82 @@
         });
 
         var html = '';
+        var totalBelumDibaca = 0;
         chats.forEach(function(c){
           var otherUid = c.data.participants.filter(function(uid){ return uid !== myUid; })[0];
           var namaAsli = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
           var alias = c.data.aliasMap && c.data.aliasMap[myUid];
           var otherName = alias || namaAsli;
           var dipin = !!(c.data.pinnedMap && c.data.pinnedMap[myUid]);
+          var jumlahBelumDibaca = (c.data.unread && c.data.unread[myUid]) || 0;
+          totalBelumDibaca += jumlahBelumDibaca;
           var preview = c.data.lastMessage || 'Belum ada pesan';
           html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + jsAttr(c.id) + ', ' + jsAttr(otherUid) + ', ' + jsAttr(otherName) + ')">' +
                     '<div class="chat-avatar"></div>' +
                     '<div class="chat-main">' +
-                      '<div class="row1"><span class="name">' + (dipin ? '📌 ' : '') + escapeHtml(otherName) + '</span></div>' +
-                      '<div class="row2"><span class="preview">' + escapeHtml(preview) + '</span></div>' +
+                      '<div class="row1"><span class="name" style="' + (jumlahBelumDibaca > 0 ? 'font-weight:800;' : '') + '">' + (dipin ? '📌 ' : '') + escapeHtml(otherName) + '</span></div>' +
+                      '<div class="row2" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+                        '<span class="preview" style="' + (jumlahBelumDibaca > 0 ? 'color:var(--text-dark);font-weight:600;' : '') + '">' + escapeHtml(preview) + '</span>' +
+                        (jumlahBelumDibaca > 0 ? '<span style="background:var(--pink-glow);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;">' + (jumlahBelumDibaca > 9 ? '9+' : jumlahBelumDibaca) + '</span>' : '') +
+                      '</div>' +
                     '</div>' +
                   '</div>';
+
+          // ---- deteksi pesan baru masuk untuk notifikasi browser (best-effort) ----
+          // Dilewati untuk snapshot PERTAMA (supaya tidak nge-notif semua chat lama pas app baru dibuka)
+          // dan untuk pesan yang kita kirim sendiri, atau chat yang sedang dibuka aktif.
+          if(chatListPertamaKaliDimuat && c.data.lastSenderId && c.data.lastSenderId !== myUid){
+            var waktuIni = c.data.lastMessageAt ? c.data.lastMessageAt.toMillis() : 0;
+            var waktuSebelumnya = terakhirDinotifChat[c.id] || 0;
+            var sedangDibukaChatIni = (currentViewName === 'chatDetail' && chatDetailAktif && chatDetailAktif.chatId === c.id);
+            if(waktuIni > waktuSebelumnya && !sedangDibukaChatIni){
+              tampilkanNotifikasiBrowser(otherName, preview, c.id, otherUid);
+            }
+          }
+          if(c.data.lastMessageAt){ terakhirDinotifChat[c.id] = c.data.lastMessageAt.toMillis(); }
         });
         container.innerHTML = html;
+        chatListPertamaKaliDimuat = true;
+        perbaruiBadgeChatNav(totalBelumDibaca);
       }, function(e){
         container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;margin-top:30px;">Gagal memuat daftar chat.</p>';
         tampilkanDebug('❌ Gagal memuat daftar chat: ' + e.message);
       });
   }
+
+  function perbaruiBadgeChatNav(total){
+    var badge = document.getElementById('chatNavBadge');
+    if(badge){ badge.style.display = total > 0 ? 'block' : 'none'; }
+    document.title = total > 0 ? '(' + (total > 9 ? '9+' : total) + ') Duozy' : 'Duozy';
+  }
+
+  // Minta izin notifikasi browser sekali setelah login. Ini "best-effort": cuma akan
+  // muncul selama tab/app-nya masih terbuka di background, TIDAK menjamin muncul kalau
+  // app sudah ditutup total dari recent apps / HP dikunci lama — itu butuh push notification
+  // asli (Firebase Cloud Messaging) yang perlu paket Blaze buat server pengirimnya.
+  function mintaIzinNotifikasiBrowser(){
+    if(typeof Notification === 'undefined') return;
+    if(Notification.permission === 'default'){
+      Notification.requestPermission().catch(function(){});
+    }
+  }
+
+  function tampilkanNotifikasiBrowser(namaPengirim, isiPesan, chatId, otherUid){
+    if(typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+    try{
+      var notif = new Notification(namaPengirim + ' • Duozy', {
+        body: isiPesan,
+        tag: 'chat-' + chatId // biar notif chat yang sama numpuk jadi satu, gak spam
+      });
+      notif.onclick = function(){
+        window.focus();
+        bukaChatDetail(chatId, otherUid, namaPengirim);
+        notif.close();
+      };
+    }catch(e){ /* sebagian browser mobile tidak dukung new Notification() langsung, abaikan */ }
+  }
+
+
 
   // ================= DATING / MATCH (Firestore real-time) =================
 
@@ -3966,6 +4086,7 @@ var daftarAvatarPreset = [
       mulaiHeartbeatOnline();
       pantauBadgeNotifikasi();
       muatUserOnline();
+      mintaIzinNotifikasiBrowser();
       showView('home');
     } else {
       showView('login');
