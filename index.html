@@ -862,7 +862,6 @@
           DUOZY
         </div>
         <div class="header-icons">
-          <div class="icon-btn">🔍</div>
           <div class="icon-btn clickable" onclick="bukaNotifikasi()">🔔<span class="dot-badge" id="notifBadge" style="display:none;"></span></div>
           <div class="avatar-tiny clickable" onclick="showView('profil')"></div>
         </div>
@@ -902,18 +901,6 @@
         </div>
         <div class="online-row" id="onlineRowContainer">
           <p style="font-size:11.5px;color:var(--text-muted);">Memuat...</p>
-        </div>
-      </div>
-
-      <div class="section">
-        <div class="section-head">
-          <h2>Game Populer</h2>
-          <span class="see-all clickable" onclick="showView('game')">Lihat semua ›</span>
-        </div>
-        <div class="game-row">
-          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-1">🏃</div><div class="game-info"><p>Run Together</p><small>12.4K online</small></div></div>
-          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-2">⚔️</div><div class="game-info"><p>Mini Battle</p><small>8.7K online</small></div></div>
-          <div class="game-card clickable" onclick="showView('game')"><div class="game-thumb gt-3">🎲</div><div class="game-info"><p>Ludo Party</p><small>6.3K online</small></div></div>
         </div>
       </div>
     </div>
@@ -1537,6 +1524,17 @@
         </div>
       </div>
 
+      <!-- Cuma kelihatan kalau login pakai akun admin (admin@duozy.app) -->
+      <div id="adminBroadcastSection" style="display:none;">
+        <p class="section-title" style="margin-top:6px;">📢 Admin — Pengumuman</p>
+        <div class="plist" style="margin-bottom:10px;padding:14px 16px;display:block;">
+          <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;">Pesan ini bakal dikirim ke SEMUA pengguna lewat chat Duozy Official ✓.</p>
+          <textarea id="adminBroadcastText" rows="4" placeholder="Tulis pengumuman di sini..." style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13px;color:var(--text-dark);resize:vertical;font-family:inherit;"></textarea>
+          <button class="clickable" onclick="kirimBroadcastAdmin()" id="adminBroadcastBtn" style="width:100%;margin-top:10px;padding:13px 0;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:13.5px;font-weight:700;">Kirim ke Semua User</button>
+          <p id="adminBroadcastStatus" style="font-size:11.5px;color:var(--text-muted);margin-top:8px;"></p>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -1667,6 +1665,7 @@
     if(name === 'temanBaru'){ muatTemanBaru(); }
     if(name === 'ularTanggaMulai'){ muatUlarTanggaMulai(); }
     if(name === 'soulGame'){ mulaiSoulGame(); }
+    if(name === 'pengaturan'){ perbaruiTampilanAdminBroadcast(); }
 
     // Hubungkan ke tombol/gesture "kembali" bawaan HP, supaya menutup halaman ini
     // kembali ke halaman sebelumnya di dalam app — bukan langsung keluar app.
@@ -3008,6 +3007,112 @@
 
   var DUOZY_OFFICIAL_UID = 'duozy_official';
   var DUOZY_OFFICIAL_NAME = 'Duozy Official';
+  var ADMIN_EMAIL = 'admin@duozy.app'; // login pakai email ini buat akses panel broadcast
+
+  // Tampilkan panel broadcast admin di halaman Pengaturan HANYA kalau yang login
+  // adalah akun admin. Dipanggil tiap kali halaman Pengaturan dibuka.
+  function perbaruiTampilanAdminBroadcast(){
+    var el = document.getElementById('adminBroadcastSection');
+    if(!el) return;
+    var isAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
+    el.style.display = isAdmin ? 'block' : 'none';
+  }
+
+  // Kirim satu pesan pengumuman dari Duozy Official ke SEMUA user yang terdaftar.
+  // Ditulis batch (maks 400 user per batch, tiap user = 2 operasi tulis: chat + pesan)
+  // supaya tetap di bawah limit 500 operasi per batch Firestore.
+  function kirimBroadcastAdmin(){
+    if(!auth.currentUser || auth.currentUser.email !== ADMIN_EMAIL){
+      alert('Cuma akun admin yang bisa kirim pengumuman.');
+      return;
+    }
+    var textEl = document.getElementById('adminBroadcastText');
+    var pesan = textEl.value.trim();
+    if(!pesan){
+      alert('Tulis dulu isi pengumumannya.');
+      return;
+    }
+    if(!confirm('Kirim pengumuman ini ke SEMUA user terdaftar? Aksi ini tidak bisa dibatalkan.')) return;
+
+    var btn = document.getElementById('adminBroadcastBtn');
+    var statusEl = document.getElementById('adminBroadcastStatus');
+    btn.disabled = true;
+    statusEl.textContent = 'Mengambil daftar user...';
+
+    db.collection('users').get().then(function(snap){
+      var daftarUser = [];
+      snap.forEach(function(doc){
+        if(doc.id === DUOZY_OFFICIAL_UID) return; // jaga-jaga
+        daftarUser.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
+      });
+
+      if(daftarUser.length === 0){
+        statusEl.textContent = 'Tidak ada user untuk dikirimi.';
+        btn.disabled = false;
+        return;
+      }
+
+      statusEl.textContent = 'Mengirim ke ' + daftarUser.length + ' user...';
+
+      var UKURAN_BATCH = 400; // per user = 2 operasi tulis, jadi ~800 op < limit 500? -> kita pecah lagi jadi 200/batch
+      var potongan = [];
+      for(var i = 0; i < daftarUser.length; i += 200){
+        potongan.push(daftarUser.slice(i, i + 200));
+      }
+
+      var indexSekarang = 0;
+      function prosesPotonganBerikutnya(){
+        if(indexSekarang >= potongan.length){
+          statusEl.textContent = '✅ Terkirim ke ' + daftarUser.length + ' user.';
+          btn.disabled = false;
+          textEl.value = '';
+          return;
+        }
+        var batch = db.batch();
+        potongan[indexSekarang].forEach(function(u){
+          var chatId = [u.uid, DUOZY_OFFICIAL_UID].sort().join('_');
+          var chatRef = db.collection('chats').doc(chatId);
+          var participantNames = {};
+          participantNames[u.uid] = u.nama;
+          participantNames[DUOZY_OFFICIAL_UID] = DUOZY_OFFICIAL_NAME;
+          var unread = {};
+          unread[u.uid] = firebase.firestore.FieldValue.increment(1);
+
+          batch.set(chatRef, {
+            participants: [u.uid, DUOZY_OFFICIAL_UID],
+            participantNames: participantNames,
+            lastMessage: pesan,
+            lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastSenderId: DUOZY_OFFICIAL_UID,
+            unread: unread
+          }, { merge: true });
+
+          var msgRef = chatRef.collection('messages').doc();
+          batch.set(msgRef, {
+            text: pesan,
+            senderId: DUOZY_OFFICIAL_UID,
+            read: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        });
+
+        batch.commit().then(function(){
+          indexSekarang++;
+          statusEl.textContent = 'Mengirim... (' + Math.min(indexSekarang*200, daftarUser.length) + '/' + daftarUser.length + ')';
+          prosesPotonganBerikutnya();
+        }).catch(function(e){
+          tampilkanDebug('❌ Gagal kirim broadcast: ' + e.message);
+          statusEl.textContent = '❌ Gagal di tengah jalan: ' + e.message;
+          btn.disabled = false;
+        });
+      }
+      prosesPotonganBerikutnya();
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal ambil daftar user: ' + e.message);
+      statusEl.textContent = '❌ Gagal mengambil daftar user.';
+      btn.disabled = false;
+    });
+  }
 
   // ================= BOT DUOZY MATCH =================
   // Teman ngobrol virtual dipakai sebagai cadangan Duozy Match saat belum ada pengguna
