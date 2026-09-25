@@ -24,6 +24,15 @@
     --text-muted:#8b87a3;
     --card-line:#eceafb;
     --unread:#ff4d7e;
+    --surface:#ffffff;
+  }
+
+  :root[data-theme="dark"]{
+    --bg-app:#15132b;
+    --text-dark:#f0eefc;
+    --text-muted:#a9a4c9;
+    --card-line:#2e2b52;
+    --surface:#211f3f;
   }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
@@ -42,7 +51,7 @@
     max-width:430px;
     min-height:100vh;
     min-height:100dvh;
-    background:#fff;
+    background:var(--surface);
     position:relative;
     overflow:hidden;
   }
@@ -75,7 +84,7 @@
   .ut-status-wrap{ text-align:center; margin-bottom:14px; }
   .ut-status-pill{
     display:inline-block; padding:7px 18px; border-radius:20px;
-    background:#fff; box-shadow:0 2px 8px rgba(106,61,216,0.15);
+    background:var(--surface); box-shadow:0 2px 8px rgba(106,61,216,0.15);
     font-size:12.5px; font-weight:700; color:var(--purple-brand);
   }
 
@@ -90,7 +99,7 @@
     position:relative; font-size:8px;
   }
   .ut-cell.ut-cell-even{ background:#f6f4ff; }
-  .ut-cell.ut-cell-odd{ background:#ffffff; }
+  .ut-cell.ut-cell-odd{ background:var(--surface); }
   .ut-cell.ut-cell-start{ background:linear-gradient(135deg,#d7f8e6,#aef1cd) !important; }
   .ut-cell.ut-cell-finish{ background:linear-gradient(135deg,#ffe3b0,#ffcf7d) !important; }
   .ut-cell.ut-cell-ular{ background:linear-gradient(135deg,#ffd9e6,#ffb3cf) !important; }
@@ -150,52 +159,28 @@
     background:#dcd8ea; color:#a9a4c2; cursor:not-allowed; box-shadow:none;
   }
 
-  /* Strip avatar 4 pemain di atas papan */
-  .ut-players-strip{ display:grid; grid-template-columns:repeat(4,1fr); gap:7px; padding:14px 0 2px; }
-  .ut-pchip{
-    background:#fff; border:2px solid transparent; border-radius:14px;
-    padding:8px 4px; text-align:center; transition:.25s;
-    box-shadow:0 3px 8px rgba(30,20,80,0.06);
+  .ut-vs-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:20px; }
+  .ut-player-card{
+    background:var(--surface); border-radius:16px; padding:12px 14px; text-align:center;
+    border:2px solid transparent; box-shadow:0 3px 10px rgba(0,0,0,0.06); flex:1; max-width:150px;
   }
-  .ut-pchip.giliran{
+  .ut-player-card.giliran{
     border-color:var(--purple-brand);
-    background:linear-gradient(180deg,#fff,#f5f0ff);
-    transform:translateY(-3px);
-    box-shadow:0 6px 14px rgba(106,61,216,0.22);
+    background:linear-gradient(180deg,#fff, #f5f0ff);
+    box-shadow:0 6px 16px rgba(106,61,216,0.2);
   }
-  .ut-pchip-avatar{
-    width:34px; height:34px; border-radius:50%; margin:0 auto 4px;
-    background-size:cover; background-position:center;
-    display:flex; align-items:center; justify-content:center;
-    font-size:13px; font-weight:800; color:#fff;
-    border:2px solid #fff; box-shadow:0 2px 5px rgba(0,0,0,.18);
+  .ut-player-avatar{
+    width:38px; height:38px; border-radius:50%; margin:0 auto 6px;
+    border:2.5px solid #fff; box-shadow:0 2px 6px rgba(0,0,0,0.18);
+    display:flex; align-items:center; justify-content:center; font-size:16px; color:#fff; font-weight:700;
   }
-  .ut-pchip-name{
-    font-size:9.5px; font-weight:700; color:var(--text-dark);
-    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  .ut-player-bar-track{ width:100%; height:5px; border-radius:4px; background:var(--card-line); margin-top:7px; overflow:hidden; }
+  .ut-player-bar-fill{ height:100%; border-radius:4px; transition:width 0.4s ease; }
+  .ut-vs-badge{
+    width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
+    color:#fff; font-size:10px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    box-shadow:0 2px 6px rgba(106,61,216,0.3);
   }
-  .ut-pchip-pos{ font-size:8.5px; color:var(--text-muted); margin-top:1px; }
-
-  /* Papan skor (posisi semua pemain) di bawah dadu */
-  .ut-scoreboard{ display:flex; flex-direction:column; gap:7px; margin-top:20px; }
-  .ut-score-row{
-    display:flex; align-items:center; gap:10px;
-    background:#fff; border-radius:13px; padding:9px 13px;
-    box-shadow:0 2px 8px rgba(30,20,80,0.06);
-    border:1.5px solid transparent;
-  }
-  .ut-score-row.giliran{ border-color:var(--purple-brand); }
-  .ut-score-avatar{
-    width:28px; height:28px; border-radius:50%; flex-shrink:0;
-    background-size:cover; background-position:center;
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800; color:#fff;
-  }
-  .ut-score-info{ flex:1; min-width:0; }
-  .ut-score-name{ font-size:11.5px; font-weight:700; color:var(--text-dark); display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .ut-score-bar-track{ width:100%; height:5px; border-radius:4px; background:var(--card-line); margin-top:4px; overflow:hidden; }
-  .ut-score-bar-fill{ height:100%; border-radius:4px; transition:width .4s ease; }
-  .ut-score-num{ font-size:10.5px; font-weight:800; color:var(--text-muted); flex-shrink:0; }
 
   a, .clickable{ cursor:pointer; }
 
@@ -272,10 +257,10 @@
   @keyframes drift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-16px); } }
 
   /* ================= SHARED HEADER / NAV ================= */
-  .topbar{ padding:18px 20px 12px; background:#fff; border-bottom:1px solid var(--card-line); }
+  .topbar{ padding:18px 20px 12px; background:var(--surface); border-bottom:1px solid var(--card-line); }
   .topbar-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
   .topbar-row h1{ font-size:19px; font-weight:800; color:var(--text-dark); }
-  .icon-btn{ width:32px; height:32px; border-radius:50%; background:#fff; border:1px solid var(--card-line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text-dark); }
+  .icon-btn{ width:32px; height:32px; border-radius:50%; background:var(--surface); border:1px solid var(--card-line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text-dark); }
 
   .tabs{ display:flex; gap:8px; overflow-x:auto; }
   .tabs::-webkit-scrollbar{ display:none; }
@@ -291,7 +276,7 @@
 
   .bottom-nav{
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:430px; background:#fff; border-top:1px solid var(--card-line);
+    width:100%; max-width:430px; background:var(--surface); border-top:1px solid var(--card-line);
     display:none; justify-content:space-around; padding:10px 0 14px; z-index:50;
   }
   .bottom-nav.show{ display:flex; }
@@ -337,7 +322,7 @@
 
   .game-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
   .game-row::-webkit-scrollbar{ display:none; }
-  .game-card{ flex-shrink:0; width:120px; border-radius:14px; overflow:hidden; background:#fff; border:1px solid var(--card-line); }
+  .game-card{ flex-shrink:0; width:120px; border-radius:14px; overflow:hidden; background:var(--surface); border:1px solid var(--card-line); }
   .game-thumb{ height:74px; display:flex; align-items:center; justify-content:center; font-size:28px; }
   .gt-1{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
   .gt-2{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
@@ -349,7 +334,7 @@
 
   /* ================= MOMEN ================= */
   #view-momen .content{ padding:0 0 10px; }
-  .create-row{ display:flex; gap:14px; padding:16px 20px; overflow-x:auto; background:#fff; border-bottom:8px solid var(--bg-app); }
+  .create-row{ display:flex; gap:14px; padding:16px 20px; overflow-x:auto; background:var(--surface); border-bottom:8px solid var(--bg-app); }
   .create-row::-webkit-scrollbar{ display:none; }
   .create-item{ display:flex; flex-direction:column; align-items:center; gap:6px; flex-shrink:0; }
   .create-avatar{ width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
@@ -357,7 +342,7 @@
   .create-avatar.face{ background:linear-gradient(135deg,#d9d4ff,#a884ff); border:2px solid #fff; box-shadow:0 0 0 2px var(--pink-glow); }
   .create-item span{ font-size:11px; color:var(--text-dark); font-weight:600; }
 
-  .post{ background:#fff; padding:16px 20px 14px; border-bottom:8px solid var(--bg-app); }
+  .post{ background:var(--surface); padding:16px 20px 14px; border-bottom:8px solid var(--bg-app); }
   .post-head{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
   .post-avatar{ width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; }
   .post-user{ flex:1; }
@@ -379,7 +364,7 @@
 
   /* ================= DATING ================= */
   #view-dating .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px 6px; background:transparent; border:none; }
-  .swipe-card{ background:#fff; border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(106,61,216,0.12); margin-bottom:20px; }
+  .swipe-card{ background:var(--surface); border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(106,61,216,0.12); margin-bottom:20px; }
   .swipe-photo{ height:280px; background:linear-gradient(160deg,#2a2450,#6a3dd8 55%,#c33fa0 130%); display:flex; align-items:flex-end; justify-content:center; font-size:70px; }
   .swipe-info{ padding:16px 18px 20px; text-align:center; }
   .swipe-info h2{ font-size:18px; font-weight:700; color:var(--text-dark); margin-bottom:8px; }
@@ -388,9 +373,9 @@
   .btn-view{ background:var(--bg-app); color:var(--purple-brand); }
   .btn-like{ background:linear-gradient(135deg, var(--heart-red), var(--pink-glow)); color:#fff; }
   .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .rec-card{ background:#fff; border-radius:16px; overflow:hidden; border:1px solid var(--card-line); }
+  .rec-card{ background:var(--surface); border-radius:16px; overflow:hidden; border:1px solid var(--card-line); }
   .rec-photo{ height:130px; display:flex; align-items:flex-start; justify-content:flex-end; padding:8px; }
-  .rec-photo .heart{ width:26px; height:26px; border-radius:50%; background:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--heart-red); }
+  .rec-photo .heart{ width:26px; height:26px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--heart-red); }
   .rp-1{ background:linear-gradient(160deg,#ffb199,#ff5da2); }
   .rp-2{ background:linear-gradient(160deg,#7fd4ff,#4a7dfe); }
   .rec-info{ padding:10px 12px 12px; }
@@ -403,7 +388,7 @@
 
   /* ================= CHAT ================= */
   #view-chat .content{ padding:0; }
-  .chat-row{ display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--card-line); background:#fff; }
+  .chat-row{ display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--card-line); background:var(--surface); }
   .chat-avatar{ width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; }
   .chat-avatar.group{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
   .chat-main{ flex:1; min-width:0; }
@@ -429,7 +414,7 @@
   .couple-banner h2{ font-size:17px; font-weight:800; margin-bottom:4px; }
   .couple-banner p{ font-size:12.5px; color:#f3ecff; }
   .menu-list{ display:flex; flex-direction:column; gap:12px; }
-  .menu-row{ background:#fff; border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; border:1px solid var(--card-line); }
+  .menu-row{ background:var(--surface); border-radius:16px; padding:14px 16px; display:flex; align-items:center; gap:14px; border:1px solid var(--card-line); }
   .mi-1{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
   .mi-2{ background:linear-gradient(135deg,#ff9ac4,#ff5da2); }
   .mi-3{ background:linear-gradient(135deg,#ff8fb3,#ff4d7e); }
@@ -458,7 +443,7 @@
   }
   .pf-badge-row{
     position:absolute; bottom:-6px; left:50%; transform:translateX(-50%);
-    display:flex; align-items:center; gap:3px; background:#fff; border-radius:12px;
+    display:flex; align-items:center; gap:3px; background:var(--surface); border-radius:12px;
     padding:2.5px 8px; box-shadow:0 2px 6px rgba(0,0,0,0.15); white-space:nowrap;
   }
   .pf-badge-row span{ font-size:11px; font-weight:700; }
@@ -475,7 +460,7 @@
 
   .pf-achieve-pill{
     display:flex; align-items:center; justify-content:space-between; margin:14px 20px 0;
-    background:#fff; border:1px solid var(--card-line); border-radius:14px; padding:11px 14px;
+    background:var(--surface); border:1px solid var(--card-line); border-radius:14px; padding:11px 14px;
     box-shadow:0 2px 8px rgba(0,0,0,0.04);
   }
   .pf-achieve-pill span:first-child{ font-size:13px; font-weight:700; color:var(--text-dark); }
@@ -493,7 +478,7 @@
   .bio-text.pf-empty{ font-style:italic; color:#b6b0cf; }
 
   .pf-cta-card{
-    background:#fff; border:1px solid var(--card-line); border-radius:18px; padding:26px 20px;
+    background:var(--surface); border:1px solid var(--card-line); border-radius:18px; padding:26px 20px;
     text-align:center; margin-top:18px; margin-bottom:6px;
   }
   .pf-cta-icon{ font-size:34px; margin-bottom:10px; }
@@ -504,22 +489,22 @@
     background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
   }
 
-  .stats-row{ display:flex; background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 0; margin:18px 0 16px; }
+  .stats-row{ display:flex; background:var(--surface); border-radius:16px; border:1px solid var(--card-line); padding:14px 0; margin:18px 0 16px; }
   .stat{ flex:1; text-align:center; border-right:1px solid var(--card-line); }
   .stat:last-child{ border-right:none; }
   .stat p.num{ font-size:16px; font-weight:800; color:var(--text-dark); }
   .stat p.label{ font-size:11px; color:var(--text-muted); }
-  .level-card{ background:#fff; border-radius:16px; border:1px solid var(--card-line); padding:14px 16px; margin-bottom:16px; }
+  .level-card{ background:var(--surface); border-radius:16px; border:1px solid var(--card-line); padding:14px 16px; margin-bottom:16px; }
   .level-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
   .level-top p.title{ font-size:13.5px; font-weight:700; color:var(--text-dark); display:flex; align-items:center; gap:6px; }
   .level-top p.xp{ font-size:11.5px; color:var(--text-muted); }
   .level-bar-track{ width:100%; height:7px; border-radius:8px; background:var(--bg-app); overflow:hidden; }
   .level-bar-fill{ width:56%; height:100%; border-radius:8px; background:linear-gradient(90deg, var(--purple-brand), var(--pink-glow)); }
-  .edit-btn{ display:block; width:100%; padding:12px 0; border-radius:14px; border:1px solid var(--card-line); background:#fff; color:var(--purple-brand); font-size:13.5px; font-weight:700; margin-bottom:20px; }
+  .edit-btn{ display:block; width:100%; padding:12px 0; border-radius:14px; border:1px solid var(--card-line); background:var(--surface); color:var(--purple-brand); font-size:13.5px; font-weight:700; margin-bottom:20px; }
   .section-title{ font-size:13.5px; font-weight:700; color:var(--text-dark); margin-bottom:10px; }
   .tag-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
-  .tag-row span{ font-size:12px; background:#fff; border:1px solid var(--card-line); color:var(--purple-brand); padding:6px 14px; border-radius:16px; font-weight:600; }
-  .plist{ display:flex; flex-direction:column; background:#fff; border-radius:16px; border:1px solid var(--card-line); overflow:hidden; margin-bottom:20px; }
+  .tag-row span{ font-size:12px; background:var(--surface); border:1px solid var(--card-line); color:var(--purple-brand); padding:6px 14px; border-radius:16px; font-weight:600; }
+  .plist{ display:flex; flex-direction:column; background:var(--surface); border-radius:16px; border:1px solid var(--card-line); overflow:hidden; margin-bottom:20px; }
   .prow{ display:flex; align-items:center; gap:12px; padding:14px 16px; border-bottom:1px solid var(--card-line); }
   .prow:last-child{ border-bottom:none; }
   .prow .m-icon{ font-size:17px; width:22px; text-align:center; }
@@ -550,7 +535,7 @@
   .auth-logo .word{ font-size:22px; font-weight:800; color:#fff; letter-spacing:1px; }
 
   .auth-card{
-    background:#fff;
+    background:var(--surface);
     border-radius:22px;
     padding:26px 22px 24px;
     flex:1;
@@ -627,7 +612,7 @@
   .auth-google{
     width:100%;
     border:1px solid var(--card-line);
-    background:#fff;
+    background:var(--surface);
     padding:11px 0;
     border-radius:14px;
     font-size:13px;
@@ -672,7 +657,7 @@
   .modal-sheet{
     width:100%;
     max-width:430px;
-    background:#fff;
+    background:var(--surface);
     border-radius:22px 22px 0 0;
     padding:22px 22px 28px;
   }
@@ -704,7 +689,7 @@
   .sheet-menu-item:active{ background:var(--bg-app); }
   .sheet-menu-item.danger{ color:var(--heart-red); }
   .sheet-icon{ font-size:17px; width:22px; text-align:center; flex-shrink:0; }
-  .sheet-cancel-btn{ width:100%; padding:14px 0; border-radius:26px; border:1px solid var(--card-line); background:#fff; font-size:14px; font-weight:700; color:var(--text-dark); }
+  .sheet-cancel-btn{ width:100%; padding:14px 0; border-radius:26px; border:1px solid var(--card-line); background:var(--surface); font-size:14px; font-weight:700; color:var(--text-dark); }
 
   /* ================= MEDIA CHAT (foto/video biasa & sekali lihat) ================= */
   .chat-attach-btn{ width:36px; height:36px; border-radius:50%; border:none; background:var(--bg-app); color:var(--purple-brand); font-size:16px; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
@@ -734,9 +719,25 @@
   .chat-bg-swatch.selected{ border-color:var(--purple-brand); }
 
   .media-grid-item{ width:100%; aspect-ratio:1; border-radius:10px; background-size:cover; background-position:center; background-color:var(--bg-app); cursor:pointer; }
+
+  /* ================= PENGATURAN (tema & bahasa) ================= */
+  #temaBtnTerang, #temaBtnGelap{ background:transparent; color:var(--text-muted); }
+  #temaBtnTerang.tema-aktif, #temaBtnGelap.tema-aktif{ background:var(--purple-brand); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.25); }
 </style>
 </head>
 <body>
+<script>
+  // Terapkan tema tersimpan SEBELUM apa pun lain dirender, supaya tidak ada kedipan
+  // (flash) tampilan terang sesaat sebelum berubah ke gelap.
+  (function(){
+    try{
+      var temaTersimpan = localStorage.getItem('tema');
+      if(temaTersimpan === 'gelap'){
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    }catch(e){}
+  })();
+</script>
 
 <div class="app">
 
@@ -1044,11 +1045,11 @@
       <h1>Teman Baru</h1>
       <div style="width:32px;"></div>
     </div>
-    <div style="padding:14px 20px 16px;background:#fff;">
+    <div style="padding:14px 20px 16px;background:var(--surface);">
       <div style="position:relative;">
         <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--purple-brand);pointer-events:none;">🔍</span>
         <input type="text" id="cariTemanBaruInput" placeholder="Cari nama atau ID Duozy..." oninput="saringTemanBaru()"
-          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:#fff;font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
+          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:var(--surface);font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
       </div>
     </div>
     <div class="content" id="temanBaruContainer">
@@ -1076,11 +1077,11 @@
       <h1>Mulai Chat Baru</h1>
       <div style="width:32px;"></div>
     </div>
-    <div style="padding:14px 20px 16px;background:#fff;">
+    <div style="padding:14px 20px 16px;background:var(--surface);">
       <div style="position:relative;">
         <span style="position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--purple-brand);pointer-events:none;">🔍</span>
         <input type="text" id="cariUserInput" placeholder="Cari nama atau ID Duozy (mis. DZ123456)..." oninput="saringDaftarUser()"
-          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:#fff;font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
+          style="width:100%;padding:13px 16px 13px 42px;border-radius:20px;border:1.5px solid var(--purple-brand);background:var(--surface);font-size:13.5px;outline:none;box-shadow:0 2px 8px rgba(106,61,216,0.12);">
       </div>
     </div>
     <div class="content" id="daftarUserContainer">
@@ -1102,7 +1103,7 @@
     <div id="chatMessagesContainer" style="flex:1;overflow-y:auto;padding:16px 16px 10px;display:flex;flex-direction:column;gap:3px;background:var(--bg-app);">
       <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>
     </div>
-    <div style="display:flex;gap:8px;padding:10px 16px;background:#fff;border-top:1px solid var(--card-line);align-items:center;">
+    <div style="display:flex;gap:8px;padding:10px 16px;background:var(--surface);border-top:1px solid var(--card-line);align-items:center;">
       <button class="chat-attach-btn clickable" onclick="bukaPemilihMediaChat()" title="Kirim foto">🖼️</button>
       <input type="text" id="chatMessageInput" placeholder="Tulis pesan..." style="flex:1;padding:11px 16px;border-radius:22px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13.5px;outline:none;min-width:0;" onkeydown="if(event.key==='Enter'){kirimPesan();}" onfocus="setTimeout(function(){var c=document.getElementById('chatMessagesContainer');c.scrollTop=c.scrollHeight;},300);">
       <button onclick="kirimPesan()" style="width:42px;height:42px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-size:16px;flex-shrink:0;">➤</button>
@@ -1119,8 +1120,8 @@
       <div class="sheet-menu-item clickable" onclick="bukaSemuaMediaChat()"><span class="sheet-icon">🖼️</span> Semua Media</div>
       <div class="sheet-menu-item clickable" onclick="bukaLatarBelakangChat()"><span class="sheet-icon">🎨</span> Atur Latar Belakang Obrolan</div>
       <div class="sheet-menu-item clickable" onclick="bukaCariHistoriChat()"><span class="sheet-icon">🔍</span> Cari Histori Chat</div>
-      <div class="sheet-menu-item clickable" onclick="blokirUserChat()"><span class="sheet-icon">🚫</span> Blokir</div>
-      <div class="sheet-menu-item danger clickable" onclick="laporkanUserChat()"><span class="sheet-icon">🚩</span> Laporkan</div>
+      <div class="sheet-menu-item clickable" id="menuBlokirItem" onclick="blokirUserChat()"><span class="sheet-icon">🚫</span> Blokir</div>
+      <div class="sheet-menu-item danger clickable" id="menuLaporkanItem" onclick="laporkanUserChat()"><span class="sheet-icon">🚩</span> Laporkan</div>
       <div style="padding:12px 22px 0;">
         <button class="sheet-cancel-btn" onclick="tutupModalId('chatOptionsModal')">Batalkan</button>
       </div>
@@ -1258,10 +1259,8 @@
         </div>
       </div>
     </div>
-    <div class="content" style="padding:0 16px 24px;overflow-y:auto;">
-      <div class="ut-players-strip" id="utPlayersStrip"></div>
-
-      <div class="ut-status-wrap" style="margin-top:14px;">
+    <div class="content" style="padding:16px 16px 24px;overflow-y:auto;">
+      <div class="ut-status-wrap">
         <span class="ut-status-pill" id="utStatusBar">Memuat game...</span>
       </div>
 
@@ -1279,7 +1278,7 @@
         <button id="utRollBtn" class="ut-roll-btn" onclick="lemparDadu()">Lempar Dadu</button>
       </div>
 
-      <div class="ut-scoreboard" id="utScoreboard"></div>
+      <div class="ut-vs-row" id="utPlayersInfo"></div>
     </div>
   </div>
 
@@ -1374,19 +1373,19 @@
           <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
         </div>
 
-        <button class="edit-btn" onclick="bukaEditProfil()">Edit Profil</button>
+        <button class="edit-btn" onclick="bukaEditProfil()" data-i18n="btn_edit_profil">Edit Profil</button>
 
-        <p class="section-title">Favorit Saya</p>
+        <p class="section-title" data-i18n="favorit_saya">Favorit Saya</p>
         <div class="tag-row" id="favoritRow">
-          <span style="color:var(--text-muted);background:transparent;border:none;">Belum ada favorit</span>
+          <span style="color:var(--text-muted);background:transparent;border:none;" data-i18n="belum_ada_favorit">Belum ada favorit</span>
         </div>
 
         <div class="plist">
-          <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label">Momen Saya</div><div class="m-arrow">›</div></div>
-          <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label">Couple Saya</div><div class="m-arrow">›</div></div>
-          <div class="prow"><div class="m-icon">⚙️</div><div class="m-label">Pengaturan</div><div class="m-arrow">›</div></div>
-          <div class="prow"><div class="m-icon">❓</div><div class="m-label">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
-          <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label">Keluar</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label" data-i18n="momen_saya">Momen Saya</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label" data-i18n="couple_saya">Couple Saya</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="showView('pengaturan')"><div class="m-icon">⚙️</div><div class="m-label" data-i18n="pengaturan">Pengaturan</div><div class="m-arrow">›</div></div>
+          <div class="prow"><div class="m-icon">❓</div><div class="m-label" data-i18n="bantuan_faq">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
+          <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label" data-i18n="keluar">Keluar</div><div class="m-arrow">›</div></div>
         </div>
       </div>
     </div>
@@ -1468,13 +1467,96 @@
     </div>
   </div>
 
+  <!-- ================= PENGATURAN ================= -->
+  <div id="view-pengaturan" class="view">
+    <div class="topbar" style="display:flex;align-items:center;gap:12px;">
+      <div class="icon-btn clickable" onclick="kembaliApp('profil')">←</div>
+      <h1 style="font-size:15px;" data-i18n="pengaturan">Pengaturan</h1>
+    </div>
+    <div class="content">
+
+      <p class="section-title" data-i18n="tampilan" style="margin-top:6px;">Tampilan</p>
+      <div class="plist" style="margin-bottom:20px;">
+        <div class="prow">
+          <div class="m-icon">🎨</div>
+          <div class="m-label" data-i18n="tema" style="flex:0 0 auto;margin-right:auto;">Tema</div>
+          <div style="display:flex;gap:6px;background:var(--bg-app);padding:3px;border-radius:12px;">
+            <button class="clickable" id="temaBtnTerang" onclick="terapkanTema('terang')" style="border:none;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;" data-i18n="terang">Terang</button>
+            <button class="clickable" id="temaBtnGelap" onclick="terapkanTema('gelap')" style="border:none;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;" data-i18n="gelap">Gelap</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="section-title" data-i18n="bahasa" style="margin-top:6px;">Bahasa</p>
+      <div class="plist" style="margin-bottom:20px;">
+        <div class="prow clickable" onclick="terapkanBahasa('id')">
+          <div class="m-icon">🇮🇩</div>
+          <div class="m-label">Bahasa Indonesia</div>
+          <div class="m-arrow" id="bahasaCek_id">✓</div>
+        </div>
+        <div class="prow clickable" onclick="terapkanBahasa('ms')">
+          <div class="m-icon">🇲🇾</div>
+          <div class="m-label">Bahasa Melayu</div>
+          <div class="m-arrow" id="bahasaCek_ms" style="visibility:hidden;">✓</div>
+        </div>
+        <div class="prow clickable" onclick="terapkanBahasa('en')">
+          <div class="m-icon">🇬🇧</div>
+          <div class="m-label">English</div>
+          <div class="m-arrow" id="bahasaCek_en" style="visibility:hidden;">✓</div>
+        </div>
+      </div>
+
+      <p class="section-title" data-i18n="notifikasi" style="margin-top:6px;">Notifikasi</p>
+      <div class="plist" style="margin-bottom:20px;">
+        <div class="prow clickable" onclick="mintaIzinNotifikasiBrowser(true)">
+          <div class="m-icon">🔔</div>
+          <div class="m-label" data-i18n="notif_chat_baru" style="flex:1;">Notifikasi Chat Baru</div>
+          <div class="m-arrow" id="statusIzinNotif" style="font-size:11px;color:var(--text-muted);">—</div>
+        </div>
+      </div>
+      <p style="font-size:11px;color:var(--text-muted);margin:-12px 0 20px;line-height:1.5;" data-i18n="notif_keterangan">Notifikasi cuma muncul selama aplikasi masih terbuka di background. Untuk notifikasi walau aplikasi ditutup total, Duozy perlu upgrade paket server (menyusul).</p>
+
+      <p class="section-title" data-i18n="privasi_keamanan" style="margin-top:6px;">Privasi & Keamanan</p>
+      <div class="plist" style="margin-bottom:20px;">
+        <div class="prow clickable" onclick="bukaKelolaBlokir()">
+          <div class="m-icon">🚫</div>
+          <div class="m-label" data-i18n="kelola_blokir" style="flex:1;">Kelola Akun Diblokir</div>
+          <div class="m-arrow">›</div>
+        </div>
+      </div>
+
+      <p class="section-title" data-i18n="tentang" style="margin-top:6px;">Tentang</p>
+      <div class="plist" style="margin-bottom:20px;">
+        <div class="prow">
+          <div class="m-icon">📱</div>
+          <div class="m-label" data-i18n="versi_aplikasi" style="flex:1;">Versi Aplikasi</div>
+          <div class="m-arrow" style="font-size:12px;color:var(--text-muted);">1.0.0</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= KELOLA AKUN DIBLOKIR ================= -->
+  <div class="modal-overlay" id="kelolaBlokirModal">
+    <div class="modal-sheet" style="max-height:70vh;overflow-y:auto;">
+      <h2 data-i18n="kelola_blokir">Kelola Akun Diblokir</h2>
+      <div id="daftarBlokirContainer" style="margin-bottom:14px;">
+        <p style="font-size:12px;color:var(--text-muted);">Memuat...</p>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-cancel" style="flex:1;" onclick="tutupModalId('kelolaBlokirModal')" data-i18n="btn_tutup">Tutup</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= BOTTOM NAV (shared) ================= -->
   <div class="bottom-nav" id="bottomNav">
-    <div class="nav-item" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div>Beranda</div>
-    <div class="nav-item" data-view="momen" onclick="showView('momen')"><div class="nav-icon">📸</div>Momen</div>
-    <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon" style="position:relative;">💬<span class="dot-badge" id="chatNavBadge" style="display:none;"></span></div>Chat</div>
-    <div class="nav-item" data-view="game" onclick="showView('game')"><div class="nav-icon">🎮</div>Game</div>
-    <div class="nav-item" data-view="profil" onclick="showView('profil')"><div class="nav-icon">👤</div>Profil</div>
+    <div class="nav-item" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div><span data-i18n="nav_beranda">Beranda</span></div>
+    <div class="nav-item" data-view="momen" onclick="showView('momen')"><div class="nav-icon">📸</div><span data-i18n="nav_momen">Momen</span></div>
+    <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon" style="position:relative;">💬<span class="dot-badge" id="chatNavBadge" style="display:none;"></span></div><span data-i18n="nav_chat">Chat</span></div>
+    <div class="nav-item" data-view="game" onclick="showView('game')"><div class="nav-icon">🎮</div><span data-i18n="nav_game">Game</span></div>
+    <div class="nav-item" data-view="profil" onclick="showView('profil')"><div class="nav-icon">👤</div><span data-i18n="nav_profil">Profil</span></div>
   </div>
 
 </div>
@@ -1527,7 +1609,7 @@
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
-  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame']; // halaman tanpa bottom nav, header sendiri
+  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame','pengaturan']; // halaman tanpa bottom nav, header sendiri
   var currentViewName = null; // nama view yang lagi aktif sekarang
   var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
 
@@ -1715,6 +1797,37 @@
     }
   }
 
+  // Kirim pesan selamat datang otomatis dari "Duozy Official" ke user yang baru daftar,
+  // supaya begitu masuk app pertama kali langsung ada 1 chat menyambut (ala "Lit official").
+  function kirimPesanSelamatDatang(uid, nama){
+    if(!db) return Promise.resolve();
+    var chatId = [uid, DUOZY_OFFICIAL_UID].sort().join('_');
+    var pesan = 'Halo ' + nama + '! 🎉 Selamat datang di Duozy.\n\nYuk lengkapi profilmu dulu biar makin dikenal, coba Duozy Match buat cari teman ngobrol baru, atau ajak temanmu main Ular Tangga bareng. Semoga betah ya di sini! 💜';
+    var participantNames = {};
+    participantNames[uid] = nama;
+    participantNames[DUOZY_OFFICIAL_UID] = DUOZY_OFFICIAL_NAME;
+    var unread = {};
+    unread[uid] = 1;
+
+    return db.collection('chats').doc(chatId).set({
+      participants: [uid, DUOZY_OFFICIAL_UID],
+      participantNames: participantNames,
+      lastMessage: pesan,
+      lastMessageAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastSenderId: DUOZY_OFFICIAL_UID,
+      unread: unread
+    }).then(function(){
+      return db.collection('chats').doc(chatId).collection('messages').add({
+        text: pesan,
+        senderId: DUOZY_OFFICIAL_UID,
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal kirim pesan selamat datang: ' + e.message);
+    });
+  }
+
   function handleRegister(){
     var name = document.getElementById('regName').value.trim();
     var email = document.getElementById('regEmail').value.trim();
@@ -1753,6 +1866,8 @@
             xp: 0,
             favorit: []
           });
+        }).then(function(){
+          return kirimPesanSelamatDatang(user.uid, name);
         });
       })
       .then(function(){
@@ -1880,7 +1995,7 @@
       if(detailTags.length > 0){
         detailTagsEl.style.display = 'flex';
         detailTagsEl.innerHTML = detailTags.map(function(t){
-          return '<span style="font-size:11.5px;background:#fff;border:1px solid var(--card-line);color:var(--purple-brand);padding:5px 12px;border-radius:14px;font-weight:600;">' + escapeHtml(t) + '</span>';
+          return '<span style="font-size:11.5px;background:var(--surface);border:1px solid var(--card-line);color:var(--purple-brand);padding:5px 12px;border-radius:14px;font-weight:600;">' + escapeHtml(t) + '</span>';
         }).join('');
       } else {
         detailTagsEl.style.display = 'none';
@@ -2349,11 +2464,24 @@
   var chatPesanCache = []; // [{id, text}] pesan teks di chat aktif, buat fitur cari histori chat
 
   function bukaChatDetail(chatId, otherUid, otherName){
-    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: otherName, otherPhoto: null, aliasMap: {}, pinnedMap: {} };
-    document.getElementById('chatDetailName').textContent = otherName;
-    document.getElementById('chatDetailStatus').textContent = '';
+    var resmi = (otherUid === DUOZY_OFFICIAL_UID);
+    chatDetailAktif = { chatId: chatId, otherUid: otherUid, otherName: resmi ? DUOZY_OFFICIAL_NAME : otherName, otherPhoto: null, aliasMap: {}, pinnedMap: {} };
+    document.getElementById('chatDetailName').innerHTML = resmi ? (DUOZY_OFFICIAL_NAME + ' <span style="color:#4facfe;">✓</span>') : escapeHtml(otherName);
+    document.getElementById('chatDetailStatus').textContent = resmi ? 'Akun Resmi Duozy' : '';
     var avatarEl = document.getElementById('chatDetailAvatar');
-    avatarEl.style.backgroundImage = '';
+    if(resmi){
+      avatarEl.style.backgroundImage = 'none';
+      avatarEl.style.background = 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))';
+      avatarEl.style.display = 'flex';
+      avatarEl.style.alignItems = 'center';
+      avatarEl.style.justifyContent = 'center';
+      avatarEl.style.fontSize = '18px';
+      avatarEl.textContent = '💌';
+    } else {
+      avatarEl.style.backgroundImage = '';
+      avatarEl.style.background = '';
+      avatarEl.textContent = '';
+    }
 
     var msgContainer = document.getElementById('chatMessagesContainer');
     msgContainer.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pesan...</p>';
@@ -2374,8 +2502,9 @@
         .catch(function(e){ tampilkanDebug('❌ Gagal reset unread: ' + e.message); });
     }
 
-    // Ambil foto & status online lawan bicara sekali saat chat dibuka
-    if(db && otherUid){
+    // Ambil foto & status online lawan bicara sekali saat chat dibuka (dilewati untuk akun resmi,
+    // karena bukan akun sungguhan di Firestore)
+    if(db && otherUid && !resmi){
       db.collection('users').doc(otherUid).get().then(function(doc){
         if(!doc.exists) return;
         var data = doc.data();
@@ -2509,6 +2638,10 @@
     var myUid = auth.currentUser.uid;
     var sudahDipin = !!(chatDetailAktif.pinnedMap && chatDetailAktif.pinnedMap[myUid]);
     document.getElementById('chatOptSematkanLabel').textContent = sudahDipin ? 'Lepas Sematan' : 'Sematkan';
+    // Akun resmi Duozy gak bisa diblokir/dilaporkan, jadi sembunyikan 2 opsi itu khusus untuknya
+    var resmi = (chatDetailAktif.otherUid === DUOZY_OFFICIAL_UID);
+    document.getElementById('menuBlokirItem').style.display = resmi ? 'none' : 'flex';
+    document.getElementById('menuLaporkanItem').style.display = resmi ? 'none' : 'flex';
     document.getElementById('chatOptionsModal').classList.add('show');
   }
 
@@ -2856,6 +2989,9 @@
   var chatListPertamaKaliDimuat = false; // supaya tidak nge-notif semua chat lama pas app baru dibuka
   var terakhirDinotifChat = {}; // { chatId: millis lastMessageAt } biar gak notif dobel
 
+  var DUOZY_OFFICIAL_UID = 'duozy_official';
+  var DUOZY_OFFICIAL_NAME = 'Duozy Official';
+
   function muatDaftarChat(){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
@@ -2890,17 +3026,22 @@
         var totalBelumDibaca = 0;
         chats.forEach(function(c){
           var otherUid = c.data.participants.filter(function(uid){ return uid !== myUid; })[0];
-          var namaAsli = (c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy';
+          var resmi = (otherUid === DUOZY_OFFICIAL_UID);
+          var namaAsli = resmi ? DUOZY_OFFICIAL_NAME : ((c.data.participantNames && c.data.participantNames[otherUid]) || 'Pengguna Duozy');
           var alias = c.data.aliasMap && c.data.aliasMap[myUid];
-          var otherName = alias || namaAsli;
+          var otherName = resmi ? DUOZY_OFFICIAL_NAME : (alias || namaAsli);
           var dipin = !!(c.data.pinnedMap && c.data.pinnedMap[myUid]);
           var jumlahBelumDibaca = (c.data.unread && c.data.unread[myUid]) || 0;
           totalBelumDibaca += jumlahBelumDibaca;
           var preview = c.data.lastMessage || 'Belum ada pesan';
+          var avatarHtml = resmi
+            ? '<div class="chat-avatar" style="background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));display:flex;align-items:center;justify-content:center;font-size:22px;">💌</div>'
+            : '<div class="chat-avatar"></div>';
+          var namaBadge = resmi ? escapeHtml(otherName) + ' <span style="color:#4facfe;">✓</span>' : (dipin ? '📌 ' : '') + escapeHtml(otherName);
           html += '<div class="chat-row clickable" onclick="bukaChatDetail(' + jsAttr(c.id) + ', ' + jsAttr(otherUid) + ', ' + jsAttr(otherName) + ')">' +
-                    '<div class="chat-avatar"></div>' +
+                    avatarHtml +
                     '<div class="chat-main">' +
-                      '<div class="row1"><span class="name" style="' + (jumlahBelumDibaca > 0 ? 'font-weight:800;' : '') + '">' + (dipin ? '📌 ' : '') + escapeHtml(otherName) + '</span></div>' +
+                      '<div class="row1"><span class="name" style="' + (jumlahBelumDibaca > 0 ? 'font-weight:800;' : '') + '">' + namaBadge + '</span></div>' +
                       '<div class="row2" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
                         '<span class="preview" style="' + (jumlahBelumDibaca > 0 ? 'color:var(--text-dark);font-weight:600;' : '') + '">' + escapeHtml(preview) + '</span>' +
                         (jumlahBelumDibaca > 0 ? '<span style="background:var(--pink-glow);color:#fff;font-size:10px;font-weight:800;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;flex-shrink:0;">' + (jumlahBelumDibaca > 9 ? '9+' : jumlahBelumDibaca) + '</span>' : '') +
@@ -2940,11 +3081,163 @@
   // muncul selama tab/app-nya masih terbuka di background, TIDAK menjamin muncul kalau
   // app sudah ditutup total dari recent apps / HP dikunci lama — itu butuh push notification
   // asli (Firebase Cloud Messaging) yang perlu paket Blaze buat server pengirimnya.
-  function mintaIzinNotifikasiBrowser(){
-    if(typeof Notification === 'undefined') return;
-    if(Notification.permission === 'default'){
-      Notification.requestPermission().catch(function(){});
+  // Minta izin notifikasi browser. Dipanggil otomatis sekali setelah login, dan juga bisa
+  // dipanggil manual dari halaman Pengaturan (manual=true) supaya user dapat feedback jelas.
+  // Ini "best-effort": cuma akan muncul selama tab/app-nya masih terbuka di background,
+  // TIDAK menjamin muncul kalau app sudah ditutup total dari recent apps / HP dikunci lama —
+  // itu butuh push notification asli (Firebase Cloud Messaging) yang perlu paket Blaze
+  // buat server pengirimnya.
+  function mintaIzinNotifikasiBrowser(manual){
+    if(typeof Notification === 'undefined'){
+      if(manual) alert('Browser/HP kamu tidak mendukung notifikasi.');
+      return;
     }
+    if(Notification.permission === 'granted'){
+      if(manual) alert('Notifikasi chat sudah aktif ✓');
+      perbaruiStatusIzinNotif();
+      return;
+    }
+    if(Notification.permission === 'denied'){
+      if(manual) alert('Notifikasi diblokir di pengaturan browser/HP kamu. Aktifkan manual lewat pengaturan izin situs di browser.');
+      perbaruiStatusIzinNotif();
+      return;
+    }
+    Notification.requestPermission().then(function(){
+      perbaruiStatusIzinNotif();
+    }).catch(function(){});
+  }
+
+  function perbaruiStatusIzinNotif(){
+    var el = document.getElementById('statusIzinNotif');
+    if(!el) return;
+    if(typeof Notification === 'undefined'){ el.textContent = 'Tidak didukung'; return; }
+    if(Notification.permission === 'granted'){ el.textContent = 'Aktif ✓'; return; }
+    if(Notification.permission === 'denied'){ el.textContent = 'Diblokir'; return; }
+    el.textContent = 'Belum aktif';
+  }
+
+  // ================= TEMA & BAHASA =================
+
+  var temaAktif = localStorage.getItem('tema') || 'terang';
+  var bahasaAktif = localStorage.getItem('bahasa') || 'id';
+
+  function terapkanTema(tema){
+    temaAktif = tema;
+    try{ localStorage.setItem('tema', tema); }catch(e){}
+    document.documentElement.setAttribute('data-theme', tema === 'gelap' ? 'dark' : 'light');
+    perbaruiTombolTema();
+  }
+
+  function perbaruiTombolTema(){
+    var btnTerang = document.getElementById('temaBtnTerang');
+    var btnGelap = document.getElementById('temaBtnGelap');
+    if(!btnTerang || !btnGelap) return;
+    btnTerang.classList.toggle('tema-aktif', temaAktif === 'terang');
+    btnGelap.classList.toggle('tema-aktif', temaAktif === 'gelap');
+  }
+
+  function terapkanBahasa(kode){
+    bahasaAktif = kode;
+    try{ localStorage.setItem('bahasa', kode); }catch(e){}
+    terapkanTerjemahan();
+    perbaruiCekBahasa();
+  }
+
+  function perbaruiCekBahasa(){
+    ['id','ms','en'].forEach(function(k){
+      var el = document.getElementById('bahasaCek_' + k);
+      if(el) el.style.visibility = (k === bahasaAktif) ? 'visible' : 'hidden';
+    });
+  }
+
+  var TERJEMAHAN = {
+    id: {
+      nav_beranda: 'Beranda', nav_momen: 'Momen', nav_chat: 'Chat', nav_game: 'Game', nav_profil: 'Profil',
+      btn_edit_profil: 'Edit Profil', favorit_saya: 'Favorit Saya', belum_ada_favorit: 'Belum ada favorit',
+      momen_saya: 'Momen Saya', couple_saya: 'Couple Saya', pengaturan: 'Pengaturan',
+      bantuan_faq: 'Bantuan & FAQ', keluar: 'Keluar',
+      tampilan: 'Tampilan', tema: 'Tema', terang: 'Terang', gelap: 'Gelap',
+      bahasa: 'Bahasa', notifikasi: 'Notifikasi', notif_chat_baru: 'Notifikasi Chat Baru',
+      notif_keterangan: 'Notifikasi cuma muncul selama aplikasi masih terbuka di background. Untuk notifikasi walau aplikasi ditutup total, Duozy perlu upgrade paket server (menyusul).',
+      privasi_keamanan: 'Privasi & Keamanan', kelola_blokir: 'Kelola Akun Diblokir',
+      tentang: 'Tentang', versi_aplikasi: 'Versi Aplikasi', btn_tutup: 'Tutup'
+    },
+    ms: {
+      nav_beranda: 'Utama', nav_momen: 'Momen', nav_chat: 'Sembang', nav_game: 'Permainan', nav_profil: 'Profil',
+      btn_edit_profil: 'Sunting Profil', favorit_saya: 'Kegemaran Saya', belum_ada_favorit: 'Belum ada kegemaran',
+      momen_saya: 'Momen Saya', couple_saya: 'Pasangan Saya', pengaturan: 'Tetapan',
+      bantuan_faq: 'Bantuan & Soalan Lazim', keluar: 'Log Keluar',
+      tampilan: 'Paparan', tema: 'Tema', terang: 'Cerah', gelap: 'Gelap',
+      bahasa: 'Bahasa', notifikasi: 'Pemberitahuan', notif_chat_baru: 'Pemberitahuan Sembang Baharu',
+      notif_keterangan: 'Pemberitahuan hanya muncul semasa aplikasi masih terbuka di latar belakang. Untuk pemberitahuan walaupun aplikasi ditutup sepenuhnya, Duozy perlu naik taraf pelan pelayan (akan datang).',
+      privasi_keamanan: 'Privasi & Keselamatan', kelola_blokir: 'Urus Akaun Disekat',
+      tentang: 'Tentang', versi_aplikasi: 'Versi Aplikasi', btn_tutup: 'Tutup'
+    },
+    en: {
+      nav_beranda: 'Home', nav_momen: 'Moments', nav_chat: 'Chat', nav_game: 'Games', nav_profil: 'Profile',
+      btn_edit_profil: 'Edit Profile', favorit_saya: 'My Favorites', belum_ada_favorit: 'No favorites yet',
+      momen_saya: 'My Moments', couple_saya: 'My Couple', pengaturan: 'Settings',
+      bantuan_faq: 'Help & FAQ', keluar: 'Log Out',
+      tampilan: 'Appearance', tema: 'Theme', terang: 'Light', gelap: 'Dark',
+      bahasa: 'Language', notifikasi: 'Notifications', notif_chat_baru: 'New Chat Notifications',
+      notif_keterangan: 'Notifications only appear while the app is still open in the background. Notifications when the app is fully closed require Duozy to upgrade its server plan (coming soon).',
+      privasi_keamanan: 'Privacy & Security', kelola_blokir: 'Manage Blocked Accounts',
+      tentang: 'About', versi_aplikasi: 'App Version', btn_tutup: 'Close'
+    }
+  };
+
+  function terapkanTerjemahan(){
+    var kamus = TERJEMAHAN[bahasaAktif] || TERJEMAHAN.id;
+    document.querySelectorAll('[data-i18n]').forEach(function(el){
+      var key = el.getAttribute('data-i18n');
+      if(kamus[key]){ el.textContent = kamus[key]; }
+    });
+  }
+
+  // ================= KELOLA AKUN DIBLOKIR =================
+
+  function bukaKelolaBlokir(){
+    if(!db || !auth.currentUser) return;
+    var container = document.getElementById('daftarBlokirContainer');
+    container.innerHTML = '<p style="font-size:12px;color:var(--text-muted);">Memuat...</p>';
+    document.getElementById('kelolaBlokirModal').classList.add('show');
+
+    db.collection('users').doc(auth.currentUser.uid).get().then(function(doc){
+      var blokir = (doc.exists && doc.data().blockedUsers) || [];
+      if(blokir.length === 0){
+        container.innerHTML = '<p style="font-size:12.5px;color:var(--text-muted);text-align:center;padding:20px 0;">Belum ada akun yang diblokir.</p>';
+        return;
+      }
+      var promises = blokir.map(function(uid){
+        return db.collection('users').doc(uid).get().then(function(d){
+          return { uid: uid, nama: (d.exists && d.data().name) || 'Pengguna Duozy' };
+        });
+      });
+      Promise.all(promises).then(function(daftar){
+        container.innerHTML = daftar.map(function(u){
+          return '<div class="prow" style="padding:12px 4px;">' +
+                   '<div class="m-icon">🚫</div>' +
+                   '<div class="m-label" style="flex:1;">' + escapeHtml(u.nama) + '</div>' +
+                   '<button class="clickable" onclick="bukaBlokirUser(' + jsAttr(u.uid) + ')" style="border:1px solid var(--card-line);background:var(--bg-app);color:var(--purple-brand);font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:10px;">Buka Blokir</button>' +
+                 '</div>';
+        }).join('');
+      });
+    }).catch(function(e){
+      container.innerHTML = '<p style="font-size:12px;color:var(--heart-red);">Gagal memuat daftar.</p>';
+      tampilkanDebug('❌ Gagal memuat daftar blokir: ' + e.message);
+    });
+  }
+
+  function bukaBlokirUser(uid){
+    if(!confirm('Buka blokir akun ini?')) return;
+    db.collection('users').doc(auth.currentUser.uid).update({
+      blockedUsers: firebase.firestore.FieldValue.arrayRemove(uid)
+    }).then(function(){
+      bukaKelolaBlokir(); // render ulang daftarnya
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal membuka blokir: ' + e.message);
+      alert('Gagal membuka blokir.');
+    });
   }
 
   function tampilkanNotifikasiBrowser(namaPengirim, isiPesan, chatId, otherUid){
@@ -3466,10 +3759,7 @@ var daftarAvatarPreset = [
   ];
   var avatarPresetTerpilih = null; // {img, gender} kalau user pilih preset avatar (bukan upload foto)
 
-  // ================= ULAR TANGGA (papan 10x10, sampai 4 pemain, via Firestore) =================
-  // Slot yang tidak terisi user asli yang online akan diisi otomatis oleh "bot" yang
-  // tampil dengan nama & foto seperti orang biasa (bukan ditandai sebagai bot),
-  // supaya papan selalu ramai 4 pemain walau aplikasi lagi sepi.
+  // ================= ULAR TANGGA (papan 10x10 via Firestore) =================
 
   var ULAR_MAP = {16:6, 47:26, 49:11, 56:53, 62:19, 64:60, 87:24, 93:73, 95:75, 98:78};
   var TANGGA_MAP = {1:38, 4:14, 9:31, 21:42, 28:84, 36:44, 51:67, 71:91, 80:100};
@@ -3479,11 +3769,6 @@ var daftarAvatarPreset = [
   var sgSudahMatch = false;     // penanda supaya tidak match dobel
   var gameUlarTanggaAktifId = null;
   var urutanPapanCache = null;
-  var UT_MAKS_PEMAIN = 4;
-  var UT_WARNA_PEMAIN = ['#6a3dd8', '#c33fa0', '#4facfe', '#f7971e'];
-  // Nama & foto untuk bot — sengaja dibuat seperti profil orang biasa (pakai avatar
-  // preset SVG yang sama dengan yang dipakai user asli) supaya tidak kelihatan seperti bot.
-  var UT_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas','Wulan','Yoga','Citra','Reza','Intan','Galih'];
 
   function urutanPapanUlarTangga(){
     if(urutanPapanCache) return urutanPapanCache;
@@ -3516,16 +3801,17 @@ var daftarAvatarPreset = [
 
       var html = '';
       if(gameAktif){
-        var jumlahLawan = gameAktif.data.players.length - 1;
-        html += '<div style="background:#fff;border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-bottom:20px;text-align:center;">' +
-                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu masih punya game yang berjalan (' + (jumlahLawan+1) + ' pemain)</p>' +
+        var lawanUid = gameAktif.data.players.filter(function(u){ return u !== myUid; })[0];
+        var lawanNama = (gameAktif.data.playerNames && gameAktif.data.playerNames[lawanUid]) || 'Lawan';
+        html += '<div style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-bottom:20px;text-align:center;">' +
+                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu sedang main lawan <b>' + escapeHtml(lawanNama) + '</b></p>' +
                   '<button onclick="bukaPapanUlarTangga(' + jsAttr(gameAktif.id) + ')" style="padding:10px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));color:#fff;font-weight:700;font-size:13px;">Lanjutkan Game</button>' +
                 '</div>';
       }
 
-      html += '<button onclick="mulaiMainSendiri()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ffb199,#ff5da2);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sekarang (4 Pemain)</button>';
+      html += '<button onclick="mulaiMainSendiri()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#ffb199,#ff5da2);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:18px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sendiri</button>';
 
-      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Atau ajak teman sendiri 1 lawan 1:</p>' +
+      html += '<p style="font-size:12.5px;color:var(--text-muted);margin-bottom:10px;">Atau ajak teman sendiri:</p>' +
               '<div id="ularTanggaDaftarUser"><p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat pengguna...</p></div>';
       container.innerHTML = html;
 
@@ -3551,18 +3837,11 @@ var daftarAvatarPreset = [
     });
   }
 
-  // Ambil profil bot acak dari kumpulan avatar preset yang sama dengan avatar user asli,
-  // supaya bot tidak kelihatan beda / mencurigakan dibanding pemain sungguhan.
-  function ambilProfilBotAcak(namaDipakai, fotoDipakai){
-    var namaTersedia = UT_NAMA_BOT_POOL.filter(function(n){ return namaDipakai.indexOf(n) === -1; });
-    var nama = (namaTersedia.length ? namaTersedia : UT_NAMA_BOT_POOL)[Math.floor(Math.random() * (namaTersedia.length ? namaTersedia.length : UT_NAMA_BOT_POOL.length))];
-    var fotoTersedia = daftarAvatarPreset.filter(function(a){ return fotoDipakai.indexOf(a.img) === -1; });
-    var foto = (fotoTersedia.length ? fotoTersedia : daftarAvatarPreset)[Math.floor(Math.random() * (fotoTersedia.length ? fotoTersedia.length : daftarAvatarPreset.length))];
-    return { nama: nama, foto: foto.img };
-  }
+  var UT_BOT_UID = 'BOT_DUOZY';
+  var UT_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas','Wulan','Yoga'];
 
-  // "Main Sekarang": cari sebanyak mungkin user lain yang sedang online (maks 3),
-  // sisa slot sampai total 4 pemain diisi bot berwajah "orang" supaya papan tetap ramai.
+  // "Main Sendiri": coba cari user lain yang sedang online dulu; kalau tidak ada,
+  // baru main lawan bot (namanya dibuat seperti nama orang biasa, bukan "Bot").
   function mulaiMainSendiri(){
     var container = document.getElementById('ularTanggaMulaiContainer');
     if(!db || !auth.currentUser) return;
@@ -3580,98 +3859,74 @@ var daftarAvatarPreset = [
         var kandidat = [];
         snap.forEach(function(doc){
           if(doc.id === myUid) return;
-          var d = doc.data();
-          kandidat.push({ uid: doc.id, nama: d.name || 'Pengguna Duozy', foto: d.photoUrl || null });
+          kandidat.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
         });
-        // acak urutan kandidat online, ambil maksimal 3 (sisanya slot bot)
-        kandidat.sort(function(){ return Math.random() - 0.5; });
-        kandidat = kandidat.slice(0, UT_MAKS_PEMAIN - 1);
-        mulaiGameMultiPemain(kandidat);
+
+        if(kandidat.length > 0){
+          var pilih = kandidat[Math.floor(Math.random() * kandidat.length)];
+          mulaiGameUlarTangga(pilih.uid, pilih.nama);
+        } else {
+          mulaiGameBot();
+        }
       }).catch(function(e){
         tampilkanDebug('❌ Gagal mencari lawan online: ' + e.message);
-        mulaiGameMultiPemain([]); // tetap bisa main (lawan semua bot) walau pencarian gagal
+        mulaiGameBot(); // tetap bisa main walau pencarian gagal
       });
     }, 1800); // jeda sebentar biar terasa seperti benar-benar mencari
   }
 
-  // Bangun game baru berisi diri sendiri + user online yang ditemukan + bot pengisi slot kosong.
-  function mulaiGameMultiPemain(kandidatOnline){
+  function mulaiGameBot(){
     if(!db || !auth.currentUser) return;
     var myUid = auth.currentUser.uid;
     var myNama = auth.currentUser.displayName || 'Kamu';
+    var namaBot = UT_NAMA_BOT_POOL[Math.floor(Math.random() * UT_NAMA_BOT_POOL.length)];
 
-    var players = [myUid];
-    var playerNames = {}; playerNames[myUid] = myNama;
-    var playerPhotos = {}; playerPhotos[myUid] = null; // diambil dari Firestore saat papan dibuka
-    var playerIsBot = {}; playerIsBot[myUid] = false;
-    var positions = {}; positions[myUid] = 0;
-    var namaDipakai = [myNama];
-    var fotoDipakai = [];
-    var adaBot = false;
+    var playerNames = {};
+    playerNames[myUid] = myNama;
+    playerNames[UT_BOT_UID] = namaBot;
 
-    kandidatOnline.forEach(function(k){
-      players.push(k.uid);
-      playerNames[k.uid] = k.nama;
-      playerPhotos[k.uid] = k.foto || null;
-      playerIsBot[k.uid] = false;
-      positions[k.uid] = 0;
-      namaDipakai.push(k.nama);
-      if(k.foto) fotoDipakai.push(k.foto);
-    });
-
-    var sisaSlot = UT_MAKS_PEMAIN - players.length;
-    for(var i = 0; i < sisaSlot; i++){
-      var botUid = 'BOT_' + Date.now() + '_' + i;
-      var profil = ambilProfilBotAcak(namaDipakai, fotoDipakai);
-      players.push(botUid);
-      playerNames[botUid] = profil.nama;
-      playerPhotos[botUid] = profil.foto;
-      playerIsBot[botUid] = true;
-      positions[botUid] = 0;
-      namaDipakai.push(profil.nama);
-      fotoDipakai.push(profil.foto);
-      adaBot = true;
-    }
+    var positions = {};
+    positions[myUid] = 0;
+    positions[UT_BOT_UID] = 0;
 
     db.collection('ulartangga').add({
-      players: players,
+      players: [myUid, UT_BOT_UID],
       playerNames: playerNames,
-      playerPhotos: playerPhotos,
-      playerIsBot: playerIsBot,
-      positions: positions,
-      turnUid: players[0],
-      status: 'playing',
-      winner: null,
-      lastRoll: 0,
-      vsBot: adaBot,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(docRef){
-      bukaPapanUlarTangga(docRef.id);
-    }).catch(function(e){
-      tampilkanDebug('❌ Gagal membuat game: ' + e.message);
-    });
-  }
-
-  // "Ajak Main" satu teman tertentu langsung 1 lawan 1 (tanpa bot pengisi).
-  function mulaiGameUlarTangga(targetUid, targetNama){
-    if(!db || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-    var myNama = auth.currentUser.displayName || 'Kamu';
-
-    var playerNames = {}; playerNames[myUid] = myNama; playerNames[targetUid] = targetNama;
-    var playerIsBot = {}; playerIsBot[myUid] = false; playerIsBot[targetUid] = false;
-    var positions = {}; positions[myUid] = 0; positions[targetUid] = 0;
-
-    db.collection('ulartangga').add({
-      players: [myUid, targetUid],
-      playerNames: playerNames,
-      playerIsBot: playerIsBot,
       positions: positions,
       turnUid: myUid,
       status: 'playing',
       winner: null,
       lastRoll: 0,
-      vsBot: false,
+      vsBot: true,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(function(docRef){
+      bukaPapanUlarTangga(docRef.id);
+    }).catch(function(e){
+      tampilkanDebug('❌ Gagal membuat game bot: ' + e.message);
+    });
+  }
+
+  function mulaiGameUlarTangga(targetUid, targetNama){
+    if(!db || !auth.currentUser) return;
+    var myUid = auth.currentUser.uid;
+    var myNama = auth.currentUser.displayName || 'Kamu';
+
+    var playerNames = {};
+    playerNames[myUid] = myNama;
+    playerNames[targetUid] = targetNama;
+
+    var positions = {};
+    positions[myUid] = 0;
+    positions[targetUid] = 0;
+
+    db.collection('ulartangga').add({
+      players: [myUid, targetUid],
+      playerNames: playerNames,
+      positions: positions,
+      turnUid: myUid,
+      status: 'playing',
+      winner: null,
+      lastRoll: 0,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     }).then(function(docRef){
       kirimNotifikasi(targetUid, 'game', myNama + ' mengajakmu main Ular Tangga!', { fromUid: myUid, fromName: myNama, gameId: docRef.id });
@@ -3686,7 +3941,7 @@ var daftarAvatarPreset = [
     showView('ularTanggaBoard');
     utLastRollDitampilkan = null; // reset supaya animasi dadu tetap jalan di game baru
     utFotoPemain = {}; // reset cache foto profil pemain
-    utBotSedangJalan = {};
+    utBotSedangJalan = false;
     utSelesaiModalDitampilkan = false; // reset supaya modal hasil bisa muncul lagi di game baru
     document.getElementById('utSelesaiModal').classList.remove('show');
     bangunGridUlarTangga();
@@ -3695,7 +3950,7 @@ var daftarAvatarPreset = [
     unsubscribeUlarTangga = db.collection('ulartangga').doc(gameId).onSnapshot(function(doc){
       if(!doc.exists) return;
       var data = doc.data();
-      muatFotoPemainUlarTangga(data);
+      muatFotoPemainUlarTangga(data.players);
       renderPapanUlarTangga(data);
     }, function(e){
       tampilkanDebug('❌ Gagal memuat papan game: ' + e.message);
@@ -3704,15 +3959,10 @@ var daftarAvatarPreset = [
 
   var utFotoPemain = {};
 
-  // Ambil foto profil pemain asli sekali saja per uid (di-cache, tidak query berulang).
-  // Untuk bot, fotonya sudah tersimpan langsung di dokumen game (playerPhotos).
-  function muatFotoPemainUlarTangga(data){
-    data.players.forEach(function(uid){
-      var isBot = data.playerIsBot && data.playerIsBot[uid];
-      if(isBot){
-        utFotoPemain[uid] = (data.playerPhotos && data.playerPhotos[uid]) || null;
-        return;
-      }
+  // Ambil foto profil kedua pemain sekali saja per uid (di-cache, tidak query berulang)
+  function muatFotoPemainUlarTangga(players){
+    players.forEach(function(uid){
+      if(uid === UT_BOT_UID) return; // bot tidak punya profil di Firestore
       if(utFotoPemain[uid] !== undefined) return; // sudah pernah diambil (atau sedang diambil)
       utFotoPemain[uid] = null;
       db.collection('users').doc(uid).get().then(function(doc){
@@ -3768,23 +4018,26 @@ var daftarAvatarPreset = [
 
   function renderPapanUlarTangga(data){
     var myUid = auth.currentUser.uid;
-    var players = data.players || [];
+    var lawanUid = data.players.filter(function(u){ return u !== myUid; })[0];
+    var namaSaya = data.playerNames[myUid] || 'Kamu';
+    var namaLawan = data.playerNames[lawanUid] || 'Lawan';
+    var posSaya = data.positions[myUid] || 0;
+    var posLawan = data.positions[lawanUid] || 0;
+    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
 
-    // ---- subjudul header ----
-    document.getElementById('utHeaderSub').textContent = (players.length) + ' pemain di papan';
+    // ---- subjudul header: lawan main siapa ----
+    document.getElementById('utHeaderSub').textContent =
+      (lawanUid === UT_BOT_UID ? 'Lawan main: 🤖 ' : 'Lawan main: ') + namaLawan;
 
     // ---- status ----
     var statusEl = document.getElementById('utStatusBar');
-    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
     if(data.status === 'finished'){
-      var namaMenang = (data.playerNames && data.playerNames[data.winner]) || 'Pemain';
-      statusEl.textContent = (data.winner === myUid) ? '🎉 Kamu Menang!' : '🏆 ' + namaMenang + ' Menang';
+      statusEl.textContent = (data.winner === myUid) ? '🎉 Kamu Menang!' : '😢 ' + namaLawan + ' Menang';
     } else {
-      var namaGiliran = (data.playerNames && data.playerNames[data.turnUid]) || 'Pemain';
-      statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaGiliran + '...';
+      statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaLawan + '...';
     }
 
-    // Kalau giliran sekarang bot, jalankan otomatis (client manapun yang papannya lagi terbuka)
+    // Kalau lawannya bot dan sekarang giliran bot, jalankan otomatis
     jalankanGiliranBotJikaPerlu(data);
 
     // ---- dadu (dengan animasi kocok tiap kali angkanya berubah) ----
@@ -3802,90 +4055,63 @@ var daftarAvatarPreset = [
     btn.disabled = !giliranSaya;
     btn.textContent = data.status === 'finished' ? 'Game Selesai' : (giliranSaya ? 'Lempar Dadu' : 'Menunggu...');
 
-    // ---- strip avatar pemain di atas papan ----
-    var stripHtml = '';
-    players.forEach(function(uid, idx){
-      var nama = (data.playerNames && data.playerNames[uid]) || 'Pemain';
-      var foto = utFotoPemain[uid];
-      var warna = UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length];
-      var aktif = data.status === 'playing' && data.turnUid === uid;
-      stripHtml += '<div class="ut-pchip' + (aktif ? ' giliran' : '') + '">' +
-          '<div class="ut-pchip-avatar" style="background-color:' + warna + ';' + (foto ? ('background-image:url(' + foto + ');') : '') + '">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
-          '<div class="ut-pchip-name">' + escapeHtml(uid === myUid ? 'Kamu' : nama) + '</div>' +
-          '<div class="ut-pchip-pos">Kotak ' + (data.positions ? (data.positions[uid] || 0) : 0) + '</div>' +
-        '</div>';
-    });
-    document.getElementById('utPlayersStrip').innerHTML = stripHtml;
-
-    // ---- token di papan (dipindah posisinya, bukan digambar ulang, supaya bisa meluncur halus) ----
+    // ---- token (dipindah posisinya, bukan digambar ulang, supaya bisa meluncur halus) ----
     var layer = document.getElementById('utTokenLayer');
-    if(layer.children.length !== players.length){
-      var tokenHtml = '';
-      players.forEach(function(uid, idx){
-        tokenHtml += '<div id="utToken_' + idx + '" class="ut-token" style="background-color:' + UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length] + ';"></div>';
-      });
-      layer.innerHTML = tokenHtml;
+    var tokenSaya = document.getElementById('utTokenMe');
+    var tokenLawan = document.getElementById('utTokenOpp');
+    if(!tokenSaya){
+      layer.innerHTML =
+        '<div id="utTokenMe" class="ut-token" style="background:var(--purple-brand);"></div>' +
+        '<div id="utTokenOpp" class="ut-token" style="background:var(--pink-glow);"></div>';
+      tokenSaya = document.getElementById('utTokenMe');
+      tokenLawan = document.getElementById('utTokenOpp');
     }
-    // hitung kotak yang sama-sama ditempati beberapa token, biar digeser dikit supaya kelihatan semua
-    var pengelompokanKotak = {};
-    players.forEach(function(uid){
-      var pos = (data.positions ? (data.positions[uid] || 0) : 0);
-      pengelompokanKotak[pos] = (pengelompokanKotak[pos] || 0) + 1;
-    });
-    var urutanDiKotak = {};
-    players.forEach(function(uid, idx){
-      var pos = (data.positions ? (data.positions[uid] || 0) : 0);
-      var totalDiKotak = pengelompokanKotak[pos];
-      var indexDiKotak = urutanDiKotak[pos] || 0;
-      urutanDiKotak[pos] = indexDiKotak + 1;
+    var fotoSaya = utFotoPemain[myUid];
+    var fotoLawan = utFotoPemain[lawanUid];
+    tokenSaya.style.backgroundImage = fotoSaya ? 'url(' + fotoSaya + ')' : 'none';
+    tokenSaya.style.backgroundSize = 'cover';
+    tokenSaya.style.backgroundPosition = 'center';
+    tokenSaya.textContent = fotoSaya ? '' : hurufAwal(namaSaya);
+    tokenLawan.style.backgroundImage = fotoLawan ? 'url(' + fotoLawan + ')' : 'none';
+    tokenLawan.style.backgroundSize = 'cover';
+    tokenLawan.style.backgroundPosition = 'center';
+    tokenLawan.textContent = fotoLawan ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan));
+    var posMe = posisiPersenKotak(posSaya);
+    var posOpp = posisiPersenKotak(posLawan);
+    // Kalau dua token di kotak yang sama, geser dikit biar kelihatan berdua
+    if(posSaya === posLawan && posSaya !== 0){
+      posMe.left = 'calc(' + posMe.left + ' - 6%)';
+      posOpp.left = 'calc(' + posOpp.left + ' + 6%)';
+    }
+    tokenSaya.style.left = posMe.left;
+    tokenSaya.style.top = posMe.top;
+    tokenLawan.style.left = posOpp.left;
+    tokenLawan.style.top = posOpp.top;
+    tokenSaya.classList.toggle('giliran', giliranSaya);
+    tokenLawan.classList.toggle('giliran', !giliranSaya && data.status === 'playing');
 
-      var token = document.getElementById('utToken_' + idx);
-      var foto = utFotoPemain[uid];
-      token.style.backgroundImage = foto ? ('url(' + foto + ')') : 'none';
-      token.style.backgroundSize = 'cover';
-      token.style.backgroundPosition = 'center';
-      var nama = (data.playerNames && data.playerNames[uid]) || '?';
-      token.textContent = foto ? '' : hurufAwal(nama);
-
-      var koordinat = posisiPersenKotak(pos);
-      var offsetX = totalDiKotak > 1 ? (indexDiKotak - (totalDiKotak - 1) / 2) * 7 : 0;
-      token.style.left = 'calc(' + koordinat.left + ' + ' + offsetX + '%)';
-      token.style.top = koordinat.top;
-      token.classList.toggle('giliran', data.status === 'playing' && data.turnUid === uid);
-    });
-
-    // ---- papan skor (posisi semua pemain, urut dari yang terdepan) ----
-    var urutSkor = players.slice().sort(function(a, b){
-      var pa = data.positions ? (data.positions[a] || 0) : 0;
-      var pb = data.positions ? (data.positions[b] || 0) : 0;
-      return pb - pa;
-    });
-    var skorHtml = '';
-    urutSkor.forEach(function(uid){
-      var idx = players.indexOf(uid);
-      var nama = (data.playerNames && data.playerNames[uid]) || 'Pemain';
-      var pos = data.positions ? (data.positions[uid] || 0) : 0;
-      var foto = utFotoPemain[uid];
-      var warna = UT_WARNA_PEMAIN[idx % UT_WARNA_PEMAIN.length];
-      var aktif = data.status === 'playing' && data.turnUid === uid;
-      skorHtml += '<div class="ut-score-row' + (aktif ? ' giliran' : '') + '">' +
-          '<div class="ut-score-avatar" style="background-color:' + warna + ';' + (foto ? ('background-image:url(' + foto + ');') : '') + '">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
-          '<div class="ut-score-info">' +
-            '<div class="ut-score-name">' + escapeHtml(uid === myUid ? 'Kamu' : nama) + (uid === myUid ? ' <span style="color:var(--purple-brand);">(kamu)</span>' : '') + '</div>' +
-            '<div class="ut-score-bar-track"><div class="ut-score-bar-fill" style="width:' + pos + '%;background:' + warna + ';"></div></div>' +
-          '</div>' +
-          '<div class="ut-score-num">' + pos + '/100</div>' +
-        '</div>';
-    });
-    document.getElementById('utScoreboard').innerHTML = skorHtml;
+    // ---- info pemain (avatar besar + nama + progress bar kotak dari 100) ----
+    document.getElementById('utPlayersInfo').innerHTML =
+      '<div class="ut-player-card' + (giliranSaya ? ' giliran' : '') + '">' +
+        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[myUid] ? 'url(' + utFotoPemain[myUid] + ') center/cover' : 'var(--purple-brand)') + ';">' + (utFotoPemain[myUid] ? '' : hurufAwal(namaSaya)) + '</div>' +
+        '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaSaya) + '</p>' +
+        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posSaya + '/100</p>' +
+        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posSaya + '%;background:var(--purple-brand);"></div></div>' +
+      '</div>' +
+      '<div class="ut-vs-badge">VS</div>' +
+      '<div class="ut-player-card' + (!giliranSaya && data.status==='playing' ? ' giliran' : '') + '">' +
+        '<div class="ut-player-avatar" style="background:' + (utFotoPemain[lawanUid] ? 'url(' + utFotoPemain[lawanUid] + ') center/cover' : 'var(--pink-glow)') + ';">' + (utFotoPemain[lawanUid] ? '' : (lawanUid === UT_BOT_UID ? '🤖' : hurufAwal(namaLawan))) + '</div>' +
+        '<p style="font-size:12px;font-weight:700;">' + escapeHtml(namaLawan) + '</p>' +
+        '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">Kotak ' + posLawan + '/100</p>' +
+        '<div class="ut-player-bar-track"><div class="ut-player-bar-fill" style="width:' + posLawan + '%;background:var(--pink-glow);"></div></div>' +
+      '</div>';
 
     // ---- modal hasil akhir (muncul sekali saat game selesai) ----
     if(data.status === 'finished' && !utSelesaiModalDitampilkan){
       utSelesaiModalDitampilkan = true;
       var menang = data.winner === myUid;
-      var namaPemenang = (data.playerNames && data.playerNames[data.winner]) || 'Pemain lain';
       document.getElementById('utSelesaiEmoji').textContent = menang ? '🏆' : '💜';
-      document.getElementById('utSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaPemenang + ' Menang';
+      document.getElementById('utSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaLawan + ' Menang';
       document.getElementById('utSelesaiText').textContent = menang
         ? 'Selamat, kamu duluan sampai kotak 100!'
         : 'Jangan menyerah, coba lagi yuk!';
@@ -3936,8 +4162,7 @@ var daftarAvatarPreset = [
   }
 
   // Fungsi inti lempar dadu, bisa dipanggil untuk diri sendiri ATAU untuk bot
-  // (karena bot tidak punya "device" sendiri, giliran bot dijalankan dari HP pemain asli
-  // yang papannya lagi terbuka).
+  // (karena bot tidak punya "device" sendiri, giliran bot dijalankan dari HP lawannya).
   function lemparDaduUntuk(pelemparUid){
     if(!db || !gameUlarTanggaAktifId || !auth.currentUser) return;
     var ref = db.collection('ulartangga').doc(gameUlarTanggaAktifId);
@@ -3947,6 +4172,7 @@ var daftarAvatarPreset = [
       if(!data || data.status !== 'playing' || data.turnUid !== pelemparUid) return;
 
       var roll = Math.floor(Math.random() * 6) + 1;
+      var lawanUid = data.players.filter(function(u){ return u !== pelemparUid; })[0];
       var posSekarang = data.positions[pelemparUid] || 0;
       var posBaru = Math.min(100, posSekarang + roll);
 
@@ -3954,13 +4180,9 @@ var daftarAvatarPreset = [
       else if(TANGGA_MAP[posBaru]){ posBaru = TANGGA_MAP[posBaru]; }
 
       var menang = posBaru === 100;
-      var idxSekarang = data.players.indexOf(pelemparUid);
-      var idxBerikut = (idxSekarang + 1) % data.players.length;
-      var uidBerikut = data.players[idxBerikut];
-
       var updateData = {
         lastRoll: roll,
-        turnUid: menang ? pelemparUid : uidBerikut
+        turnUid: menang ? pelemparUid : lawanUid
       };
       updateData['positions.' + pelemparUid] = posBaru;
       if(menang){
@@ -3969,13 +4191,9 @@ var daftarAvatarPreset = [
       }
 
       ref.update(updateData).then(function(){
-        if(menang){
+        if(menang && lawanUid !== UT_BOT_UID){
           var namaPelempar = data.playerNames[pelemparUid] || 'Lawanmu';
-          data.players.forEach(function(uid){
-            if(uid === pelemparUid) return;
-            if(data.playerIsBot && data.playerIsBot[uid]) return; // bot tidak perlu notifikasi
-            kirimNotifikasi(uid, 'game', namaPelempar + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
-          });
+          kirimNotifikasi(lawanUid, 'game', namaPelempar + ' memenangkan Ular Tangga!', { gameId: gameUlarTanggaAktifId });
         }
       });
     }).catch(function(e){
@@ -3983,21 +4201,18 @@ var daftarAvatarPreset = [
     });
   }
 
-  // Kalau giliran bot, jalankan otomatis setelah jeda sebentar (biar terasa alami).
-  // Dilacak per-uid bot supaya beberapa bot di game yang sama tidak saling tabrak.
-  var utBotSedangJalan = {};
+  // Kalau giliran bot, jalankan otomatis setelah jeda sebentar (biar terasa alami)
+  var utBotSedangJalan = false;
   function jalankanGiliranBotJikaPerlu(data){
     if(!data.vsBot || data.status !== 'playing') return;
-    var isBotGiliran = data.playerIsBot && data.playerIsBot[data.turnUid];
-    if(!isBotGiliran) return;
-    if(utBotSedangJalan[data.turnUid]) return;
+    if(data.turnUid !== UT_BOT_UID) return;
+    if(utBotSedangJalan) return;
 
-    var uidGiliran = data.turnUid;
-    utBotSedangJalan[uidGiliran] = true;
+    utBotSedangJalan = true;
     setTimeout(function(){
-      lemparDaduUntuk(uidGiliran);
-      utBotSedangJalan[uidGiliran] = false;
-    }, 1100 + Math.random() * 500);
+      lemparDaduUntuk(UT_BOT_UID);
+      utBotSedangJalan = false;
+    }, 1200);
   }
 
   function bukaEditProfil(){
@@ -4235,6 +4450,12 @@ var daftarAvatarPreset = [
         .catch(function(e){ console.log('Service worker tidak aktif (normal kalau dibuka via file://):', e.message); });
     });
   }
+
+  // Terapkan tema, bahasa, & status izin notifikasi tersimpan begitu app dimuat
+  // (elemen-elemen terkait sudah ada di DOM walau halaman Pengaturan belum dibuka).
+  terapkanTema(temaAktif);
+  terapkanBahasa(bahasaAktif);
+  perbaruiStatusIzinNotif();
 </script>
 
 </body>
