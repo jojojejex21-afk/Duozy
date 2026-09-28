@@ -33,7 +33,14 @@
     --text-muted:#a9a4c9;
     --card-line:#2e2b52;
     --surface:#211f3f;
+    color-scheme:dark; /* dropdown, scrollbar & kontrol bawaan browser ikut gelap */
   }
+
+  /* Warna teks dasar mengikuti tema, supaya elemen yang tidak menyebut warna (p, h1, dsb) tidak jadi hitam di mode gelap */
+  body{ color:var(--text-dark); }
+  input, textarea, select, button{ color:var(--text-dark); font-family:inherit; }
+  input::placeholder, textarea::placeholder{ color:var(--text-muted); opacity:1; }
+  select option{ background:var(--surface); color:var(--text-dark); }
 
   *{ margin:0; padding:0; box-sizing:border-box; }
   html,body{ height:100%; }
@@ -72,14 +79,19 @@
   #view-chatDetail{ height:100vh; height:100dvh; min-height:0; }
 
   /* ================= ULAR TANGGA ================= */
-  #view-ularTanggaBoard .ut-header{
+  #view-ularTanggaBoard .ut-header,
+  #view-ludoBoard .ut-header{
     background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 70%, var(--pink-glow) 140%);
     padding:16px 20px 20px; color:#fff;
   }
-  #view-ularTanggaBoard .ut-header-row{ display:flex; align-items:center; gap:12px; }
-  #view-ularTanggaBoard .ut-header-row h1{ font-size:16px; font-weight:800; flex:1; }
-  #view-ularTanggaBoard .ut-header-sub{ font-size:11.5px; color:#d9d4ff; margin-top:2px; }
-  #view-ularTanggaBoard .ut-header .icon-btn{ background:rgba(255,255,255,0.14); border:none; color:#fff; }
+  #view-ularTanggaBoard .ut-header-row,
+  #view-ludoBoard .ut-header-row{ display:flex; align-items:center; gap:12px; }
+  #view-ularTanggaBoard .ut-header-row h1,
+  #view-ludoBoard .ut-header-row h1{ font-size:16px; font-weight:800; flex:1; color:#fff; }
+  #view-ularTanggaBoard .ut-header-sub,
+  #view-ludoBoard .ut-header-sub{ font-size:11.5px; color:#d9d4ff; margin-top:2px; }
+  #view-ularTanggaBoard .ut-header .icon-btn,
+  #view-ludoBoard .ut-header .icon-btn{ background:rgba(255,255,255,0.14); border:none; color:#fff; }
 
   .ut-status-wrap{ text-align:center; margin-bottom:14px; }
   .ut-status-pill{
@@ -167,8 +179,8 @@
   }
   .ut-player-card.giliran{
     border-color:var(--purple-brand);
-    background:linear-gradient(180deg,#fff, #f5f0ff);
-    box-shadow:0 6px 16px rgba(106,61,216,0.2);
+    background:var(--surface); /* ikut tema, jangan putih tetap (teks jadi tak terbaca di mode gelap) */
+    box-shadow:0 6px 16px rgba(106,61,216,0.35);
   }
   .ut-player-avatar{
     width:38px; height:38px; border-radius:50%; margin:0 auto 6px;
@@ -577,6 +589,9 @@
   }
   .field input:focus{ border-color:var(--purple-brand); }
 
+  .auth-error.auth-ok{ color:#2fbf71; }
+  .auth-link{ color:var(--purple-brand); font-weight:700; text-decoration:underline; cursor:pointer; }
+  .auth-forgot{ text-align:right; margin:-4px 0 10px; font-size:12px; }
   .auth-error{
     font-size:11.5px;
     color:var(--heart-red);
@@ -804,6 +819,7 @@
           <label>Kata Sandi</label>
           <input type="password" id="loginPassword" placeholder="Masukkan kata sandi">
         </div>
+        <div class="auth-forgot"><span class="auth-link" onclick="handleLupaSandi()">Lupa kata sandi?</span></div>
         <div class="auth-error" id="loginError"></div>
 
         <button class="auth-submit" id="loginBtn" onclick="handleLogin()">Masuk</button>
@@ -1832,9 +1848,9 @@
     var pass = document.getElementById('loginPassword').value.trim();
     var err = document.getElementById('loginError');
     var btn = document.getElementById('loginBtn');
-    err.textContent = '';
+    setPesanAuth(err, '');
     if(!email || !pass){
-      err.textContent = 'Email/HP dan kata sandi wajib diisi.';
+      setPesanAuth(err, 'Email/HP dan kata sandi wajib diisi.');
       return;
     }
     if(!firebaseReady){
@@ -1848,11 +1864,50 @@
         showView('home');
       })
       .catch(function(error){
-        err.textContent = terjemahkanErrorFirebase(error);
+        if(errorSandiSalah(error)){
+          // Sandi salah -> langsung tawarkan kirim tautan reset ke email
+          err.className = 'auth-error';
+          err.innerHTML = 'Email atau kata sandi salah. <span class="auth-link" onclick="handleLupaSandi()">Lupa kata sandi? Kirim tautan reset ke email</span>';
+        } else {
+          setPesanAuth(err, terjemahkanErrorFirebase(error));
+        }
       })
       .finally(function(){
         btn.disabled = false;
         btn.textContent = 'Masuk';
+      });
+  }
+
+  function errorSandiSalah(error){
+    return error && (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential');
+  }
+
+  // Tampilkan pesan di area error auth (ok=true -> hijau untuk pesan sukses)
+  function setPesanAuth(el, teks, ok){
+    el.className = 'auth-error' + (ok ? ' auth-ok' : '');
+    el.textContent = teks;
+  }
+
+  // Lupa kata sandi: kirim email reset dari Firebase ke alamat yang diisi di kolom email.
+  function handleLupaSandi(){
+    var email = document.getElementById('loginEmail').value.trim();
+    var err = document.getElementById('loginError');
+    if(!email || email.indexOf('@') === -1){
+      setPesanAuth(err, 'Isi dulu kolom Email dengan email akunmu, lalu tekan "Lupa kata sandi?".');
+      document.getElementById('loginEmail').focus();
+      return;
+    }
+    if(!firebaseReady){
+      setPesanAuth(err, 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.');
+      return;
+    }
+    setPesanAuth(err, 'Mengirim email reset...', true);
+    withTimeout(auth.sendPasswordResetEmail(email), 15000)
+      .then(function(){
+        setPesanAuth(err, 'Email reset kata sandi sudah dikirim ke ' + email + '. Buka email-nya (cek juga folder Spam), lalu ikuti tautan di dalamnya.', true);
+      })
+      .catch(function(error){
+        setPesanAuth(err, terjemahkanErrorFirebase(error));
       });
   }
 
@@ -1881,9 +1936,9 @@
 
   function handleGoogleSignIn(errElId){
     var err = document.getElementById(errElId);
-    err.textContent = '';
+    setPesanAuth(err, '');
     if(!firebaseReady){
-      err.textContent = 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.';
+      setPesanAuth(err, 'Tidak bisa terhubung ke server. Cek koneksi internet kamu, lalu coba lagi.');
       return;
     }
     var provider = new firebase.auth.GoogleAuthProvider();
@@ -2026,6 +2081,10 @@
       case 'auth/wrong-password':
       case 'auth/invalid-credential': return 'Email atau kata sandi salah.';
       case 'auth/network-request-failed': return 'Koneksi internet bermasalah. Coba lagi.';
+      case 'auth/unauthorized-domain': return 'Domain "' + location.hostname + '" belum didaftarkan di Firebase. Buka Firebase Console > Authentication > Settings > Authorized domains, lalu tambahkan domain ini.';
+      case 'auth/too-many-requests': return 'Terlalu banyak percobaan. Tunggu beberapa menit lalu coba lagi, atau reset kata sandi.';
+      case 'auth/user-disabled': return 'Akun ini dinonaktifkan.';
+      case 'auth/missing-email': return 'Isi email dulu.';
       case 'custom/timeout': return 'Koneksi internet terlalu lambat. Cek sinyal WiFi/data kamu, lalu coba lagi.';
       default: return 'Terjadi kesalahan: ' + error.message;
     }
@@ -2742,7 +2801,7 @@
 
           html += '<div id="chat-msg-' + doc.id + '" style="display:flex;align-items:flex-end;justify-content:' + (milikSaya ? 'flex-end' : 'flex-start') + ';margin:2px 0;">' +
                     (milikSaya ? '' : fotoKecil) +
-                    '<div style="max-width:72%;' + bubbleExtraStyle + (bubbleExtraStyle ? '' : ('background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;')) + 'border-radius:' + bubbleRadius + ';font-size:13px;line-height:1.4;' + (bubbleExtraStyle ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.07);') + '">' +
+                    '<div style="max-width:72%;' + bubbleExtraStyle + (bubbleExtraStyle ? '' : ('background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : 'var(--surface)') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;')) + 'border-radius:' + bubbleRadius + ';font-size:13px;line-height:1.4;' + (bubbleExtraStyle ? '' : 'box-shadow:0 1px 3px rgba(0,0,0,0.07);') + '">' +
                       isiPesan +
                       '<div style="font-size:9.5px;opacity:0.7;text-align:right;margin-top:2px;' + (bubbleExtraStyle ? 'color:var(--text-muted);padding:3px 2px 0;' : '') + '">' + jamMenit + centang + '</div>' +
                     '</div>' +
@@ -3234,7 +3293,7 @@
                 (milikSaya ? '' : avatarKecil) +
                 '<div style="max-width:72%;">' +
                   (milikSaya ? '' : '<p style="font-size:10.5px;font-weight:700;color:var(--purple-brand);margin-bottom:2px;">' + escapeHtml(m.senderName) + '</p>') +
-                  '<div style="background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : '#fff') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;border-radius:' + (milikSaya ? '16px 16px 4px 16px' : '16px 16px 16px 4px') + ';font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.07);">' +
+                  '<div style="background:' + (milikSaya ? 'linear-gradient(135deg,var(--purple-brand),var(--pink-glow))' : 'var(--surface)') + ';color:' + (milikSaya ? '#fff' : 'var(--text-dark)') + ';padding:8px 12px;border-radius:' + (milikSaya ? '16px 16px 4px 16px' : '16px 16px 16px 4px') + ';font-size:13px;line-height:1.4;box-shadow:0 1px 3px rgba(0,0,0,0.07);">' +
                     isiBubble +
                   '</div>' +
                   '<p style="font-size:9.5px;color:var(--text-muted);margin-top:2px;text-align:' + (milikSaya ? 'right' : 'left') + ';">' + jamMenit + '</p>' +
@@ -5389,7 +5448,7 @@ var daftarAvatarPreset = [
     kuning: [[10,10],[10,13],[13,10],[13,13]],
     biru:   [[10,1],[10,4],[13,1],[13,4]]
   };
-  var LUDO_SAFE = ['6,1','1,8','8,13','13,6']; // kotak start tiap warna, aman dari tangkapan
+  var LUDO_SAFE = ['6,1','1,8','8,13','13,6','3,6','6,11','11,8','8,3']; // 4 kotak start + 4 kotak bintang, aman dari tangkapan
 
   // langkah: -1 = di kandang, 0-54 = di ring (relatif ke start warna), 55-60 = jalur home, 61 = sudah sampai/finish
   function ludoSelToken(warna, langkah){
@@ -5473,7 +5532,7 @@ var daftarAvatarPreset = [
   function ludoBuatDataAwal(players, vsBot){
     var warnaMap = tentukanWarnaPemainLudo(players);
     var tokens = {};
-    players.forEach(function(uid){ tokens[uid] = [-1, -1]; });
+    players.forEach(function(uid){ tokens[uid] = [-1, -1, -1, -1]; });
     return { warnaMap: warnaMap, tokens: tokens };
   }
 
@@ -5617,7 +5676,7 @@ var daftarAvatarPreset = [
     var kode = buatKodeRoomLudo();
 
     var playerNames = {}; playerNames[myUid] = myNama;
-    var tokens = {}; tokens[myUid] = [-1, -1];
+    var tokens = {}; tokens[myUid] = [-1, -1, -1, -1];
 
     db.collection('ludo').add({
       players: [myUid],
@@ -5663,7 +5722,7 @@ var daftarAvatarPreset = [
       }
       var update = { players: data.players.concat([myUid]) };
       update['playerNames.' + myUid] = myNama;
-      update['tokens.' + myUid] = [-1, -1];
+      update['tokens.' + myUid] = [-1, -1, -1, -1];
       doc.ref.update(update).then(function(){
         bukaPapanLudo(doc.id);
       }).catch(function(e){
@@ -5779,10 +5838,12 @@ var daftarAvatarPreset = [
         else if(r >= 9 && c <= 5){ warnaYard = 'biru'; }
 
         var info = tipe[key];
+        var isi = '';
         if(info && info.jenis === 'ring'){
           style += 'background:#fff;';
         } else if(info && info.jenis === 'safe'){
-          style += 'background:#fff3cd;';
+          style += 'background:#fff3cd;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e0a800;';
+          isi = '★';
         } else if(info && info.jenis === 'home'){
           style += 'background:' + LUDO_WARNA_HEX[info.warna] + ';opacity:0.85;';
         } else if(warnaYard){
@@ -5791,7 +5852,7 @@ var daftarAvatarPreset = [
           style += 'background:var(--bg-app);';
         }
         if(r === 7 && c === 7){ style += 'background:linear-gradient(135deg,#ff5252,#3ecf6b,#ffc93f,#3d8bff);'; }
-        html += '<div style="' + style + '"></div>';
+        html += '<div style="' + style + '">' + isi + '</div>';
       }
     }
     grid.innerHTML = html;
@@ -5905,7 +5966,7 @@ var daftarAvatarPreset = [
       return '<div class="ut-player-card' + (giliran ? ' giliran' : '') + '" style="max-width:47%;min-width:90px;">' +
           '<div class="ut-player-avatar" style="background:' + (foto ? ('url(' + foto + ') center/cover') : warna) + ';">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
           '<p style="font-size:12px;font-weight:700;">' + escapeHtml(nama) + '</p>' +
-          '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">🏠 ' + selesaiCount + '/2 bidak sampai</p>' +
+          '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">🏠 ' + selesaiCount + '/4 bidak sampai</p>' +
         '</div>';
     }).join('');
 
@@ -5955,7 +6016,7 @@ var daftarAvatarPreset = [
 
         var rc;
         if(langkah === -1){
-          rc = LUDO_YARD[warna][ti % 4];
+          rc = LUDO_YARD[warna][ti];
         } else if(langkah === 61){
           rc = LUDO_HOME[warna][5]; // ditumpuk di ujung home kalau sudah finish
         } else {
@@ -5990,24 +6051,24 @@ var daftarAvatarPreset = [
     });
   }
 
-  function lemparDaduLudo(){
-    if(!db || !ludoGameAktifId || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
+  // Satu pintu untuk semua lemparan dadu (pemain maupun bot) supaya aturan tidak terduplikasi (DRY)
+  function lemparDaduLudoUntuk(uid){
+    if(!db || !ludoGameAktifId) return;
     var ref = db.collection('ludo').doc(ludoGameAktifId);
 
     db.runTransaction(function(tx){
       return tx.get(ref).then(function(doc){
         var data = doc.data();
-        if(!data || data.status !== 'playing' || data.turnUid !== myUid || data.menungguPilihToken) return;
+        if(!data || data.status !== 'playing' || data.turnUid !== uid || data.menungguPilihToken) return;
 
         var roll = Math.floor(Math.random() * 6) + 1;
-        var legal = hitungLangkahLegalLudo(data, myUid, roll);
+        var legal = hitungLangkahLegalLudo(data, uid, roll);
 
         if(legal.length === 0){
-          var next = (roll === 6) ? myUid : pemainBerikutnyaLudo(data, myUid);
-          tx.update(ref, { lastRoll: roll, turnUid: next, menungguPilihToken: false });
+          // Tidak ada bidak yang bisa jalan -> giliran langsung lewat, hitungan 6 beruntun direset
+          tx.update(ref, { lastRoll: roll, turnUid: pemainBerikutnyaLudo(data, uid), menungguPilihToken: false, sixBeruntun: 0 });
         } else if(legal.length === 1){
-          ludoTerapkanLangkah(tx, ref, data, myUid, legal[0], roll);
+          ludoTerapkanLangkah(tx, ref, data, uid, legal[0], roll);
         } else {
           tx.update(ref, { lastRoll: roll, menungguPilihToken: true });
         }
@@ -6015,65 +6076,100 @@ var daftarAvatarPreset = [
     }).catch(function(e){ tampilkanDebug('❌ Gagal melempar dadu: ' + e.message); });
   }
 
+  function lemparDaduLudo(){
+    if(!auth.currentUser) return;
+    lemparDaduLudoUntuk(auth.currentUser.uid);
+  }
+
+  function lemparDaduLudoUntukBot(){
+    lemparDaduLudoUntuk(LUDO_BOT_UID);
+  }
+
   function pilihTokenLudo(tokenIdx){
     if(!db || !ludoGameAktifId || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-    var ref = db.collection('ludo').doc(ludoGameAktifId);
+    pilihTokenLudoUntuk(auth.currentUser.uid, tokenIdx);
+  }
 
+  function pilihTokenLudoUntuk(uid, tokenIdx){
+    var ref = db.collection('ludo').doc(ludoGameAktifId);
     db.runTransaction(function(tx){
       return tx.get(ref).then(function(doc){
         var data = doc.data();
-        if(!data || !data.menungguPilihToken || data.turnUid !== myUid) return;
+        if(!data || !data.menungguPilihToken || data.turnUid !== uid) return;
         var roll = data.lastRoll;
-        var legal = hitungLangkahLegalLudo(data, myUid, roll);
+        var legal = hitungLangkahLegalLudo(data, uid, roll);
         var pilihan = legal.filter(function(l){ return l.tokenIdx === tokenIdx; })[0];
         if(!pilihan) return;
-        ludoTerapkanLangkah(tx, ref, data, myUid, pilihan, roll);
+        ludoTerapkanLangkah(tx, ref, data, uid, pilihan, roll);
       });
     }).catch(function(e){ tampilkanDebug('❌ Gagal memilih bidak: ' + e.message); });
   }
 
+  // Daftar uid lawan yang bidaknya akan tertangkap kalau uid mendarat di langkah `baru` (kosong = tidak menangkap)
+  function ludoBidakTertangkap(data, uid, langkahBaru, tokensSekarang){
+    var hasil = [];
+    if(langkahBaru < 0 || langkahBaru > 54) return hasil;
+    var rcSaya = ludoSelToken(data.playerWarna[uid], langkahBaru);
+    var kunciSaya = rcSaya[0] + ',' + rcSaya[1];
+    if(LUDO_SAFE.indexOf(kunciSaya) !== -1) return hasil; // kotak aman, tidak bisa menangkap
+
+    data.players.forEach(function(u2){
+      if(u2 === uid) return;
+      var warna2 = data.playerWarna[u2];
+      (tokensSekarang[u2] || []).forEach(function(l2, i2){
+        if(l2 < 0 || l2 > 54) return;
+        var rc2 = ludoSelToken(warna2, l2);
+        if(rc2 && (rc2[0] + ',' + rc2[1]) === kunciSaya){ hasil.push({ uid: u2, idx: i2 }); }
+      });
+    });
+    return hasil;
+  }
+
   // Terapkan 1 langkah token di dalam transaksi: pindah posisi, tangkap musuh kalau kena, cek menang, tentukan giliran berikut
   function ludoTerapkanLangkah(tx, ref, data, uid, pilihan, roll){
-    var warnaSaya = data.playerWarna[uid];
     var tokensBaru = {};
     data.players.forEach(function(u){ tokensBaru[u] = (data.tokens[u] || []).slice(); });
     tokensBaru[uid][pilihan.tokenIdx] = pilihan.baru;
 
-    var tertangkap = [];
-    if(pilihan.baru >= 0 && pilihan.baru <= 54){
-      var rcSaya = ludoSelToken(warnaSaya, pilihan.baru);
-      var kunciSaya = rcSaya[0] + ',' + rcSaya[1];
-      if(LUDO_SAFE.indexOf(kunciSaya) === -1){
-        data.players.forEach(function(u2){
-          if(u2 === uid) return;
-          var warna2 = data.playerWarna[u2];
-          (tokensBaru[u2] || []).forEach(function(l2, i2){
-            if(l2 < 0 || l2 > 54) return;
-            var rc2 = ludoSelToken(warna2, l2);
-            if(rc2 && (rc2[0] + ',' + rc2[1]) === kunciSaya){
-              tokensBaru[u2][i2] = -1;
-              tertangkap.push(u2);
-            }
-          });
-        });
-      }
-    }
+    ludoBidakTertangkap(data, uid, pilihan.baru, tokensBaru).forEach(function(t){
+      tokensBaru[t.uid][t.idx] = -1; // dikirim balik ke kandang
+    });
 
     var menang = tokensBaru[uid].every(function(l){ return l === 61; });
-    var updateData = {
-      tokens: tokensBaru,
-      lastRoll: roll,
-      menungguPilihToken: false
-    };
+    var updateData = { tokens: tokensBaru, lastRoll: roll, menungguPilihToken: false };
+
     if(menang){
       updateData.status = 'finished';
       updateData.winner = uid;
       updateData.turnUid = uid;
+      updateData.sixBeruntun = 0;
+    } else if(roll === 6){
+      var sixBaru = (data.sixBeruntun || 0) + 1;
+      if(sixBaru >= 3){
+        // Aturan klasik: tiga angka 6 berturut-turut membatalkan giliran
+        updateData.turnUid = pemainBerikutnyaLudo(data, uid);
+        updateData.sixBeruntun = 0;
+      } else {
+        updateData.turnUid = uid; // dapat lempar lagi
+        updateData.sixBeruntun = sixBaru;
+      }
     } else {
-      updateData.turnUid = (roll === 6) ? uid : pemainBerikutnyaLudo(data, uid);
+      updateData.turnUid = pemainBerikutnyaLudo(data, uid);
+      updateData.sixBeruntun = 0;
     }
     tx.update(ref, updateData);
+  }
+
+  // Strategi bot: 1) tangkap lawan, 2) keluarkan bidak dari kandang, 3) majukan bidak paling depan
+  function ludoPilihLangkahBot(data, uid, legal){
+    var tokens = data.tokens;
+    var tangkap = legal.filter(function(l){ return ludoBidakTertangkap(data, uid, l.baru, tokens).length > 0; })[0];
+    if(tangkap) return tangkap;
+
+    var keluarKandang = legal.filter(function(l){ return tokens[uid][l.tokenIdx] === -1; })[0];
+    if(keluarKandang) return keluarKandang;
+
+    return legal.reduce(function(terbaik, l){ return l.baru > terbaik.baru ? l : terbaik; }, legal[0]);
   }
 
   function jalankanGiliranBotLudoJikaPerlu(data){
@@ -6086,39 +6182,13 @@ var daftarAvatarPreset = [
       if(data.menungguPilihToken){
         var legal = hitungLangkahLegalLudo(data, LUDO_BOT_UID, data.lastRoll);
         if(legal.length > 0){
-          // Bot lebih suka menangkap musuh atau mengeluarkan bidak dari kandang
-          var pilihan = legal[0];
-          legal.forEach(function(l){
-            if(l.baru > pilihan.baru) pilihan = l; // pilih yang paling maju
-          });
-          pilihTokenLudo(pilihan.tokenIdx);
+          pilihTokenLudoUntuk(LUDO_BOT_UID, ludoPilihLangkahBot(data, LUDO_BOT_UID, legal).tokenIdx);
         }
       } else {
         lemparDaduLudoUntukBot();
       }
       ludoBotSedangJalan = false;
     }, 1200);
-  }
-
-  function lemparDaduLudoUntukBot(){
-    if(!db || !ludoGameAktifId) return;
-    var ref = db.collection('ludo').doc(ludoGameAktifId);
-    db.runTransaction(function(tx){
-      return tx.get(ref).then(function(doc){
-        var data = doc.data();
-        if(!data || data.status !== 'playing' || data.turnUid !== LUDO_BOT_UID || data.menungguPilihToken) return;
-        var roll = Math.floor(Math.random() * 6) + 1;
-        var legal = hitungLangkahLegalLudo(data, LUDO_BOT_UID, roll);
-        if(legal.length === 0){
-          var next = (roll === 6) ? LUDO_BOT_UID : pemainBerikutnyaLudo(data, LUDO_BOT_UID);
-          tx.update(ref, { lastRoll: roll, turnUid: next, menungguPilihToken: false });
-        } else if(legal.length === 1){
-          ludoTerapkanLangkah(tx, ref, data, LUDO_BOT_UID, legal[0], roll);
-        } else {
-          tx.update(ref, { lastRoll: roll, menungguPilihToken: true });
-        }
-      });
-    }).catch(function(e){ tampilkanDebug('❌ Gagal lempar dadu bot: ' + e.message); });
   }
 
   function tutupLudoSelesaiModal(){
