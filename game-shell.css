@@ -1,0 +1,78 @@
+/* =========================================================================
+   DUOZY GAME SHELL — gaya bersama untuk semua halaman game
+   Berisi layar loading, panel masalah (koneksi lambat / error), dan toast.
+   Warna sengaja ditulis tetap (bukan variabel tema) supaya layar loading
+   selalu terbaca di mode terang maupun gelap.
+   ========================================================================= */
+
+.dz-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+  color: #fff;
+  background: linear-gradient(160deg, #131240 0%, #4a2a86 70%, #c33fa0 160%);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  transition: opacity 0.3s ease;
+}
+
+.dz-loader.dz-hide { opacity: 0; pointer-events: none; }
+
+.dz-loader__emoji { font-size: 56px; animation: dz-bounce 1.2s ease-in-out infinite; }
+.dz-loader__title { margin: 0; font-size: 18px; font-weight: 800; }
+
+.dz-loader__spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.25);
+  border-top-color: #fff;
+  animation: dz-spin 0.8s linear infinite;
+}
+
+.dz-loader__msg { margin: 0; min-height: 1.5em; max-width: 300px; font-size: 13px; line-height: 1.5; opacity: 0.88; }
+.dz-loader__actions { display: none; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 6px; }
+
+/* Kondisi bermasalah: spinner disembunyikan, tombol aksi muncul */
+.dz-loader.dz-problem .dz-loader__spinner { display: none; }
+.dz-loader.dz-problem .dz-loader__actions { display: flex; }
+.dz-loader.dz-problem .dz-loader__emoji { animation: none; }
+
+.dz-btn {
+  border: none;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font: 700 13px/1 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+}
+.dz-btn--primary { background: #fff; color: #4a2a86; }
+.dz-btn--ghost { background: rgba(255, 255, 255, 0.16); color: #fff; }
+
+.dz-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  z-index: 1100;
+  max-width: 86%;
+  padding: 11px 18px;
+  border-radius: 14px;
+  background: rgba(20, 20, 30, 0.94);
+  color: #fff;
+  font: 600 12.5px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes dz-spin { to { transform: rotate(360deg); } }
+@keyframes dz-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dz-loader__emoji, .dz-loader__spinner { animation-duration: 3s; }
+}
