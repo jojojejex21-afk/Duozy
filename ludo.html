@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#15132b">
+<title>Ludo — Duozy</title>
+<link rel="stylesheet" href="../shared/game-shell.css">
+<style>
+/* =========================================================================
+   LUDO — STYLESHEET
+   Seluruh warna & ukuran utama didefinisikan di :root (single source of truth).
+   Pendekatan mobile-first: gaya dasar = layar HP, breakpoint melebar di bawah.
+   ========================================================================= */
+:root {
+  --bg: #15132b;
+  --bg-glow: radial-gradient(circle at 50% -10%, #2c2560 0%, #15132b 58%);
+  --panel: #211f3f;
+  --panel-line: rgba(255, 255, 255, 0.08);
+  --text: #f0eefc;
+  --muted: #a9a4c9;
+  --brand: #6a3dd8;
+  --brand-2: #c33fa0;
+  --accent: #e0b84b;
+  --danger: #ff4d7e;
+
+  --surface: #f4ecd8;
+  --cell-line: rgba(20, 20, 30, 0.09);
+
+  --p-red: #e0435a;   --p-red-dark: #a92c3d;
+  --p-green: #21a179; --p-green-dark: #167a5b;
+  --p-yellow: #f1a93a; --p-yellow-dark: #c9821f;
+  --p-blue: #3d7de0;  --p-blue-dark: #2a5aa8;
+
+  --radius-lg: 22px;
+  --radius-md: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+
+  --font: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+
+  --grid: 15;
+  --dice-size: 62px;
+  --turn-color: var(--accent);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg-glow), var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font);
+  color-scheme: dark;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, p { margin: 0; }
+button { font-family: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+#app { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
+.screen { display: none; flex: 1; flex-direction: column; padding: 14px 16px 24px; }
+.screen--active { display: flex; }
+
+/* ---------- Header bersama (setup & permainan) ---------- */
+.topbar { display: flex; align-items: center; gap: 10px; padding: 2px 0 14px; }
+.topbar__title { flex: 1; font-size: 19px; font-weight: 800; }
+.icon-btn {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border: 1px solid var(--panel-line); border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06); color: var(--text); font-size: 17px;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-btn:active { transform: scale(0.94); }
+
+/* ---------- Layar setup ---------- */
+.setup-card {
+  width: 100%; max-width: 480px; margin: 0 auto;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  border-radius: var(--radius-lg); padding: 24px 20px; box-shadow: var(--shadow);
+}
+.setup-card h2 { font-size: 26px; text-align: center; margin-bottom: 4px; }
+.setup-sub { text-align: center; color: var(--muted); font-size: 13px; margin-bottom: 22px; }
+.setup-label { display: block; margin-bottom: 9px; color: var(--muted); font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.setup-section { margin-bottom: 20px; }
+
+.chip-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.chip {
+  border: 1px solid var(--panel-line); border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04); color: var(--text);
+  padding: 11px 0; font-size: 13.5px; font-weight: 700;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.chip.is-active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border-color: transparent; color: #fff; }
+
+.slot-list { display: flex; flex-direction: column; gap: 10px; }
+.slot {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.04); border: 1px solid var(--panel-line);
+}
+.slot__swatch { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35); }
+.slot input {
+  flex: 1; min-width: 0; background: transparent; border: none; border-bottom: 1px solid var(--panel-line);
+  color: var(--text); font: inherit; font-size: 14px; padding: 4px 2px; outline: none;
+}
+.slot input::placeholder { color: var(--muted); }
+.mode-toggle { display: flex; flex-shrink: 0; gap: 2px; padding: 3px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); }
+.mode-toggle button { border: none; background: transparent; color: var(--muted); font-size: 11px; font-weight: 800; padding: 6px 11px; border-radius: 999px; }
+.mode-toggle button.is-active { background: var(--accent); color: #241a06; }
+
+.btn-primary {
+  width: 100%; border: none; border-radius: var(--radius-md); padding: 15px;
+  font-size: 15px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  box-shadow: 0 8px 20px rgba(106, 61, 216, 0.35);
+}
+.btn-primary:active { transform: scale(0.985); }
+
+/* ---------- Layar permainan ---------- */
+.turn-pill {
+  max-width: 62%; padding: 8px 13px; border-radius: 999px;
+  background: var(--panel); border: 1px solid var(--panel-line);
+  font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.turn-pill .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+
+.game-layout { display: flex; flex-direction: column; gap: 14px; }
+.board-wrapper { width: 100%; max-width: 560px; margin: 0 auto; }
+
+/* ---------- Papan: CSS Grid 15x15 ---------- */
+.board-frame {
+  background: var(--surface); border-radius: var(--radius-md);
+  padding: 2.6%; box-shadow: var(--shadow);
+}
+.board-stack { position: relative; }
+.board {
+  display: grid;
+  grid-template-columns: repeat(var(--grid), 1fr);
+  grid-template-rows: repeat(var(--grid), 1fr);
+  aspect-ratio: 1;
+  border-radius: 8px; overflow: hidden;
+}
+.cell { border: 1px solid var(--cell-line); position: relative; }
+.cell--path { background: #fffdf7; }
+.cell--star::after {
+  content: "★"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(7px, 2.4vw, 13px); color: #d9a82c; line-height: 1;
+}
+.cell--start-red { background: color-mix(in srgb, var(--p-red) 42%, #fffdf7); }
+.cell--start-green { background: color-mix(in srgb, var(--p-green) 42%, #fffdf7); }
+.cell--start-yellow { background: color-mix(in srgb, var(--p-yellow) 46%, #fffdf7); }
+.cell--start-blue { background: color-mix(in srgb, var(--p-blue) 42%, #fffdf7); }
+.cell--home-red { background: var(--p-red); }
+.cell--home-green { background: var(--p-green); }
+.cell--home-yellow { background: var(--p-yellow); }
+.cell--home-blue { background: var(--p-blue); }
+.cell--yard-red { background: var(--p-red); border-color: transparent; }
+.cell--yard-green { background: var(--p-green); border-color: transparent; }
+.cell--yard-yellow { background: var(--p-yellow); border-color: transparent; }
+.cell--yard-blue { background: var(--p-blue); border-color: transparent; }
+.cell--center { background: conic-gradient(from 45deg, var(--p-green) 0 25%, var(--p-yellow) 0 50%, var(--p-blue) 0 75%, var(--p-red) 0 100%); }
+.cell--void { background: var(--surface); border-color: transparent; }
+
+.board-decor, .token-layer { position: absolute; inset: 0; pointer-events: none; }
+.yard-plate {
+  position: absolute; background: #fffdf7; border-radius: 14%;
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.06);
+}
+.yard-slot {
+  position: absolute; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.09); box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------- Bidak: kotak 1 sel, dipindah dengan transform ---------- */
+.token {
+  position: absolute; left: 0; top: 0;
+  width: calc(100% / var(--grid)); height: calc(100% / var(--grid));
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.17s ease-out;
+  will-change: transform;
+}
+.token--slow { transition-duration: 0.45s; transition-timing-function: cubic-bezier(0.34, 1.4, 0.64, 1); }
+.token--moving { z-index: 6; }
+.token__disc {
+  width: 74%; height: 74%; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--tc) 55%, #fff) 0%, var(--tc) 55%, var(--tc-dark) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4);
+}
+.token--red { --tc: var(--p-red); --tc-dark: var(--p-red-dark); }
+.token--green { --tc: var(--p-green); --tc-dark: var(--p-green-dark); }
+.token--yellow { --tc: var(--p-yellow); --tc-dark: var(--p-yellow-dark); }
+.token--blue { --tc: var(--p-blue); --tc-dark: var(--p-blue-dark); }
+.token--stacked .token__disc { transform: scale(0.78); }
+.token--selectable { pointer-events: auto; cursor: pointer; z-index: 7; }
+.token--selectable .token__disc { animation: token-pulse 0.85s ease-in-out infinite; }
+@keyframes token-pulse {
+  0%, 100% { box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(255, 220, 90, 0.9); transform: scale(1); }
+  50% { box-shadow: 0 3px 7px rgba(0, 0, 0, 0.4), 0 0 0 7px rgba(255, 220, 90, 0); transform: scale(1.12); }
+}
+
+/* ---------- Dadu 3D ---------- */
+.dock { display: flex; gap: 14px; align-items: center; }
+.dice-area {
+  display: flex; align-items: center; gap: 16px; padding: 14px 16px;
+  background: var(--panel); border: 1px solid var(--panel-line); border-radius: var(--radius-lg);
+  border-left: 5px solid var(--turn-color);
+}
+.dice-stage { position: relative; width: var(--dice-size); height: var(--dice-size); perspective: 420px; flex-shrink: 0; }
+.dice-stage::after {
+  content: ""; position: absolute; left: 12%; right: 12%; bottom: -10px; height: 8px; border-radius: 50%;
+  background: rgba(0, 0, 0, 0.35); filter: blur(4px); transition: transform 0.3s ease;
+}
+.dice-stage.is-rolling { animation: dice-toss var(--toss-ms, 0.95s) cubic-bezier(0.32, 0.6, 0.4, 1); }
+.dice-stage.is-rolling::after { animation: dice-shadow var(--toss-ms, 0.95s) ease; }
+@keyframes dice-toss {
+  0% { transform: translateY(0) scale(1); }
+  22% { transform: translateY(-44px) scale(1.18); }
+  46% { transform: translateY(0) scale(1); }
+  62% { transform: translateY(-16px) scale(1.06); }
+  78% { transform: translateY(0); }
+  89% { transform: translateY(-5px); }
+  100% { transform: translateY(0); }
+}
+@keyframes dice-shadow {
+  0%, 46%, 78%, 100% { transform: scale(1); opacity: 1; }
+  22% { transform: scale(0.55); opacity: 0.5; }
+  62% { transform: scale(0.8); opacity: 0.8; }
+}
+.dice-cube {
+  width: 100%; height: 100%; position: relative;
+  transform-style: preserve-3d; transform: rotateX(0deg) rotateY(0deg);
+  transition: transform var(--toss-ms, 0.95s) cubic-bezier(0.22, 0.68, 0.35, 1.2);
+}
+.dice-face {
+  position: absolute; width: var(--dice-size); height: var(--dice-size);
+  background: linear-gradient(145deg, #fffdf7, #e6dfcb); border-radius: 13px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.07);
+  display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr); padding: 11px;
+  backface-visibility: hidden;
+}
+.dice-pip { width: 100%; height: 100%; max-width: 11px; max-height: 11px; margin: auto; border-radius: 50%; background: #23262f; opacity: 0; }
+.dice-pip.on { opacity: 1; }
+.face-front  { transform: translateZ(calc(var(--dice-size) / 2)); }
+.face-back   { transform: rotateY(180deg) translateZ(calc(var(--dice-size) / 2)); }
+.face-right  { transform: rotateY(90deg) translateZ(calc(var(--dice-size) / 2)); }
+.face-left   { transform: rotateY(-90deg) translateZ(calc(var(--dice-size) / 2)); }
+.face-top    { transform: rotateX(90deg) translateZ(calc(var(--dice-size) / 2)); }
+.face-bottom { transform: rotateX(-90deg) translateZ(calc(var(--dice-size) / 2)); }
+
+.dice-controls { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.btn-roll {
+  width: 100%; border: none; border-radius: var(--radius-md); padding: 13px 10px;
+  font-size: 14px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  box-shadow: 0 6px 16px rgba(106, 61, 216, 0.35);
+}
+.btn-roll:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+.btn-roll:not(:disabled):active { transform: scale(0.98); }
+.dice-hint { min-height: 15px; font-size: 11.5px; color: var(--muted); text-align: center; }
+
+/* ---------- Panel pemain & log ---------- */
+.side-panel { display: flex; flex-direction: column; gap: 14px; }
+.players { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.player-card {
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px; border-radius: var(--radius-md); background: var(--panel); border: 1px solid var(--panel-line);
+}
+.player-card::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--card-color); }
+.player-card.is-turn { box-shadow: 0 0 0 2px var(--card-color); }
+.player-card .avatar {
+  width: 34px; height: 34px; flex-shrink: 0; border-radius: 50%; background: var(--card-color);
+  display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 13px;
+}
+.player-card .name { font-size: 12.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.player-card .info { min-width: 0; }
+.player-card .progress { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.log {
+  display: flex; flex-direction: column-reverse; gap: 4px; max-height: 88px; overflow-y: auto;
+  padding: 11px 13px; border-radius: var(--radius-md); background: var(--panel); border: 1px solid var(--panel-line);
+  font-size: 11.5px; color: var(--muted);
+}
+.log b { color: var(--text); }
+
+/* ---------- Modal kemenangan ---------- */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(10, 9, 24, 0.7); opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+}
+.modal.is-visible { opacity: 1; pointer-events: auto; }
+.modal__card {
+  width: 100%; max-width: 330px; padding: 28px 24px; text-align: center;
+  background: var(--panel); border: 1px solid var(--panel-line); border-radius: var(--radius-lg);
+  transform: translateY(10px) scale(0.97); transition: transform 0.25s ease;
+}
+.modal.is-visible .modal__card { transform: none; }
+.modal__emoji { font-size: 48px; margin-bottom: 6px; }
+.modal__card h2 { font-size: 20px; margin-bottom: 6px; }
+.modal__card p { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.modal__actions { display: flex; gap: 10px; }
+.modal__actions .btn-ghost {
+  flex: 1; border: 1px solid var(--panel-line); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.06);
+  color: var(--text); font-size: 14px; font-weight: 700; padding: 14px 10px;
+}
+.modal__actions .btn-primary { flex: 1.4; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+
+/* ---------- Layar lebar: papan & panel berdampingan ---------- */
+@media (min-width: 780px) {
+  :root { --dice-size: 70px; }
+  .screen { padding: 22px 32px 32px; }
+  .game-layout { flex-direction: row; align-items: flex-start; gap: 24px; justify-content: center; }
+  .board-wrapper { flex: 1 1 560px; max-width: 620px; margin: 0; }
+  .side-panel { flex: 0 1 320px; position: sticky; top: 20px; }
+  .dice-area { flex-direction: column; text-align: center; border-left: 1px solid var(--panel-line); border-top: 5px solid var(--turn-color); }
+  .dice-controls { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- ======================= LAYAR LOADING (dikontrol shared/game-shell.js) ======================= -->
+<div id="dz-loader" class="dz-loader" data-title="Ludo" data-emoji="🎲">
+  <div class="dz-loader__emoji">🎲</div>
+  <p class="dz-loader__title">Membuka Ludo...</p>
+  <div class="dz-loader__spinner"></div>
+  <p class="dz-loader__msg"></p>
+  <div class="dz-loader__actions">
+    <button type="button" class="dz-btn dz-btn--primary" data-dz="retry">Coba Lagi</button>
+    <button type="button" class="dz-btn dz-btn--ghost" data-dz="back">Kembali ke Duozy</button>
+  </div>
+</div>
+
+<div id="app">
+
+  <!-- ======================= LAYAR SETUP ======================= -->
+  <section id="setup-screen" class="screen screen--active">
+    <div class="topbar">
+      <button type="button" class="icon-btn" id="setup-back-btn" aria-label="Kembali ke Duozy">←</button>
+      <h1 class="topbar__title">🎲 Ludo</h1>
+    </div>
+
+    <div class="setup-card">
+      <h2>Atur Permainan</h2>
+      <p class="setup-sub">Lawan bot, atau gantian bareng teman di satu HP</p>
+
+      <div class="setup-section">
+        <span class="setup-label">Jumlah Pemain</span>
+        <div class="chip-row" id="count-row">
+          <button type="button" class="chip is-active" data-count="2">2 Pemain</button>
+          <button type="button" class="chip" data-count="3">3 Pemain</button>
+          <button type="button" class="chip" data-count="4">4 Pemain</button>
+        </div>
+      </div>
+
+      <div class="setup-section">
+        <span class="setup-label">Pemain</span>
+        <div class="slot-list" id="slot-list"></div>
+      </div>
+
+      <button type="button" class="btn-primary" id="start-btn">Mulai Permainan</button>
+    </div>
+  </section>
+
+  <!-- ======================= LAYAR PERMAINAN ======================= -->
+  <section id="game-screen" class="screen">
+    <div class="topbar">
+      <button type="button" class="icon-btn" id="game-back-btn" aria-label="Kembali ke Duozy">←</button>
+      <h1 class="topbar__title">🎲 Ludo</h1>
+      <div class="turn-pill" id="turn-pill">Memuat...</div>
+      <button type="button" class="icon-btn" id="sound-btn" aria-label="Suara">🔊</button>
+    </div>
+
+    <div class="game-layout">
+      <div class="board-wrapper">
+        <div class="board-frame">
+          <div class="board-stack">
+            <div class="board" id="board" role="img" aria-label="Papan Ludo"></div>
+            <div class="board-decor" id="board-decor"></div>
+            <div class="token-layer" id="token-layer"></div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="side-panel">
+        <div class="dice-area">
+          <div class="dice-stage" id="dice-stage"><div class="dice-cube" id="dice-cube"></div></div>
+          <div class="dice-controls">
+            <button type="button" class="btn-roll" id="roll-btn">Lempar Dadu</button>
+            <p class="dice-hint" id="dice-hint"></p>
+          </div>
+        </div>
+        <div class="players" id="players"></div>
+        <div class="log" id="log" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
+</div>
+
+<!-- ======================= MODAL KEMENANGAN ======================= -->
+<div class="modal" id="win-modal" role="dialog" aria-modal="true">
+  <div class="modal__card">
+    <div class="modal__emoji" id="win-emoji">🏆</div>
+    <h2 id="win-title">Menang!</h2>
+    <p id="win-text"></p>
+    <div class="modal__actions">
+      <button type="button" class="btn-ghost" id="win-exit-btn">Ke Duozy</button>
+      <button type="button" class="btn-primary" id="win-again-btn">Main Lagi</button>
+    </div>
+  </div>
+</div>
+
+<script src="../shared/game-shell.js"></script>
+<script>
+'use strict';
+
+/**
+ * =============================================================================
+ * LUDO — ARSITEKTUR
+ * Alur data selalu satu arah:
+ *   event pengguna -> LudoApp -> GameLogic (mutasi GameState) -> UIRenderer (render)
+ *
+ *   BoardGeometry : konstanta koordinat papan (tidak berubah)
+ *   GameState     : data permainan saja, tanpa DOM
+ *   GameLogic     : aturan main (fungsi murni terhadap state)
+ *   BotAI         : strategi pemain komputer
+ *   Sfx           : efek suara (Web Audio, tanpa file eksternal)
+ *   UIRenderer    : satu-satunya lapisan yang menyentuh DOM
+ *   LudoApp       : controller / event listener
+ * =============================================================================
+ */
+
+/** Pengaturan waktu animasi (ms). Objek biasa supaya mudah disetel/diuji. */
+const CONFIG = {
+  DICE_MS: 950,
+  STEP_MS: 170,
+  BOT_ROLL_DELAY_MS: 800,
+  BOT_PICK_DELAY_MS: 700,
+  END_MODAL_DELAY_MS: 700
+};
+
+/** @param {number} ms @returns {Promise<void>} */
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/* =============================================================================
+   1. BOARD GEOMETRY
+   Koordinat dibangkitkan & diverifikasi terprogram (rotasi 90° x4 dari satu
+   kuadran): setiap dua sel berurutan pasti bertetangga, jadi bidak bisa
+   dianimasikan satu kotak per satu kotak tanpa lompat.
+   ============================================================================= */
+const BoardGeometry = Object.freeze({
+  SIZE: 15,
+  COLORS: ['red', 'green', 'yellow', 'blue'],
+  COLOR_NAME: { red: 'Merah', green: 'Hijau', yellow: 'Kuning', blue: 'Biru' },
+
+  /** Urutan warna menurut jumlah pemain (2 pemain duduk berseberangan). */
+  COLORS_BY_COUNT: {
+    2: ['red', 'yellow'],
+    3: ['red', 'green', 'yellow'],
+    4: ['red', 'green', 'yellow', 'blue']
+  },
+
+  /** 56 sel jalur bersama, urut searah jarum jam. */
+  RING: [
+    [6, 1], [6, 2], [6, 3], [6, 4], [6, 5], [6, 6], [5, 6], [4, 6], [3, 6], [2, 6],
+    [1, 6], [0, 6], [0, 7], [0, 8], [1, 8], [2, 8], [3, 8], [4, 8], [5, 8], [6, 8],
+    [6, 9], [6, 10], [6, 11], [6, 12], [6, 13], [6, 14], [7, 14], [8, 14], [8, 13], [8, 12],
+    [8, 11], [8, 10], [8, 9], [8, 8], [9, 8], [10, 8], [11, 8], [12, 8], [13, 8], [14, 8],
+    [14, 7], [14, 6], [13, 6], [12, 6], [11, 6], [10, 6], [9, 6], [8, 6], [8, 5], [8, 4],
+    [8, 3], [8, 2], [8, 1], [8, 0], [7, 0], [6, 0]
+  ],
+  START_INDEX: { red: 0, green: 14, yellow: 28, blue: 42 },
+
+  /** Jalur pulang 6 sel tiap warna, dari pintu masuk ke arah pusat. */
+  HOME_COLUMN: {
+    red: [[7, 1], [7, 2], [7, 3], [7, 4], [7, 5], [7, 6]],
+    green: [[1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7]],
+    yellow: [[7, 13], [7, 12], [7, 11], [7, 10], [7, 9], [7, 8]],
+    blue: [[13, 7], [12, 7], [11, 7], [10, 7], [9, 7], [8, 7]]
+  },
+
+  /** 4 slot kandang tiap warna. */
+  YARD: {
+    red: [[1, 1], [1, 4], [4, 1], [4, 4]],
+    green: [[1, 10], [1, 13], [4, 10], [4, 13]],
+    yellow: [[10, 10], [10, 13], [13, 10], [13, 13]],
+    blue: [[10, 1], [10, 4], [13, 1], [13, 4]]
+  },
+
+  /** Sudut kiri-atas blok kandang 6x6 tiap warna: [row, col]. */
+  YARD_ORIGIN: { red: [0, 0], green: [0, 9], yellow: [9, 9], blue: [9, 0] },
+
+  /** Sel aman: 4 kotak start + 4 kotak bintang. */
+  SAFE_CELLS: new Set(['6,1', '1,8', '8,13', '13,6', '3,6', '6,11', '11,8', '8,3']),
+
+  /** Langkah: -1 kandang, 0..54 jalur bersama, 55..60 jalur pulang, 61 sampai rumah. */
+  STEPS_TO_FINISH: 61,
+  TOKENS_PER_PLAYER: 4
+});
+
+/** @param {number[]} cell [row, col] @returns {string} kunci "row,col" */
+const cellKey = (cell) => cell[0] + ',' + cell[1];
+
+/**
+ * Menerjemahkan langkah bidak menjadi koordinat papan.
+ * @param {string} color
+ * @param {number} step -1 (kandang) .. 61 (rumah)
+ * @returns {number[]|null} [row, col]; null untuk kandang
+ */
+function stepToCell(color, step) {
+  if (step < 0) return null;
+  if (step <= 54) {
+    return BoardGeometry.RING[(BoardGeometry.START_INDEX[color] + step) % BoardGeometry.RING.length];
+  }
+  return BoardGeometry.HOME_COLUMN[color][Math.min(step, 60) - 55];
+}
+
+/* =============================================================================
+   2. GAME STATE — data murni, tanpa DOM
+   ============================================================================= */
+class GameState {
+  /** @param {{color:string, name:string, isBot:boolean}[]} configs */
+  constructor(configs) {
+    /** @type {{color:string, name:string, isBot:boolean, tokens:number[]}[]} */
+    this.players = configs.map((cfg) => ({
+      color: cfg.color,
+      name: cfg.name,
+      isBot: cfg.isBot,
+      tokens: new Array(BoardGeometry.TOKENS_PER_PLAYER).fill(-1)
+    }));
+    this.currentPlayerIndex = 0;
+    this.diceValue = 0;
+    this.consecutiveSixes = 0;
+    /** @type {{tokenIndex:number, newStep:number}[]|null} */
+    this.pendingMoves = null;
+    /** @type {'ROLL'|'CHOOSE_TOKEN'|'GAME_OVER'} */
+    this.phase = 'ROLL';
+    this.winnerIndex = null;
+  }
+
+  get currentPlayer() { return this.players[this.currentPlayerIndex]; }
+}
+
+/* =============================================================================
+   3. GAME LOGIC — aturan main
+   ============================================================================= */
+const GameLogic = {
+  /** @returns {number} 1..6 */
+  rollDice() { return 1 + Math.floor(Math.random() * 6); },
+
+  /**
+   * Semua langkah sah untuk sebuah pemain.
+   * @param {{tokens:number[]}} player
+   * @param {number} dice
+   * @returns {{tokenIndex:number, newStep:number}[]}
+   */
+  getLegalMoves(player, dice) {
+    const moves = [];
+    player.tokens.forEach((step, tokenIndex) => {
+      if (step === BoardGeometry.STEPS_TO_FINISH) return;
+      if (step === -1) {
+        if (dice === 6) moves.push({ tokenIndex, newStep: 0 });
+        return;
+      }
+      const newStep = step + dice;
+      if (newStep <= BoardGeometry.STEPS_TO_FINISH) moves.push({ tokenIndex, newStep });
+    });
+    return moves;
+  },
+
+  /**
+   * Bidak lawan yang akan tertangkap bila `mover` mendarat di `newStep`.
+   * Sel aman (start & bintang) tidak bisa menangkap.
+   * @param {GameState} state
+   * @param {{color:string}} mover
+   * @param {number} newStep
+   * @returns {{player:object, tokenIndex:number}[]}
+   */
+  findCaptures(state, mover, newStep) {
+    if (newStep < 0 || newStep > 54) return [];
+    const landed = stepToCell(mover.color, newStep);
+    if (BoardGeometry.SAFE_CELLS.has(cellKey(landed))) return [];
+
+    const hits = [];
+    state.players.forEach((other) => {
+      if (other.color === mover.color) return;
+      other.tokens.forEach((step, tokenIndex) => {
+        if (step < 0 || step > 54) return;
+        if (cellKey(stepToCell(other.color, step)) === cellKey(landed)) hits.push({ player: other, tokenIndex });
+      });
+    });
+    return hits;
+  },
+
+  /**
+   * Menerapkan satu langkah: pindahkan bidak, tangkap lawan, cek menang, atur giliran.
+   * Satu-satunya tempat GameState benar-benar bermutasi saat bermain.
+   * @param {GameState} state
+   * @param {{tokenIndex:number, newStep:number}} move
+   * @returns {{capturedTokens:{player:object, tokenIndex:number}[], captured:object[], won:boolean, extraTurn:boolean, reachedHome:boolean}}
+   */
+  applyMove(state, move) {
+    const mover = state.currentPlayer;
+    mover.tokens[move.tokenIndex] = move.newStep;
+
+    const hits = this.findCaptures(state, mover, move.newStep);
+    hits.forEach((hit) => { hit.player.tokens[hit.tokenIndex] = -1; });
+
+    const won = mover.tokens.every((s) => s === BoardGeometry.STEPS_TO_FINISH);
+    const rolledSix = state.diceValue === 6;
+    let extraTurn = false;
+
+    if (won) {
+      state.winnerIndex = state.currentPlayerIndex;
+    } else if (rolledSix) {
+      state.consecutiveSixes += 1;
+      if (state.consecutiveSixes >= 3) { // aturan klasik: tiga angka 6 beruntun = giliran hangus
+        state.consecutiveSixes = 0;
+        this.advanceTurn(state);
+      } else {
+        extraTurn = true;
+      }
+    } else {
+      state.consecutiveSixes = 0;
+      this.advanceTurn(state);
+    }
+
+    state.pendingMoves = null;
+    state.phase = won ? 'GAME_OVER' : 'ROLL';
+    return {
+      capturedTokens: hits,
+      captured: hits.map((h) => h.player),
+      won,
+      extraTurn,
+      reachedHome: move.newStep === BoardGeometry.STEPS_TO_FINISH
+    };
+  },
+
+  /** @param {GameState} state */
+  advanceTurn(state) {
+    state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
+  }
+};
+
+/* =============================================================================
+   BOT AI — prioritas: tangkap lawan > keluar kandang > majukan bidak terdepan
+   ============================================================================= */
+const BotAI = {
+  /**
+   * @param {GameState} state
+   * @param {{tokenIndex:number, newStep:number}[]} moves
+   * @returns {{tokenIndex:number, newStep:number}}
+   */
+  chooseMove(state, moves) {
+    const mover = state.currentPlayer;
+    const capture = moves.find((m) => GameLogic.findCaptures(state, mover, m.newStep).length > 0);
+    if (capture) return capture;
+    const leaveYard = moves.find((m) => mover.tokens[m.tokenIndex] === -1);
+    if (leaveYard) return leaveYard;
+    return moves.reduce((best, m) => (m.newStep > best.newStep ? m : best), moves[0]);
+  }
+};
+
+/* =============================================================================
+   SFX — efek suara sintetis (tanpa file). Dibuka saat interaksi pertama.
+   ============================================================================= */
+const Sfx = (() => {
+  const PREF_KEY = 'dz_ludo_sfx';
+  let ctx = null;
+  let enabled = true;
+  try { enabled = localStorage.getItem(PREF_KEY) !== 'off'; } catch (e) { /* abaikan */ }
+
+  function context() {
+    if (!ctx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      try { ctx = new AC(); } catch (e) { return null; }
+    }
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    return ctx;
+  }
+
+  function tone({ freq, freqEnd = freq, dur = 0.1, type = 'sine', gain = 0.15, delay = 0 }) {
+    if (!enabled) return;
+    const c = context();
+    if (!c) return;
+    const t = c.currentTime + delay;
+    const osc = c.createOscillator();
+    const g = c.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    if (freqEnd !== freq) osc.frequency.exponentialRampToValueAtTime(freqEnd, t + dur);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(gain, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur + 0.02);
+  }
+
+  return {
+    get enabled() { return enabled; },
+    unlock() { context(); },
+    toggle() {
+      enabled = !enabled;
+      try { localStorage.setItem(PREF_KEY, enabled ? 'on' : 'off'); } catch (e) { /* abaikan */ }
+      return enabled;
+    },
+    roll() { for (let i = 0; i < 7; i++) tone({ freq: 180 + Math.random() * 160, dur: 0.04, type: 'square', gain: 0.07, delay: i * 0.11 }); },
+    step() { tone({ freq: 330, freqEnd: 170, dur: 0.07, type: 'triangle', gain: 0.17 }); },
+    capture() { tone({ freq: 520, freqEnd: 110, dur: 0.38, type: 'sawtooth', gain: 0.13 }); },
+    home() { tone({ freq: 660, dur: 0.14, gain: 0.16 }); tone({ freq: 990, dur: 0.22, gain: 0.16, delay: 0.14 }); },
+    win() { [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, dur: 0.28, gain: 0.16, delay: i * 0.14 })); }
+  };
+})();
+
+/* =============================================================================
+   4. UI RENDERER — satu-satunya lapisan yang menyentuh DOM
+   ============================================================================= */
+class UIRenderer {
+  constructor() {
+    this.$ = (id) => document.getElementById(id);
+    this.boardEl = this.$('board');
+    this.decorEl = this.$('board-decor');
+    this.tokenLayerEl = this.$('token-layer');
+    this.diceStageEl = this.$('dice-stage');
+    this.diceCubeEl = this.$('dice-cube');
+    this._tokens = new Map(); // "color-index" -> HTMLElement
+    this._diceRotation = { x: 0, y: 0 };
+    this._buildDice();
+  }
+
+  /* ---------- Dadu ---------- */
+
+  /** Membuat 6 sisi kubus dadu beserta pip-nya. */
+  _buildDice() {
+    const FACES = [['front', 1], ['back', 6], ['right', 2], ['left', 5], ['top', 3], ['bottom', 4]];
+    const PIPS = { 1: [5], 2: [1, 9], 3: [1, 5, 9], 4: [1, 3, 7, 9], 5: [1, 3, 5, 7, 9], 6: [1, 3, 4, 6, 7, 9] };
+    this.diceCubeEl.innerHTML = FACES.map(([side, value]) => {
+      let pips = '';
+      for (let i = 1; i <= 9; i++) pips += `<span class="dice-pip${PIPS[value].includes(i) ? ' on' : ''}"></span>`;
+      return `<div class="dice-face face-${side}">${pips}</div>`;
+    }).join('');
+  }
+
+  /**
+   * Menganimasikan lemparan: dadu terlempar (pantulan), berputar beberapa kali,
+   * lalu berhenti tepat di sisi yang benar.
+   * @param {number} value 1..6
+   * @param {number} durationMs
+   * @returns {Promise<void>}
+   */
+  animateDiceRoll(value, durationMs) {
+    // Rotasi yang membawa tiap sisi ke depan (front=1, back=6, right=2, left=5, top=3, bottom=4)
+    const TARGET = { 1: [0, 0], 6: [0, 180], 2: [0, -90], 5: [0, 90], 3: [-90, 0], 4: [90, 0] };
+    const [tx, ty] = TARGET[value];
+    const spins = () => (2 + Math.floor(Math.random() * 2)) * 360;
+
+    const r = this._diceRotation;
+    r.x += spins() + (tx - (r.x % 360));
+    r.y += spins() + (ty - (r.y % 360));
+
+    this.diceStageEl.style.setProperty('--toss-ms', durationMs + 'ms');
+    this.diceCubeEl.style.setProperty('--toss-ms', durationMs + 'ms');
+    this.diceStageEl.classList.remove('is-rolling');
+    void this.diceStageEl.offsetWidth; // paksa reflow agar animasi bisa diulang
+    this.diceStageEl.classList.add('is-rolling');
+    this.diceCubeEl.style.transform = `rotateX(${r.x}deg) rotateY(${r.y}deg)`;
+
+    return sleep(durationMs + 30);
+  }
+
+  /* ---------- Papan ---------- */
+
+  /** Membangun 225 sel papan (CSS Grid) + hiasan kandang. Dipanggil sekali per game. */
+  buildBoard() {
+    const G = BoardGeometry;
+    const kind = new Map();
+    G.RING.forEach((c) => kind.set(cellKey(c), { k: 'path' }));
+    G.SAFE_CELLS.forEach((key) => kind.set(key, { k: 'safe' }));
+    G.COLORS.forEach((color) => {
+      kind.set(cellKey(G.RING[G.START_INDEX[color]]), { k: 'start', color });
+      G.HOME_COLUMN[color].forEach((c) => kind.set(cellKey(c), { k: 'home', color }));
+    });
+
+    let html = '';
+    for (let row = 0; row < G.SIZE; row++) {
+      for (let col = 0; col < G.SIZE; col++) {
+        const info = kind.get(row + ',' + col);
+        let cls = 'cell';
+        if (row === 7 && col === 7) cls += ' cell--center';
+        else if (info && info.k === 'home') cls += ' cell--home-' + info.color;
+        else if (info && info.k === 'start') cls += ' cell--start-' + info.color + ' cell--star';
+        else if (info && info.k === 'safe') cls += ' cell--path cell--star';
+        else if (info && info.k === 'path') cls += ' cell--path';
+        else cls += this._yardClass(row, col);
+        html += `<div class="${cls}"></div>`;
+      }
+    }
+    this.boardEl.innerHTML = html;
+
+    // Hiasan kandang: pelat putih + 4 lingkaran slot
+    const unit = (n) => `calc(100% / ${G.SIZE} * ${n})`;
+    let decor = '';
+    G.COLORS.forEach((color) => {
+      const [r0, c0] = G.YARD_ORIGIN[color];
+      decor += `<div class="yard-plate" style="left:${unit(c0 + 0.5)};top:${unit(r0 + 0.5)};width:${unit(5)};height:${unit(5)}"></div>`;
+      G.YARD[color].forEach(([r, c]) => {
+        decor += `<div class="yard-slot" style="left:${unit(c + 0.5 - 0.6)};top:${unit(r + 0.5 - 0.6)};width:${unit(1.2)};height:${unit(1.2)}"></div>`;
+      });
+    });
+    this.decorEl.innerHTML = decor;
+  }
+
+  _yardClass(row, col) {
+    if (row <= 5 && col <= 5) return ' cell--yard-red';
+    if (row <= 5 && col >= 9) return ' cell--yard-green';
+    if (row >= 9 && col >= 9) return ' cell--yard-yellow';
+    if (row >= 9 && col <= 5) return ' cell--yard-blue';
+    return ' cell--void';
+  }
+
+  /** Membuat elemen bidak untuk semua pemain. */
+  buildTokens(state) {
+    this.tokenLayerEl.innerHTML = '';
+    this._tokens.clear();
+    state.players.forEach((player) => {
+      player.tokens.forEach((_s, index) => {
+        const el = document.createElement('div');
+        el.className = 'token token--' + player.color;
+        el.innerHTML = '<div class="token__disc"></div>';
+        this.tokenLayerEl.appendChild(el);
+        this._tokens.set(player.color + '-' + index, el);
+      });
+    });
+  }
+
+  /** @returns {number[]} sel tempat bidak berada (kandang / jalur / rumah) */
+  _cellOf(color, index, step) {
+    if (step === -1) return BoardGeometry.YARD[color][index];
+    return stepToCell(color, step);
+  }
+
+  /**
+   * Menaruh bidak di sebuah sel. Token berukuran tepat 1 sel, jadi translate(%)
+   * = jumlah sel yang digeser (bebas dari ukuran layar).
+   */
+  _place(el, cell, dx = 0, dy = 0) {
+    el.style.transform = `translate(${(cell[1] + dx) * 100}%, ${(cell[0] + dy) * 100}%)`;
+  }
+
+  /**
+   * Menggambar semua bidak sesuai state. Bidak yang berbagi sel diberi geseran kecil.
+   * @param {GameState} state
+   */
+  renderTokens(state) {
+    const groups = new Map();
+    const entries = [];
+    state.players.forEach((player) => {
+      player.tokens.forEach((step, index) => {
+        const cell = this._cellOf(player.color, index, step);
+        const key = cellKey(cell) + (step === -1 ? '|yard|' + player.color + index : '');
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(entries.length);
+        entries.push({ player, index, step, cell, key });
+      });
+    });
+
+    const OFFSETS = {
+      2: [[-0.2, 0], [0.2, 0]],
+      3: [[-0.22, -0.14], [0.22, -0.14], [0, 0.22]],
+      4: [[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]]
+    };
+
+    const choosing = state.phase === 'CHOOSE_TOKEN' && !state.currentPlayer.isBot && !!state.pendingMoves;
+    const selectable = new Set(choosing ? state.pendingMoves.map((m) => m.tokenIndex) : []);
+
+    entries.forEach((entry, i) => {
+      const el = this._tokens.get(entry.player.color + '-' + entry.index);
+      const group = groups.get(entry.key);
+      const size = Math.min(group.length, 4);
+      const [dx, dy] = size > 1 ? OFFSETS[size][group.indexOf(i) % size] : [0, 0];
+      this._place(el, entry.cell, dx, dy);
+      el.classList.toggle('token--stacked', size > 1);
+      const canPick = choosing && entry.player === state.currentPlayer && selectable.has(entry.index);
+      el.classList.toggle('token--selectable', canPick);
+      el.onclick = canPick ? () => window.ludoApp.handleTokenClick(entry.index) : null;
+      el.style.zIndex = entry.step === -1 ? 1 : 2;
+    });
+  }
+
+  /** Mematikan kilau & klik pada semua bidak (dipakai begitu pemain sudah memilih). */
+  clearSelectable() {
+    this._tokens.forEach((el) => { el.classList.remove('token--selectable'); el.onclick = null; });
+  }
+
+  /** Bidak yang tertangkap "terbang" pulang ke kandang dengan gerakan lebih lambat. */
+  markFlyingHome(hits) {
+    hits.forEach((hit) => {
+      const el = this._tokens.get(hit.player.color + '-' + hit.tokenIndex);
+      if (!el) return;
+      el.classList.add('token--slow');
+      window.setTimeout(() => el.classList.remove('token--slow'), 700);
+    });
+  }
+
+  /**
+   * Menganimasikan satu bidak berjalan kotak demi kotak mengikuti jalurnya.
+   * @param {{color:string}} player
+   * @param {number} tokenIndex
+   * @param {number} fromStep
+   * @param {number} toStep
+   * @param {number} stepMs
+   * @param {() => void} onStep dipanggil tiap langkah (untuk suara)
+   * @returns {Promise<void>}
+   */
+  async animateMove(player, tokenIndex, fromStep, toStep, stepMs, onStep) {
+    const el = this._tokens.get(player.color + '-' + tokenIndex);
+    el.classList.add('token--moving');
+    el.classList.remove('token--stacked');
+    el.style.transitionDuration = Math.max(stepMs - 15, 30) + 'ms';
+
+    const path = [];
+    if (fromStep === -1) path.push(0);
+    else for (let s = fromStep + 1; s <= toStep; s++) path.push(s);
+
+    let last = null;
+    for (const s of path) {
+      const cell = stepToCell(player.color, s);
+      if (last && cellKey(cell) === last) continue; // langkah 60 -> 61 sama selnya
+      last = cellKey(cell);
+      this._place(el, cell);
+      if (onStep) onStep();
+      await sleep(stepMs);
+    }
+    el.style.transitionDuration = '';
+    el.classList.remove('token--moving');
+  }
+
+  /* ---------- Panel & teks ---------- */
+
+  /** @param {GameState} state */
+  renderTurn(state) {
+    const pill = this.$('turn-pill');
+    const player = state.currentPlayer;
+    document.getElementById('game-screen').style.setProperty('--turn-color', `var(--p-${player.color})`);
+    if (state.phase === 'GAME_OVER') { pill.textContent = 'Permainan selesai'; return; }
+    const label = state.phase === 'CHOOSE_TOKEN' && !player.isBot ? `${player.name} — pilih bidak` : `Giliran ${player.name}`;
+    pill.innerHTML = `<span class="dot" style="background:var(--p-${player.color})"></span>${this._esc(label)}`;
+  }
+
+  /** @param {GameState} state */
+  renderPlayers(state) {
+    this.$('players').innerHTML = state.players.map((p, i) => {
+      const home = p.tokens.filter((s) => s === BoardGeometry.STEPS_TO_FINISH).length;
+      const turn = i === state.currentPlayerIndex && state.phase !== 'GAME_OVER';
+      return `<div class="player-card${turn ? ' is-turn' : ''}" style="--card-color:var(--p-${p.color})">
+        <div class="avatar">${this._esc(p.name.charAt(0).toUpperCase())}</div>
+        <div class="info"><p class="name">${this._esc(p.name)}${p.isBot ? ' 🤖' : ''}</p><p class="progress">🏠 ${home}/4 sampai</p></div>
+      </div>`;
+    }).join('');
+  }
+
+  /**
+   * @param {GameState} state
+   * @param {boolean} busy sedang animasi
+   */
+  renderRollButton(state, busy) {
+    const btn = this.$('roll-btn');
+    const canRoll = state.phase === 'ROLL' && !state.currentPlayer.isBot && !busy;
+    btn.disabled = !canRoll;
+    btn.textContent = state.phase === 'GAME_OVER' ? 'Selesai'
+      : state.phase === 'CHOOSE_TOKEN' && !state.currentPlayer.isBot ? 'Pilih bidak di papan'
+      : state.currentPlayer.isBot ? `${state.currentPlayer.name} bermain...` : 'Lempar Dadu';
+  }
+
+  setHint(text) { this.$('dice-hint').textContent = text; }
+
+  /** @param {string} html pesan (boleh berisi <b>) */
+  log(html) {
+    const box = this.$('log');
+    const p = document.createElement('p');
+    p.innerHTML = html;
+    box.appendChild(p);
+    while (box.children.length > 30) box.removeChild(box.firstChild);
+  }
+
+  clearLog() { this.$('log').innerHTML = ''; }
+
+  showWin(name, isHumanWinner) {
+    this.$('win-emoji').textContent = isHumanWinner ? '🏆' : '🎲';
+    this.$('win-title').textContent = `${name} Menang!`;
+    this.$('win-text').textContent = 'Keempat bidak sudah sampai di rumah. Main lagi?';
+    this.$('win-modal').classList.add('is-visible');
+  }
+
+  hideWin() { this.$('win-modal').classList.remove('is-visible'); }
+
+  _esc(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+  }
+}
+
+/* =============================================================================
+   5. APP CONTROLLER — event listener & alur giliran
+   ============================================================================= */
+class LudoApp {
+  constructor() {
+    /** @type {GameState|null} */
+    this.state = null;
+    this.busy = false; // true selama dadu/bidak beranimasi -> input diabaikan
+    this.ui = new UIRenderer();
+    this.playerCount = 2;
+    this._bindSetup();
+    this._bindGame();
+  }
+
+  /* ---------- Setup ---------- */
+
+  _bindSetup() {
+    document.querySelectorAll('#count-row .chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        this.playerCount = Number(chip.dataset.count);
+        document.querySelectorAll('#count-row .chip').forEach((c) => c.classList.toggle('is-active', c === chip));
+        this._renderSlots();
+      });
+    });
+    document.getElementById('start-btn').addEventListener('click', () => this._onStart());
+    document.getElementById('setup-back-btn').addEventListener('click', () => this._goHome());
+    this._renderSlots();
+  }
+
+  _renderSlots() {
+    const colors = BoardGeometry.COLORS_BY_COUNT[this.playerCount];
+    document.getElementById('slot-list').innerHTML = colors.map((color, i) => `
+      <div class="slot" data-color="${color}">
+        <div class="slot__swatch" style="background:var(--p-${color})"></div>
+        <input type="text" maxlength="14" value="${i === 0 ? 'Kamu' : BoardGeometry.COLOR_NAME[color]}" aria-label="Nama pemain ${BoardGeometry.COLOR_NAME[color]}">
+        <div class="mode-toggle">
+          <button type="button" data-mode="human" class="${i === 0 ? 'is-active' : ''}">Manusia</button>
+          <button type="button" data-mode="bot" class="${i === 0 ? '' : 'is-active'}">Bot</button>
+        </div>
+      </div>`).join('');
+
+    document.querySelectorAll('#slot-list .mode-toggle').forEach((toggle) => {
+      toggle.addEventListener('click', (event) => {
+        const btn = event.target.closest('button');
+        if (!btn) return;
+        toggle.querySelectorAll('button').forEach((b) => b.classList.toggle('is-active', b === btn));
+      });
+    });
+  }
+
+  _onStart() {
+    Sfx.unlock();
+    const configs = Array.from(document.querySelectorAll('#slot-list .slot')).map((slot) => ({
+      color: slot.dataset.color,
+      name: slot.querySelector('input').value.trim() || BoardGeometry.COLOR_NAME[slot.dataset.color],
+      isBot: slot.querySelector('[data-mode="bot"]').classList.contains('is-active')
+    }));
+    this._startGame(configs);
+    this._show('game-screen');
+  }
+
+  _show(id) {
+    document.querySelectorAll('.screen').forEach((s) => s.classList.toggle('screen--active', s.id === id));
+    window.scrollTo(0, 0);
+  }
+
+  _goHome() {
+    if (window.DuozyGame) window.DuozyGame.back();
+    else window.location.href = '../index.html';
+  }
+
+  /* ---------- Permainan ---------- */
+
+  _bindGame() {
+    document.getElementById('roll-btn').addEventListener('click', () => this.handleRollClick());
+    document.getElementById('game-back-btn').addEventListener('click', () => this._goHome());
+    document.getElementById('sound-btn').addEventListener('click', () => {
+      const on = Sfx.toggle();
+      document.getElementById('sound-btn').textContent = on ? '🔊' : '🔇';
+      if (on) Sfx.step();
+    });
+    document.getElementById('win-exit-btn').addEventListener('click', () => this._goHome());
+    document.getElementById('win-again-btn').addEventListener('click', () => {
+      this.ui.hideWin();
+      this._show('setup-screen');
+    });
+    document.getElementById('sound-btn').textContent = Sfx.enabled ? '🔊' : '🔇';
+  }
+
+  /** @param {{color:string, name:string, isBot:boolean}[]} configs */
+  _startGame(configs) {
+    this.state = new GameState(configs);
+    this.busy = false;
+    this.ui.buildBoard();
+    this.ui.buildTokens(this.state);
+    this.ui.hideWin();
+    this.ui.clearLog();
+    this.ui.log('Permainan dimulai. Semoga beruntung! 🎲');
+    this._renderAll();
+    this._maybeBotTurn();
+  }
+
+  _renderAll() {
+    this.ui.renderTokens(this.state);
+    this.ui.renderTurn(this.state);
+    this.ui.renderPlayers(this.state);
+    this.ui.renderRollButton(this.state, this.busy);
+  }
+
+  /** Tombol "Lempar Dadu" oleh pemain manusia. */
+  handleRollClick() {
+    const s = this.state;
+    if (!s || this.busy || s.phase !== 'ROLL' || s.currentPlayer.isBot) return;
+    Sfx.unlock();
+    this._roll();
+  }
+
+  /** Mengetuk salah satu bidak yang berkedip. */
+  handleTokenClick(tokenIndex) {
+    const s = this.state;
+    if (!s || this.busy || s.phase !== 'CHOOSE_TOKEN' || s.currentPlayer.isBot) return;
+    const move = s.pendingMoves.find((m) => m.tokenIndex === tokenIndex);
+    if (move) this._commit(move);
+  }
+
+  /** Satu lemparan penuh: animasi dadu -> hitung langkah sah -> jalan / pilih / lewat. */
+  async _roll() {
+    const s = this.state;
+    this.busy = true;
+    this._renderAll();
+    this.ui.setHint('');
+
+    const value = GameLogic.rollDice();
+    s.diceValue = value;
+    Sfx.roll();
+    await this.ui.animateDiceRoll(value, CONFIG.DICE_MS);
+
+    const player = s.currentPlayer;
+    const moves = GameLogic.getLegalMoves(player, value);
+
+    if (moves.length === 0) {
+      this.ui.log(`${this._name(player)} lempar <b>${value}</b>, tidak ada langkah — giliran lewat.`);
+      s.consecutiveSixes = 0;
+      GameLogic.advanceTurn(s);
+      this.busy = false;
+      this._renderAll();
+      this._maybeBotTurn();
+      return;
+    }
+
+    if (moves.length === 1) { await this._commit(moves[0]); return; }
+
+    s.pendingMoves = moves;
+    s.phase = 'CHOOSE_TOKEN';
+    this.busy = false;
+    this.ui.setHint(player.isBot ? '' : `Dadu ${value} — ketuk bidak yang mau jalan`);
+    this._renderAll();
+
+    if (player.isBot) {
+      await sleep(CONFIG.BOT_PICK_DELAY_MS);
+      await this._commit(BotAI.chooseMove(s, moves));
+    }
+  }
+
+  /** Menerapkan langkah + animasi berjalan + efek tangkap/menang. */
+  async _commit(move) {
+    const s = this.state;
+    this.busy = true;
+    const player = s.currentPlayer;
+    const fromStep = player.tokens[move.tokenIndex];
+    const dice = s.diceValue;
+    this.ui.clearSelectable(); // matikan kilau pilihan bidak
+
+    const result = GameLogic.applyMove(s, move);
+    this.ui.setHint('');
+    await this.ui.animateMove(player, move.tokenIndex, fromStep, move.newStep, CONFIG.STEP_MS, () => Sfx.step());
+
+    let line = `${this._name(player)} lempar <b>${dice}</b>`;
+    if (result.captured.length) { line += ` dan menangkap bidak ${result.captured.map((p) => p.name).join(', ')}! 💥`; Sfx.capture(); }
+    else if (result.reachedHome) { line += ' — satu bidak sampai rumah! 🏠'; Sfx.home(); }
+    else line += '.';
+    if (result.extraTurn) line += ' Dapat giliran lagi (angka 6).';
+    this.ui.log(line);
+
+    this.ui.markFlyingHome(result.capturedTokens);
+    this.busy = false;
+    this._renderAll();
+
+    if (result.won) {
+      Sfx.win();
+      await sleep(CONFIG.END_MODAL_DELAY_MS);
+      this.ui.showWin(player.name, !player.isBot);
+      return;
+    }
+    this._maybeBotTurn();
+  }
+
+  /** Bila giliran bot, jalankan otomatis setelah jeda singkat. */
+  async _maybeBotTurn() {
+    const s = this.state;
+    if (!s || s.phase !== 'ROLL' || !s.currentPlayer.isBot || this.busy) return;
+    const token = s; // pastikan game yang sama saat jeda selesai
+    await sleep(CONFIG.BOT_ROLL_DELAY_MS);
+    if (this.state !== token || s.phase !== 'ROLL' || this.busy) return;
+    await this._roll();
+  }
+
+  _name(player) { return `<b>${this.ui._esc(player.name)}</b>`; }
+}
+
+/* =============================================================================
+   START
+   ============================================================================= */
+window.ludoApp = new LudoApp();
+if (window.DuozyGame) window.DuozyGame.ready();
+else { const l = document.getElementById('dz-loader'); if (l) l.style.display = 'none'; }
+</script>
+</body>
+</html>
