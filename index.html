@@ -79,19 +79,14 @@
   #view-chatDetail{ height:100vh; height:100dvh; min-height:0; }
 
   /* ================= ULAR TANGGA ================= */
-  #view-ularTanggaBoard .ut-header,
-  #view-ludoBoard .ut-header{
+  #view-ularTanggaBoard .ut-header{
     background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 70%, var(--pink-glow) 140%);
     padding:16px 20px 20px; color:#fff;
   }
-  #view-ularTanggaBoard .ut-header-row,
-  #view-ludoBoard .ut-header-row{ display:flex; align-items:center; gap:12px; }
-  #view-ularTanggaBoard .ut-header-row h1,
-  #view-ludoBoard .ut-header-row h1{ font-size:16px; font-weight:800; flex:1; color:#fff; }
-  #view-ularTanggaBoard .ut-header-sub,
-  #view-ludoBoard .ut-header-sub{ font-size:11.5px; color:#d9d4ff; margin-top:2px; }
-  #view-ularTanggaBoard .ut-header .icon-btn,
-  #view-ludoBoard .ut-header .icon-btn{ background:rgba(255,255,255,0.14); border:none; color:#fff; }
+  #view-ularTanggaBoard .ut-header-row{ display:flex; align-items:center; gap:12px; }
+  #view-ularTanggaBoard .ut-header-row h1{ font-size:16px; font-weight:800; flex:1; color:#fff; }
+  #view-ularTanggaBoard .ut-header-sub{ font-size:11.5px; color:#d9d4ff; margin-top:2px; }
+  #view-ularTanggaBoard .ut-header .icon-btn{ background:rgba(255,255,255,0.14); border:none; color:#fff; }
 
   .ut-status-wrap{ text-align:center; margin-bottom:14px; }
   .ut-status-pill{
@@ -674,6 +669,25 @@
     justify-content:center;
   }
   .modal-overlay.show{ display:flex; }
+
+  /* Overlay transisi singkat saat berpindah ke halaman game terpisah (games/*.html) */
+  #gameLaunchOverlay{
+    display:none; position:fixed; inset:0; z-index:500;
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:24px; text-align:center;
+    background:linear-gradient(160deg,#131240 0%,#4a2a86 70%,#c33fa0 160%); color:#fff;
+    opacity:0; transition:opacity 0.25s ease;
+  }
+  #gameLaunchOverlay.show{ display:flex; }
+  #gameLaunchOverlay.show.in{ opacity:1; }
+  #gameLaunchOverlay .gl-emoji{ font-size:52px; animation:gl-bounce 1.1s ease-in-out infinite; }
+  #gameLaunchOverlay .gl-title{ font-size:16px; font-weight:800; margin:0; }
+  #gameLaunchOverlay .gl-spinner{
+    width:30px; height:30px; border-radius:50%;
+    border:3px solid rgba(255,255,255,0.25); border-top-color:#fff;
+    animation:gl-spin 0.8s linear infinite;
+  }
+  @keyframes gl-spin{ to{ transform:rotate(360deg); } }
+  @keyframes gl-bounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-7px); } }
   .modal-sheet{
     width:100%;
     max-width:430px;
@@ -741,8 +755,8 @@
   .media-grid-item{ width:100%; aspect-ratio:1; border-radius:10px; background-size:cover; background-position:center; background-color:var(--bg-app); cursor:pointer; }
 
   /* ================= PENGATURAN (tema & bahasa) ================= */
-  #temaBtnTerang, #temaBtnGelap{ background:transparent; color:var(--text-muted); }
-  #temaBtnTerang.tema-aktif, #temaBtnGelap.tema-aktif{ background:var(--purple-brand); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.25); }
+  #temaBtnTerang, #temaBtnGelap, #suaraPesanBtnAktif, #suaraPesanBtnNonaktif{ background:transparent; color:var(--text-muted); }
+  #temaBtnTerang.tema-aktif, #temaBtnGelap.tema-aktif, #suaraPesanBtnAktif.tema-aktif, #suaraPesanBtnNonaktif.tema-aktif{ background:var(--purple-brand); color:#fff; box-shadow:0 1px 4px rgba(0,0,0,0.25); }
 </style>
 </head>
 <body>
@@ -1200,8 +1214,8 @@
         <div class="banner-icon">🎭</div>
       </div>
 
-      <div class="banner clickable" onclick="showView('ludoMulai')" style="cursor:pointer;background:linear-gradient(120deg,#3d8bff,#3ecf6b 140%);">
-        <div class="banner-text"><p class="big">🎲 Ludo</p><p class="small">Main sekarang!</p></div>
+      <div class="banner clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')" style="cursor:pointer;background:linear-gradient(120deg,#3d7de0,#21a179 140%);">
+        <div class="banner-text"><p class="big">🎲 Ludo</p><p class="small">Main sendiri, bareng bot, atau gantian sama teman!</p></div>
         <div class="banner-icon">🏠</div>
       </div>
     </div>
@@ -1289,72 +1303,6 @@
       <div class="modal-actions">
         <button class="modal-cancel" onclick="tutupUtSelesaiModal()">Kembali</button>
         <button class="modal-save" onclick="mainLagiUlarTangga()">Main Lagi</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= LUDO: MULAI ================= -->
-  <div id="view-ludoMulai" class="view">
-    <div class="topbar">
-      <div class="icon-btn clickable" onclick="kembaliApp('game')">←</div>
-      <h1>🎲 Ludo</h1>
-      <div style="width:32px;"></div>
-    </div>
-    <div class="content" id="ludoMulaiContainer">
-      <p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:20px;">Memuat...</p>
-    </div>
-  </div>
-
-  <!-- ================= LUDO: PAPAN PERMAINAN ================= -->
-  <div id="view-ludoBoard" class="view" style="padding-bottom:0;">
-    <div class="ut-header">
-      <div class="ut-header-row">
-        <div class="icon-btn clickable" onclick="kembaliApp('game')">←</div>
-        <div style="flex:1;">
-          <h1>🎲 Ludo</h1>
-          <div class="ut-header-sub" id="ludoHeaderSub">Memuat lawan...</div>
-        </div>
-        <div class="icon-btn clickable" id="ludoSuaraBtn" onclick="toggleSuaraLudo()">🔊</div>
-      </div>
-    </div>
-    <div class="content" style="padding:16px 16px 24px;overflow-y:auto;">
-      <div class="ut-status-wrap">
-        <span class="ut-status-pill" id="ludoStatusBar">Memuat game...</span>
-      </div>
-
-      <div id="ludoLobbyWrap" style="display:none;"></div>
-
-      <div id="ludoGameplayWrap">
-        <div class="ut-board-frame">
-          <div id="ludoBoard" style="position:relative;aspect-ratio:1;border-radius:12px;overflow:hidden;background:var(--surface);">
-            <div id="ludoGrid" style="position:absolute;inset:0;"></div>
-            <div id="ludoTokenLayer" style="position:absolute;inset:0;pointer-events:none;"></div>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:22px;">
-          <div id="ludoDiceDisplay" class="ut-dice">
-            <div class="ut-dice-grid" id="ludoDiceDots"></div>
-          </div>
-          <button id="ludoRollBtn" class="ut-roll-btn" onclick="lemparDaduLudo()">Lempar Dadu</button>
-        </div>
-
-        <p id="ludoPilihTokenHint" style="display:none;text-align:center;font-size:12px;color:var(--purple-brand);font-weight:700;margin-top:10px;">👆 Ketuk salah satu bidak kamu yang berkedip untuk jalan</p>
-
-        <div class="ut-vs-row" id="ludoPlayersInfo" style="flex-wrap:wrap;"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= MODAL HASIL LUDO ================= -->
-  <div class="modal-overlay" id="ludoSelesaiModal">
-    <div class="modal-sheet" style="text-align:center;">
-      <div id="ludoSelesaiEmoji" style="font-size:52px;margin-bottom:8px;">🏆</div>
-      <h2 id="ludoSelesaiTitle" style="margin-bottom:6px;">Kamu Menang!</h2>
-      <p id="ludoSelesaiText" style="font-size:13px;color:var(--text-muted);margin-bottom:18px;"></p>
-      <div class="modal-actions">
-        <button class="modal-cancel" onclick="tutupLudoSelesaiModal()">Kembali</button>
-        <button class="modal-save" onclick="mainLagiLudo()">Main Lagi</button>
       </div>
     </div>
   </div>
@@ -1635,6 +1583,14 @@
           <div class="m-label" data-i18n="notif_chat_baru" style="flex:1;">Notifikasi Chat Baru</div>
           <div class="m-arrow" id="statusIzinNotif" style="font-size:11px;color:var(--text-muted);">—</div>
         </div>
+        <div class="prow">
+          <div class="m-icon">🔊</div>
+          <div class="m-label" style="flex:0 0 auto;margin-right:auto;">Suara Pesan Masuk</div>
+          <div style="display:flex;gap:6px;background:var(--bg-app);padding:3px;border-radius:12px;">
+            <button class="clickable" id="suaraPesanBtnAktif" onclick="terapkanSuaraPesanMasuk(true)" style="border:none;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;">Aktif</button>
+            <button class="clickable" id="suaraPesanBtnNonaktif" onclick="terapkanSuaraPesanMasuk(false)" style="border:none;padding:7px 14px;border-radius:10px;font-size:12px;font-weight:700;">Nonaktif</button>
+          </div>
+        </div>
       </div>
       <p style="font-size:11px;color:var(--text-muted);margin:-12px 0 20px;line-height:1.5;" data-i18n="notif_keterangan">Notifikasi cuma muncul selama aplikasi masih terbuka di background. Untuk notifikasi walau aplikasi ditutup total, Duozy perlu upgrade paket server (menyusul).</p>
 
@@ -1731,7 +1687,7 @@
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
   var authViews = ['splash','login','register'];
-  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame','pengaturan','ruangObrolanChat','ludoBoard']; // halaman tanpa bottom nav, header sendiri
+  var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame','pengaturan','ruangObrolanChat']; // halaman tanpa bottom nav, header sendiri
   var currentViewName = null; // nama view yang lagi aktif sekarang
   var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
 
@@ -1773,11 +1729,7 @@
       unsubscribeUlarTangga();
       unsubscribeUlarTangga = null;
     }
-    if(name !== 'ludoBoard' && unsubscribeLudo){
-      unsubscribeLudo();
-      unsubscribeLudo = null;
-    }
-    if(name !== 'ularTanggaBoard' && name !== 'ludoBoard'){ hentikanMusikLatar(); }
+    if(name !== 'ularTanggaBoard'){ hentikanMusikLatar(); }
     if(name !== 'ruangObrolanChat' && unsubscribeRuangObrolan){
       unsubscribeRuangObrolan();
       unsubscribeRuangObrolan = null;
@@ -1797,8 +1749,8 @@
     if(name === 'home'){ muatUserOnline(); muatStatusCheckin(); }
     if(name === 'temanBaru'){ muatTemanBaru(); }
     if(name === 'ularTanggaMulai'){ muatUlarTanggaMulai(); }
-    if(name === 'ludoMulai'){ muatLudoMulai(); }
     if(name === 'soulGame'){ mulaiSoulGame(); }
+    if(name === 'game'){ prefetchHalamanGame('games/ludo.html'); }
     if(name === 'ruangObrolan'){ muatDaftarRuangObrolan(); }
 
     // Hubungkan ke tombol/gesture "kembali" bawaan HP, supaya menutup halaman ini
@@ -2329,11 +2281,7 @@
         showView('chat');
       }
     } else if(n.type === 'game'){
-      if(n.gameId){
-        bukaPapanLudo(n.gameId);
-      } else {
-        showView('ludoMulai');
-      }
+      showView('game');
     } else if(n.type === 'chat'){
       if(n.chatId && n.fromUid){
         bukaChatDetail(n.chatId, n.fromUid, n.fromName || 'Pengguna Duozy');
@@ -3669,6 +3617,7 @@
             var sedangDibukaChatIni = (currentViewName === 'chatDetail' && chatDetailAktif && chatDetailAktif.chatId === c.id);
             if(waktuIni > waktuSebelumnya && !sedangDibukaChatIni){
               tampilkanNotifikasiBrowser(otherName, preview, c.id, otherUid);
+              mainkanSuaraPesanMasuk();
             }
           }
           if(c.data.lastMessageAt){ terakhirDinotifChat[c.id] = c.data.lastMessageAt.toMillis(); }
@@ -3745,6 +3694,70 @@
     if(!btnTerang || !btnGelap) return;
     btnTerang.classList.toggle('tema-aktif', temaAktif === 'terang');
     btnGelap.classList.toggle('tema-aktif', temaAktif === 'gelap');
+  }
+
+  // ---- Suara notifikasi pesan masuk (chat pribadi & Ruang Obrolan) ----
+  var chatSuaraAktif = (localStorage.getItem('duozyChatSuaraMati') !== '1');
+
+  function terapkanSuaraPesanMasuk(aktif){
+    chatSuaraAktif = aktif;
+    try{ localStorage.setItem('duozyChatSuaraMati', aktif ? '0' : '1'); }catch(e){}
+    perbaruiTombolSuaraPesanMasuk();
+    if(aktif) mainkanSuaraPesanMasuk(); // preview singkat biar user tahu bunyinya
+  }
+
+  function perbaruiTombolSuaraPesanMasuk(){
+    var btnAktif = document.getElementById('suaraPesanBtnAktif');
+    var btnNonaktif = document.getElementById('suaraPesanBtnNonaktif');
+    if(!btnAktif || !btnNonaktif) return;
+    btnAktif.classList.toggle('tema-aktif', chatSuaraAktif);
+    btnNonaktif.classList.toggle('tema-aktif', !chatSuaraAktif);
+  }
+
+  // Bunyi "ting-ting" pendek dua nada, dipakai ulang AudioContext yang sama dengan game
+  // (utDapatkanAudioCtx) supaya tidak buka koneksi audio baru tiap kali ada pesan masuk.
+  function mainkanSuaraPesanMasuk(){
+    if(!chatSuaraAktif) return;
+    var ctx = utDapatkanAudioCtx();
+    if(!ctx) return;
+    [880, 1175].forEach(function(freq, i){
+      var t = ctx.currentTime + i * 0.09;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.16, t + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.24);
+    });
+  }
+
+  // ---- Navigasi ke halaman game terpisah (games/*.html) ----
+  var halamanGameSudahDiprefetch = {};
+
+  // Minta browser mengambil file game di latar belakang begitu tab Game dibuka,
+  // supaya saat pemain benar-benar menekan game, filenya sering sudah ada di cache.
+  function prefetchHalamanGame(url){
+    if(halamanGameSudahDiprefetch[url]) return;
+    halamanGameSudahDiprefetch[url] = true;
+    var link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = url;
+    document.head.appendChild(link);
+  }
+
+  // Tampilkan overlay bermerek Duozy sebentar, baru pindah ke halaman game.
+  // Overlay ini murni transisi visual; loading sesungguhnya (Firebase siap, dsb)
+  // ditangani game-shell.js di halaman tujuan.
+  function bukaGameEksternal(url, judul, emoji){
+    var overlay = document.getElementById('gameLaunchOverlay');
+    document.getElementById('glEmoji').textContent = emoji || '🎮';
+    document.getElementById('glTitle').textContent = 'Membuka ' + (judul || 'game') + '...';
+    overlay.classList.add('show');
+    requestAnimationFrame(function(){ overlay.classList.add('in'); });
+    setTimeout(function(){ window.location.href = url; }, 220);
   }
 
   function terapkanBahasa(kode){
@@ -5422,784 +5435,6 @@ var daftarAvatarPreset = [
     }, 1200);
   }
 
-  // =====================================================================
-  // ================= LUDO (menggantikan Ular Tangga) ===================
-  // =====================================================================
-  // Papan 15x15. Koordinat ring/home/yard sudah diverifikasi terprogram
-  // (tiap sel berurutan pasti bertetangga, tidak ada lompat blok) supaya
-  // gampang digambar & dianimasikan satu kotak per satu kotak.
-
-  var LUDO_WARNA = ['merah', 'hijau', 'kuning', 'biru'];
-  var LUDO_WARNA_HEX = { merah: '#ff5252', hijau: '#3ecf6b', kuning: '#ffc93f', biru: '#3d8bff' };
-  var LUDO_BOT_UID = 'BOT_LUDO';
-  var LUDO_NAMA_BOT_POOL = ['Rani','Bayu','Sari','Fajar','Nadia','Rizky','Putri','Andika','Melati','Dimas'];
-
-  var LUDO_RING = [[6,1],[6,2],[6,3],[6,4],[6,5],[6,6],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[8,8],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]];
-  var LUDO_START_IDX = { merah: 0, hijau: 14, kuning: 28, biru: 42 };
-  var LUDO_HOME = {
-    merah:  [[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
-    hijau:  [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
-    kuning: [[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]],
-    biru:   [[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]]
-  };
-  var LUDO_YARD = {
-    merah:  [[1,1],[1,4],[4,1],[4,4]],
-    hijau:  [[1,10],[1,13],[4,10],[4,13]],
-    kuning: [[10,10],[10,13],[13,10],[13,13]],
-    biru:   [[10,1],[10,4],[13,1],[13,4]]
-  };
-  var LUDO_SAFE = ['6,1','1,8','8,13','13,6','3,6','6,11','11,8','8,3']; // 4 kotak start + 4 kotak bintang, aman dari tangkapan
-
-  // langkah: -1 = di kandang, 0-54 = di ring (relatif ke start warna), 55-60 = jalur home, 61 = sudah sampai/finish
-  function ludoSelToken(warna, langkah){
-    if(langkah <= -1) return null;
-    if(langkah <= 54){ return LUDO_RING[(LUDO_START_IDX[warna] + langkah) % 56]; }
-    if(langkah <= 60){ return LUDO_HOME[warna][langkah - 55]; }
-    return null; // 61 = finish, ditaruh di slot rumah tersendiri
-  }
-
-  function tentukanWarnaPemainLudo(players){
-    var urutan = players.length === 2 ? ['merah','kuning'] : ['merah','hijau','kuning','biru'];
-    var hasil = {};
-    players.forEach(function(uid, i){ hasil[uid] = urutan[i]; });
-    return hasil;
-  }
-
-  function hitungLangkahLegalLudo(data, uid, roll){
-    var hasil = [];
-    var tokens = data.tokens[uid];
-    for(var i = 0; i < tokens.length; i++){
-      var langkah = tokens[i];
-      if(langkah === 61) continue;
-      if(langkah === -1){
-        if(roll === 6){ hasil.push({ tokenIdx: i, baru: 0 }); }
-        continue;
-      }
-      var baru = langkah + roll;
-      if(baru <= 61){ hasil.push({ tokenIdx: i, baru: baru }); }
-    }
-    return hasil;
-  }
-
-  function pemainBerikutnyaLudo(data, uidSekarang){
-    var idx = data.players.indexOf(uidSekarang);
-    return data.players[(idx + 1) % data.players.length];
-  }
-
-  // ---- Layar mulai (mirip Ular Tangga: lanjutkan game, main sendiri, main bareng teman) ----
-  function muatLudoMulai(){
-    var container = document.getElementById('ludoMulaiContainer');
-    if(!db || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-
-    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:12.5px;margin-top:20px;">Memuat...</p>';
-
-    db.collection('ludo').where('players', 'array-contains', myUid).get().then(function(snapshot){
-      var gameAktif = null;
-      var roomMenunggu = null;
-      snapshot.forEach(function(doc){
-        var d = doc.data();
-        if(d.status === 'playing' && !gameAktif){ gameAktif = { id: doc.id, data: d }; }
-        if(d.status === 'waiting' && !roomMenunggu){ roomMenunggu = { id: doc.id, data: d }; }
-      });
-
-      var html = '';
-      if(gameAktif){
-        var lainnya = gameAktif.data.players.filter(function(u){ return u !== myUid; }).map(function(u){ return gameAktif.data.playerNames[u] || 'Pemain'; });
-        html += '<div style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-bottom:20px;text-align:center;">' +
-                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu sedang main lawan <b>' + escapeHtml(lainnya.join(', ')) + '</b></p>' +
-                  '<button onclick="bukaPapanLudo(' + jsAttr(gameAktif.id) + ')" style="padding:10px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;font-weight:700;font-size:13px;">Lanjutkan Game</button>' +
-                '</div>';
-      } else if(roomMenunggu){
-        html += '<div style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-bottom:20px;text-align:center;">' +
-                  '<p style="font-size:13px;color:var(--text-muted);margin-bottom:10px;">Kamu punya room yang belum dimulai — kode <b>' + escapeHtml(roomMenunggu.data.roomCode || '') + '</b></p>' +
-                  '<button onclick="bukaPapanLudo(' + jsAttr(roomMenunggu.id) + ')" style="padding:10px 20px;border-radius:12px;border:none;background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;font-weight:700;font-size:13px;">Buka Room</button>' +
-                '</div>';
-      }
-
-      html += '<button onclick="mulaiMainSendiriLudo()" style="width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;font-weight:700;font-size:13.5px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px;">🎮 Main Sendiri</button>' +
-              '<p style="font-size:11px;color:var(--text-muted);margin:-6px 0 18px;text-align:center;">Dicarikan lawan otomatis, langsung main saat itu juga.</p>' +
-              '<button onclick="tampilkanPanelMainTemanLudo()" style="width:100%;padding:14px;border-radius:14px;border:1px solid var(--card-line);background:var(--surface);color:var(--text-dark);font-weight:700;font-size:13.5px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px;">👥 Main Bersama Teman</button>' +
-              '<p style="font-size:11px;color:var(--text-muted);margin:-2px 0 4px;text-align:center;">Sampai 4 pemain, gabung pakai kode room.</p>' +
-              '<div id="ludoPanelMainTeman"></div>';
-      container.innerHTML = html;
-    }).catch(function(e){
-      container.innerHTML = '<p style="text-align:center;color:var(--heart-red);font-size:12.5px;">Gagal memuat data game.</p>';
-      tampilkanDebug('❌ Gagal memuat Ludo: ' + e.message);
-    });
-  }
-
-  function ludoBuatDataAwal(players, vsBot){
-    var warnaMap = tentukanWarnaPemainLudo(players);
-    var tokens = {};
-    players.forEach(function(uid){ tokens[uid] = [-1, -1, -1, -1]; });
-    return { warnaMap: warnaMap, tokens: tokens };
-  }
-
-  function mulaiMainSendiriLudo(){
-    var container = document.getElementById('ludoMulaiContainer');
-    if(!db || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-    utDapatkanAudioCtx();
-
-    container.innerHTML = '<div style="text-align:center;margin-top:60px;">' +
-        '<div style="font-size:40px;margin-bottom:14px;">🔍</div>' +
-        '<p style="font-weight:700;color:var(--purple-brand);font-size:14px;">Mencari lawan...</p>' +
-      '</div>';
-
-    var duaMenitLalu = firebase.firestore.Timestamp.fromMillis(Date.now() - 2 * 60 * 1000);
-
-    setTimeout(function(){
-      db.collection('users').where('lastActive', '>', duaMenitLalu).get().then(function(snap){
-        var kandidat = [];
-        snap.forEach(function(doc){
-          if(doc.id === myUid) return;
-          kandidat.push({ uid: doc.id, nama: doc.data().name || 'Pengguna Duozy' });
-        });
-
-        if(kandidat.length > 0){
-          var pilih = kandidat[Math.floor(Math.random() * kandidat.length)];
-          mulaiGameLudoDenganUser(pilih.uid, pilih.nama);
-        } else {
-          mulaiGameBotLudo();
-        }
-      }).catch(function(e){
-        tampilkanDebug('❌ Gagal mencari lawan online: ' + e.message);
-        mulaiGameBotLudo();
-      });
-    }, 1800);
-  }
-
-  function mulaiGameBotLudo(){
-    if(!db || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-    var myNama = auth.currentUser.displayName || 'Kamu';
-    var namaBot = LUDO_NAMA_BOT_POOL[Math.floor(Math.random() * LUDO_NAMA_BOT_POOL.length)];
-    var players = [myUid, LUDO_BOT_UID];
-    var awal = ludoBuatDataAwal(players);
-
-    var playerNames = {}; playerNames[myUid] = myNama; playerNames[LUDO_BOT_UID] = namaBot;
-
-    db.collection('ludo').add({
-      players: players,
-      playerNames: playerNames,
-      playerWarna: awal.warnaMap,
-      tokens: awal.tokens,
-      turnUid: myUid,
-      status: 'playing',
-      winner: null,
-      lastRoll: 0,
-      menungguPilihToken: false,
-      vsBot: true,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(docRef){
-      bukaPapanLudo(docRef.id);
-    }).catch(function(e){ tampilkanDebug('❌ Gagal membuat game bot: ' + e.message); });
-  }
-
-  function mulaiGameLudoDenganUser(targetUid, targetNama){
-    if(!db || !auth.currentUser) return;
-    var myUid = auth.currentUser.uid;
-    var myNama = auth.currentUser.displayName || 'Kamu';
-    var players = [myUid, targetUid];
-    var awal = ludoBuatDataAwal(players);
-
-    var playerNames = {}; playerNames[myUid] = myNama; playerNames[targetUid] = targetNama;
-
-    db.collection('ludo').add({
-      players: players,
-      playerNames: playerNames,
-      playerWarna: awal.warnaMap,
-      tokens: awal.tokens,
-      turnUid: myUid,
-      status: 'playing',
-      winner: null,
-      lastRoll: 0,
-      menungguPilihToken: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(docRef){
-      kirimNotifikasi(targetUid, 'game', myNama + ' mengajakmu main Ludo!', { fromUid: myUid, fromName: myNama, gameId: docRef.id });
-      bukaPapanLudo(docRef.id);
-    }).catch(function(e){ tampilkanDebug('❌ Gagal membuat game: ' + e.message); });
-  }
-
-  // ---- Main Bersama Teman (room kode, 2-4 pemain, tanpa bot) ----
-  var ludoJumlahPemainTerpilih = 2;
-
-  function tampilkanPanelMainTemanLudo(){
-    var panel = document.getElementById('ludoPanelMainTeman');
-    if(!panel) return;
-    ludoJumlahPemainTerpilih = 2;
-    panel.innerHTML =
-      '<div style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:16px;margin-top:8px;">' +
-        '<p style="font-size:12.5px;font-weight:700;margin-bottom:10px;">Jumlah pemain</p>' +
-        '<div style="display:flex;gap:8px;margin-bottom:16px;" id="ludoJumlahPemainRow"></div>' +
-        '<button onclick="buatRoomLudo()" style="width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;font-weight:700;font-size:13px;margin-bottom:14px;">🎲 Buat Room Baru</button>' +
-        '<p style="text-align:center;font-size:11.5px;color:var(--text-muted);margin-bottom:10px;">— atau gabung room teman —</p>' +
-        '<div style="display:flex;gap:8px;">' +
-          '<input id="ludoInputKodeRoom" type="text" maxlength="6" placeholder="Kode room" style="flex:1;padding:11px 14px;border-radius:12px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13px;outline:none;text-transform:uppercase;">' +
-          '<button onclick="gabungRoomLudo()" style="flex-shrink:0;border:none;background:var(--text-dark);color:#fff;font-weight:700;font-size:12.5px;padding:0 18px;border-radius:12px;">Gabung</button>' +
-        '</div>' +
-        '<p id="ludoRoomError" style="color:var(--heart-red);font-size:11.5px;margin-top:10px;"></p>' +
-      '</div>';
-    renderLudoJumlahPemainRow();
-  }
-
-  function renderLudoJumlahPemainRow(){
-    var row = document.getElementById('ludoJumlahPemainRow');
-    if(!row) return;
-    row.innerHTML = [2,3,4].map(function(n){
-      var aktif = (n === ludoJumlahPemainTerpilih);
-      return '<span class="clickable" onclick="pilihJumlahPemainLudo(' + n + ')" style="flex:1;text-align:center;padding:10px 0;border-radius:12px;font-weight:700;font-size:13px;' +
-        (aktif ? 'background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;' : 'background:var(--bg-app);color:var(--text-dark);border:1px solid var(--card-line);') +
-        '">' + n + ' Pemain</span>';
-    }).join('');
-  }
-
-  function pilihJumlahPemainLudo(n){
-    ludoJumlahPemainTerpilih = n;
-    renderLudoJumlahPemainRow();
-  }
-
-  function buatKodeRoomLudo(){
-    var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    var kode = '';
-    for(var i = 0; i < 5; i++){ kode += chars.charAt(Math.floor(Math.random() * chars.length)); }
-    return kode;
-  }
-
-  function buatRoomLudo(){
-    if(!db || !auth.currentUser) return;
-    utDapatkanAudioCtx();
-    var myUid = auth.currentUser.uid;
-    var myNama = auth.currentUser.displayName || 'Kamu';
-    var kode = buatKodeRoomLudo();
-
-    var playerNames = {}; playerNames[myUid] = myNama;
-    var tokens = {}; tokens[myUid] = [-1, -1, -1, -1];
-
-    db.collection('ludo').add({
-      players: [myUid],
-      maxPlayers: ludoJumlahPemainTerpilih,
-      playerNames: playerNames,
-      playerWarna: {},
-      tokens: tokens,
-      turnUid: myUid,
-      status: 'waiting',
-      winner: null,
-      lastRoll: 0,
-      menungguPilihToken: false,
-      mode: 'teman',
-      roomCode: kode,
-      ownerUid: myUid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(docRef){
-      bukaPapanLudo(docRef.id);
-    }).catch(function(e){ tampilkanDebug('❌ Gagal membuat room: ' + e.message); });
-  }
-
-  function gabungRoomLudo(){
-    var input = document.getElementById('ludoInputKodeRoom');
-    var errEl = document.getElementById('ludoRoomError');
-    if(errEl) errEl.textContent = '';
-    var kode = (input ? input.value : '').trim().toUpperCase();
-    if(!kode || !db || !auth.currentUser) return;
-    utDapatkanAudioCtx();
-    var myUid = auth.currentUser.uid;
-    var myNama = auth.currentUser.displayName || 'Kamu';
-
-    db.collection('ludo').where('roomCode', '==', kode).where('status', '==', 'waiting').limit(1).get().then(function(snap){
-      if(snap.empty){
-        if(errEl) errEl.textContent = 'Kode room tidak ditemukan atau game sudah dimulai.';
-        return;
-      }
-      var doc = snap.docs[0];
-      var data = doc.data();
-      if(data.players.indexOf(myUid) !== -1){ bukaPapanLudo(doc.id); return; }
-      if(data.players.length >= (data.maxPlayers || 4)){
-        if(errEl) errEl.textContent = 'Room sudah penuh.';
-        return;
-      }
-      var update = { players: data.players.concat([myUid]) };
-      update['playerNames.' + myUid] = myNama;
-      update['tokens.' + myUid] = [-1, -1, -1, -1];
-      doc.ref.update(update).then(function(){
-        bukaPapanLudo(doc.id);
-      }).catch(function(e){
-        tampilkanDebug('❌ Gagal gabung room: ' + e.message);
-        if(errEl) errEl.textContent = 'Gagal gabung room, coba lagi.';
-      });
-    }).catch(function(e){
-      tampilkanDebug('❌ Gagal cari room: ' + e.message);
-      if(errEl) errEl.textContent = 'Gagal mencari room, coba lagi.';
-    });
-  }
-
-  function mulaiGameDariRoomLudo(){
-    if(!db || !ludoGameAktifId) return;
-    var ref = db.collection('ludo').doc(ludoGameAktifId);
-    ref.get().then(function(doc){
-      if(!doc.exists) return;
-      var data = doc.data();
-      if(data.players.length < 2) return;
-      ref.update({
-        status: 'playing',
-        turnUid: data.players[0],
-        playerWarna: tentukanWarnaPemainLudo(data.players)
-      }).catch(function(e){ tampilkanDebug('❌ Gagal memulai game room: ' + e.message); });
-    });
-  }
-
-  // ---- Papan permainan ----
-  var unsubscribeLudo = null;
-  var ludoGameAktifId = null;
-  var ludoFotoPemain = {};
-  var ludoLastRollDitampilkan = null;
-  var ludoSelesaiModalDitampilkan = false;
-  var ludoBotSedangJalan = false;
-  var ludoGridDibangun = false;
-
-  function bukaPapanLudo(gameId){
-    ludoGameAktifId = gameId;
-    showView('ludoBoard');
-    ludoLastRollDitampilkan = null;
-    ludoFotoPemain = {};
-    ludoBotSedangJalan = false;
-    ludoSelesaiModalDitampilkan = false;
-    ludoGridDibangun = false;
-    document.getElementById('ludoSelesaiModal').classList.remove('show');
-    document.getElementById('ludoTokenLayer').innerHTML = '';
-    var suaraBtn = document.getElementById('ludoSuaraBtn');
-    if(suaraBtn) suaraBtn.textContent = utSuaraAktif ? '🔊' : '🔇';
-    mulaiMusikLatar();
-
-    if(unsubscribeLudo){ unsubscribeLudo(); unsubscribeLudo = null; }
-
-    unsubscribeLudo = db.collection('ludo').doc(gameId).onSnapshot(function(doc){
-      if(!doc.exists) return;
-      var data = doc.data();
-      muatFotoPemainLudo(data.players);
-      renderPapanLudo(data);
-    }, function(e){ tampilkanDebug('❌ Gagal memantau Ludo: ' + e.message); });
-  }
-
-  function muatFotoPemainLudo(players){
-    players.forEach(function(uid){
-      if(uid === LUDO_BOT_UID) return;
-      if(ludoFotoPemain[uid] !== undefined) return;
-      ludoFotoPemain[uid] = null;
-      db.collection('users').doc(uid).get().then(function(doc){
-        if(doc.exists && doc.data().photoUrl){
-          ludoFotoPemain[uid] = doc.data().photoUrl;
-          if(ludoGameAktifId){
-            db.collection('ludo').doc(ludoGameAktifId).get().then(function(d){
-              if(d.exists) renderPapanLudo(d.data());
-            });
-          }
-        }
-      });
-    });
-  }
-
-  function toggleSuaraLudo(){
-    utSuaraAktif = !utSuaraAktif;
-    localStorage.setItem('utSuaraMati', utSuaraAktif ? '0' : '1');
-    var btnU = document.getElementById('utSuaraBtn');
-    var btnL = document.getElementById('ludoSuaraBtn');
-    if(btnU) btnU.textContent = utSuaraAktif ? '🔊' : '🔇';
-    if(btnL) btnL.textContent = utSuaraAktif ? '🔊' : '🔇';
-    if(utSuaraAktif){ mulaiMusikLatar(); } else { hentikanMusikLatar(); }
-  }
-
-  // Gambar papan 15x15 sekali saja (kotak yard, ring, home, safe) — dipanggil sekali per game
-  function bangunGridLudo(){
-    if(ludoGridDibangun) return;
-    ludoGridDibangun = true;
-    var grid = document.getElementById('ludoGrid');
-    var tipe = {}; // "row,col" -> {jenis, warna}
-
-    LUDO_RING.forEach(function(rc){ tipe[rc[0] + ',' + rc[1]] = { jenis: 'ring' }; });
-    LUDO_SAFE.forEach(function(k){ tipe[k] = { jenis: 'safe' }; });
-    LUDO_WARNA.forEach(function(w){
-      LUDO_HOME[w].forEach(function(rc){ tipe[rc[0] + ',' + rc[1]] = { jenis: 'home', warna: w }; });
-    });
-
-    var html = '';
-    for(var r = 0; r < 15; r++){
-      for(var c = 0; c < 15; c++){
-        var key = r + ',' + c;
-        var style = 'position:absolute;width:' + (100/15) + '%;height:' + (100/15) + '%;left:' + (c * 100/15) + '%;top:' + (r * 100/15) + '%;box-sizing:border-box;border:1px solid rgba(0,0,0,0.05);';
-
-        // deteksi blok yard 6x6 tiap warna berdasarkan sudutnya
-        var warnaYard = null;
-        if(r <= 5 && c <= 5){ warnaYard = 'merah'; }
-        else if(r <= 5 && c >= 9){ warnaYard = 'hijau'; }
-        else if(r >= 9 && c >= 9){ warnaYard = 'kuning'; }
-        else if(r >= 9 && c <= 5){ warnaYard = 'biru'; }
-
-        var info = tipe[key];
-        var isi = '';
-        if(info && info.jenis === 'ring'){
-          style += 'background:#fff;';
-        } else if(info && info.jenis === 'safe'){
-          style += 'background:#fff3cd;display:flex;align-items:center;justify-content:center;font-size:9px;color:#e0a800;';
-          isi = '★';
-        } else if(info && info.jenis === 'home'){
-          style += 'background:' + LUDO_WARNA_HEX[info.warna] + ';opacity:0.85;';
-        } else if(warnaYard){
-          style += 'background:' + LUDO_WARNA_HEX[warnaYard] + ';opacity:0.18;';
-        } else {
-          style += 'background:var(--bg-app);';
-        }
-        if(r === 7 && c === 7){ style += 'background:linear-gradient(135deg,#ff5252,#3ecf6b,#ffc93f,#3d8bff);'; }
-        html += '<div style="' + style + '">' + isi + '</div>';
-      }
-    }
-    grid.innerHTML = html;
-
-    // Kotak "rumah" kecil (4 slot) di dalam tiap yard, biar kelihatan tempat bidak nunggu
-    LUDO_WARNA.forEach(function(w){
-      LUDO_YARD[w].forEach(function(rc){
-        var el = document.createElement('div');
-        el.style.cssText = 'position:absolute;width:' + (100/15*1.4) + '%;height:' + (100/15*1.4) + '%;left:calc(' + (rc[1]*100/15) + '% - ' + (100/15*0.2) + '%);top:calc(' + (rc[0]*100/15) + '% - ' + (100/15*0.2) + '%);border-radius:50%;background:#fff;border:2px solid ' + LUDO_WARNA_HEX[w] + ';';
-        grid.appendChild(el);
-      });
-    });
-  }
-
-  function renderLobbyLudo(data, myUid){
-    document.getElementById('ludoGameplayWrap').style.display = 'none';
-    var lobby = document.getElementById('ludoLobbyWrap');
-    lobby.style.display = '';
-
-    document.getElementById('ludoHeaderSub').textContent = 'Menunggu pemain (' + data.players.length + '/' + (data.maxPlayers || 4) + ')';
-    document.getElementById('ludoStatusBar').textContent = '⏳ Menunggu room dimulai...';
-
-    var isOwner = data.ownerUid === myUid;
-    var slotsHtml = '';
-    for(var i = 0; i < (data.maxPlayers || 4); i++){
-      var uid = data.players[i];
-      if(uid){
-        var nama = data.playerNames[uid] || 'Pemain';
-        var foto = ludoFotoPemain[uid];
-        slotsHtml += '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-app);border-radius:12px;margin-bottom:8px;">' +
-            '<div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;background:' + (foto ? ('url(' + foto + ') center/cover') : LUDO_WARNA_HEX[LUDO_WARNA[i % 4]]) + ';">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
-            '<span style="font-size:13px;font-weight:600;">' + escapeHtml(nama) + (uid === data.ownerUid ? ' 👑' : '') + '</span>' +
-          '</div>';
-      } else {
-        slotsHtml += '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--bg-app);border-radius:12px;margin-bottom:8px;opacity:0.5;">' +
-            '<div style="width:36px;height:36px;border-radius:50%;flex-shrink:0;border:2px dashed var(--text-muted);"></div>' +
-            '<span style="font-size:13px;color:var(--text-muted);">Menunggu pemain...</span>' +
-          '</div>';
-      }
-    }
-
-    lobby.innerHTML =
-      '<div style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:18px;text-align:center;margin-bottom:16px;">' +
-        '<p style="font-size:12px;color:var(--text-muted);margin-bottom:6px;">Bagikan kode ini ke temanmu</p>' +
-        '<p style="font-size:26px;font-weight:800;letter-spacing:4px;color:#3d8bff;margin-bottom:10px;">' + escapeHtml(data.roomCode || '') + '</p>' +
-        '<button class="clickable" onclick="salinKodeRoom(' + jsAttr(data.roomCode || '') + ')" style="border:1px solid var(--card-line);background:var(--bg-app);color:var(--text-dark);font-size:12px;font-weight:700;padding:8px 16px;border-radius:10px;">📋 Salin Kode</button>' +
-      '</div>' +
-      slotsHtml +
-      (isOwner
-        ? '<button onclick="mulaiGameDariRoomLudo()" ' + (data.players.length < 2 ? 'disabled' : '') + ' style="width:100%;padding:14px;border-radius:14px;border:none;margin-top:10px;font-weight:700;font-size:13.5px;' +
-            (data.players.length < 2 ? 'background:#dcd8ea;color:#a9a4c2;' : 'background:linear-gradient(135deg,#3d8bff,#3ecf6b);color:#fff;') + '">' +
-            (data.players.length < 2 ? 'Menunggu pemain lain...' : '▶️ Mulai Game') + '</button>'
-        : '<p style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:10px;">Menunggu pemilik room memulai game...</p>');
-  }
-
-  function renderPapanLudo(data){
-    var myUid = auth.currentUser.uid;
-
-    if(data.status === 'waiting'){
-      renderLobbyLudo(data, myUid);
-      return;
-    }
-    document.getElementById('ludoGameplayWrap').style.display = '';
-    document.getElementById('ludoLobbyWrap').style.display = 'none';
-    bangunGridLudo();
-
-    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
-    var lainnya = data.players.filter(function(u){ return u !== myUid; });
-    var namaLainnya = lainnya.map(function(u){ return data.playerNames[u] || 'Pemain'; });
-    var namaGiliran = data.playerNames[data.turnUid] || 'Pemain';
-
-    document.getElementById('ludoHeaderSub').textContent = (lainnya.length > 1 ? 'Bareng: ' : 'Lawan main: ') + namaLainnya.join(', ');
-
-    var statusEl = document.getElementById('ludoStatusBar');
-    if(data.status === 'finished'){
-      var namaMenang = data.playerNames[data.winner] || 'Pemain';
-      statusEl.textContent = (data.winner === myUid) ? '🎉 Kamu Menang!' : '😢 ' + namaMenang + ' Menang';
-    } else if(data.menungguPilihToken && giliranSaya){
-      statusEl.textContent = '🎲 Pilih bidak yang mau jalan!';
-    } else {
-      statusEl.textContent = giliranSaya ? '🎲 Giliran kamu!' : 'Menunggu giliran ' + namaGiliran + '...';
-    }
-
-    jalankanGiliranBotLudoJikaPerlu(data);
-
-    var diceEl = document.getElementById('ludoDiceDisplay');
-    document.getElementById('ludoDiceDots').innerHTML = renderTitikDadu(data.lastRoll || 0);
-    if(data.lastRoll && data.lastRoll !== ludoLastRollDitampilkan){
-      diceEl.classList.remove('ut-shake');
-      void diceEl.offsetWidth;
-      diceEl.classList.add('ut-shake');
-      ludoLastRollDitampilkan = data.lastRoll;
-    }
-
-    var btn = document.getElementById('ludoRollBtn');
-    var bisaLempar = giliranSaya && data.status === 'playing' && !data.menungguPilihToken;
-    btn.disabled = !bisaLempar;
-    btn.textContent = data.status === 'finished' ? 'Game Selesai' : (bisaLempar ? 'Lempar Dadu' : (giliranSaya ? 'Pilih Bidak' : 'Menunggu...'));
-
-    document.getElementById('ludoPilihTokenHint').style.display = (data.menungguPilihToken && giliranSaya) ? 'block' : 'none';
-
-    renderTokenLudo(data, myUid);
-
-    var jumlahPemain = data.players.length;
-    document.getElementById('ludoPlayersInfo').innerHTML = data.players.map(function(uid, i){
-      var nama = data.playerNames[uid] || 'Pemain';
-      var foto = ludoFotoPemain[uid];
-      var warna = LUDO_WARNA_HEX[data.playerWarna[uid]] || '#999';
-      var giliran = data.status === 'playing' && data.turnUid === uid;
-      var selesaiCount = (data.tokens[uid] || []).filter(function(l){ return l === 61; }).length;
-      return '<div class="ut-player-card' + (giliran ? ' giliran' : '') + '" style="max-width:47%;min-width:90px;">' +
-          '<div class="ut-player-avatar" style="background:' + (foto ? ('url(' + foto + ') center/cover') : warna) + ';">' + (foto ? '' : hurufAwal(nama)) + '</div>' +
-          '<p style="font-size:12px;font-weight:700;">' + escapeHtml(nama) + '</p>' +
-          '<p style="font-size:10.5px;color:var(--text-muted);margin-top:1px;">🏠 ' + selesaiCount + '/4 bidak sampai</p>' +
-        '</div>';
-    }).join('');
-
-    if(data.status === 'finished' && !ludoSelesaiModalDitampilkan){
-      ludoSelesaiModalDitampilkan = true;
-      var menang = data.winner === myUid;
-      var namaMenang2 = data.playerNames[data.winner] || 'Pemain';
-      document.getElementById('ludoSelesaiEmoji').textContent = menang ? '🏆' : '🎲';
-      document.getElementById('ludoSelesaiTitle').textContent = menang ? 'Kamu Menang!' : namaMenang2 + ' Menang';
-      document.getElementById('ludoSelesaiText').textContent = menang
-        ? 'Selamat, kedua bidakmu sudah sampai rumah!'
-        : 'Jangan menyerah, coba lagi yuk!';
-      setTimeout(function(){
-        document.getElementById('ludoSelesaiModal').classList.add('show');
-      }, 900);
-    }
-  }
-
-  function renderTokenLudo(data, myUid){
-    var layer = document.getElementById('ludoTokenLayer');
-    var perluBangunUlang = layer.children.length === 0;
-    if(perluBangunUlang){
-      var html = '';
-      data.players.forEach(function(uid, pi){
-        (data.tokens[uid] || []).forEach(function(_, ti){
-          html += '<div id="ludoToken_' + pi + '_' + ti + '" class="ut-token" style="width:8%;background:' + LUDO_WARNA_HEX[data.playerWarna[uid]] + ';"></div>';
-        });
-      });
-      layer.innerHTML = html;
-    }
-
-    var giliranSaya = data.status === 'playing' && data.turnUid === myUid;
-
-    data.players.forEach(function(uid, pi){
-      var warna = data.playerWarna[uid];
-      var tokens = data.tokens[uid] || [];
-      var legal = (data.menungguPilihToken && giliranSaya && uid === myUid) ? hitungLangkahLegalLudo(data, uid, data.lastRoll) : [];
-
-      tokens.forEach(function(langkah, ti){
-        var token = document.getElementById('ludoToken_' + pi + '_' + ti);
-        if(!token) return;
-
-        var bisaDipilih = legal.filter(function(l){ return l.tokenIdx === ti; }).length > 0;
-        token.classList.toggle('giliran', bisaDipilih);
-        token.style.cursor = bisaDipilih ? 'pointer' : 'default';
-        token.onclick = bisaDipilih ? (function(idx){ return function(){ pilihTokenLudo(idx); }; })(ti) : null;
-
-        var rc;
-        if(langkah === -1){
-          rc = LUDO_YARD[warna][ti];
-        } else if(langkah === 61){
-          rc = LUDO_HOME[warna][5]; // ditumpuk di ujung home kalau sudah finish
-        } else {
-          rc = ludoSelToken(warna, langkah);
-        }
-        if(!rc) return;
-
-        var left = (rc[1] + 0.5) * 100 / 15;
-        var top = (rc[0] + 0.5) * 100 / 15;
-        // geser dikit kalau ada token lain (termasuk milik sendiri) di kotak yang sama, biar tidak numpuk persis
-        var kunci = rc[0] + ',' + rc[1];
-        var indexDiKotak = 0, totalDiKotak = 0;
-        data.players.forEach(function(u2){
-          (data.tokens[u2] || []).forEach(function(l2, t2){
-            if(l2 === -1 || l2 === 61) return;
-            var w2 = data.playerWarna[u2];
-            var rc2 = ludoSelToken(w2, l2);
-            if(rc2 && (rc2[0] + ',' + rc2[1]) === kunci){
-              if(u2 === uid && t2 === ti){ indexDiKotak = totalDiKotak; }
-              totalDiKotak++;
-            }
-          });
-        });
-        if(totalDiKotak > 1){
-          var geser = (indexDiKotak - (totalDiKotak - 1) / 2) * 3.2;
-          left += geser;
-        }
-
-        token.style.left = left + '%';
-        token.style.top = top + '%';
-      });
-    });
-  }
-
-  // Satu pintu untuk semua lemparan dadu (pemain maupun bot) supaya aturan tidak terduplikasi (DRY)
-  function lemparDaduLudoUntuk(uid){
-    if(!db || !ludoGameAktifId) return;
-    var ref = db.collection('ludo').doc(ludoGameAktifId);
-
-    db.runTransaction(function(tx){
-      return tx.get(ref).then(function(doc){
-        var data = doc.data();
-        if(!data || data.status !== 'playing' || data.turnUid !== uid || data.menungguPilihToken) return;
-
-        var roll = Math.floor(Math.random() * 6) + 1;
-        var legal = hitungLangkahLegalLudo(data, uid, roll);
-
-        if(legal.length === 0){
-          // Tidak ada bidak yang bisa jalan -> giliran langsung lewat, hitungan 6 beruntun direset
-          tx.update(ref, { lastRoll: roll, turnUid: pemainBerikutnyaLudo(data, uid), menungguPilihToken: false, sixBeruntun: 0 });
-        } else if(legal.length === 1){
-          ludoTerapkanLangkah(tx, ref, data, uid, legal[0], roll);
-        } else {
-          tx.update(ref, { lastRoll: roll, menungguPilihToken: true });
-        }
-      });
-    }).catch(function(e){ tampilkanDebug('❌ Gagal melempar dadu: ' + e.message); });
-  }
-
-  function lemparDaduLudo(){
-    if(!auth.currentUser) return;
-    lemparDaduLudoUntuk(auth.currentUser.uid);
-  }
-
-  function lemparDaduLudoUntukBot(){
-    lemparDaduLudoUntuk(LUDO_BOT_UID);
-  }
-
-  function pilihTokenLudo(tokenIdx){
-    if(!db || !ludoGameAktifId || !auth.currentUser) return;
-    pilihTokenLudoUntuk(auth.currentUser.uid, tokenIdx);
-  }
-
-  function pilihTokenLudoUntuk(uid, tokenIdx){
-    var ref = db.collection('ludo').doc(ludoGameAktifId);
-    db.runTransaction(function(tx){
-      return tx.get(ref).then(function(doc){
-        var data = doc.data();
-        if(!data || !data.menungguPilihToken || data.turnUid !== uid) return;
-        var roll = data.lastRoll;
-        var legal = hitungLangkahLegalLudo(data, uid, roll);
-        var pilihan = legal.filter(function(l){ return l.tokenIdx === tokenIdx; })[0];
-        if(!pilihan) return;
-        ludoTerapkanLangkah(tx, ref, data, uid, pilihan, roll);
-      });
-    }).catch(function(e){ tampilkanDebug('❌ Gagal memilih bidak: ' + e.message); });
-  }
-
-  // Daftar uid lawan yang bidaknya akan tertangkap kalau uid mendarat di langkah `baru` (kosong = tidak menangkap)
-  function ludoBidakTertangkap(data, uid, langkahBaru, tokensSekarang){
-    var hasil = [];
-    if(langkahBaru < 0 || langkahBaru > 54) return hasil;
-    var rcSaya = ludoSelToken(data.playerWarna[uid], langkahBaru);
-    var kunciSaya = rcSaya[0] + ',' + rcSaya[1];
-    if(LUDO_SAFE.indexOf(kunciSaya) !== -1) return hasil; // kotak aman, tidak bisa menangkap
-
-    data.players.forEach(function(u2){
-      if(u2 === uid) return;
-      var warna2 = data.playerWarna[u2];
-      (tokensSekarang[u2] || []).forEach(function(l2, i2){
-        if(l2 < 0 || l2 > 54) return;
-        var rc2 = ludoSelToken(warna2, l2);
-        if(rc2 && (rc2[0] + ',' + rc2[1]) === kunciSaya){ hasil.push({ uid: u2, idx: i2 }); }
-      });
-    });
-    return hasil;
-  }
-
-  // Terapkan 1 langkah token di dalam transaksi: pindah posisi, tangkap musuh kalau kena, cek menang, tentukan giliran berikut
-  function ludoTerapkanLangkah(tx, ref, data, uid, pilihan, roll){
-    var tokensBaru = {};
-    data.players.forEach(function(u){ tokensBaru[u] = (data.tokens[u] || []).slice(); });
-    tokensBaru[uid][pilihan.tokenIdx] = pilihan.baru;
-
-    ludoBidakTertangkap(data, uid, pilihan.baru, tokensBaru).forEach(function(t){
-      tokensBaru[t.uid][t.idx] = -1; // dikirim balik ke kandang
-    });
-
-    var menang = tokensBaru[uid].every(function(l){ return l === 61; });
-    var updateData = { tokens: tokensBaru, lastRoll: roll, menungguPilihToken: false };
-
-    if(menang){
-      updateData.status = 'finished';
-      updateData.winner = uid;
-      updateData.turnUid = uid;
-      updateData.sixBeruntun = 0;
-    } else if(roll === 6){
-      var sixBaru = (data.sixBeruntun || 0) + 1;
-      if(sixBaru >= 3){
-        // Aturan klasik: tiga angka 6 berturut-turut membatalkan giliran
-        updateData.turnUid = pemainBerikutnyaLudo(data, uid);
-        updateData.sixBeruntun = 0;
-      } else {
-        updateData.turnUid = uid; // dapat lempar lagi
-        updateData.sixBeruntun = sixBaru;
-      }
-    } else {
-      updateData.turnUid = pemainBerikutnyaLudo(data, uid);
-      updateData.sixBeruntun = 0;
-    }
-    tx.update(ref, updateData);
-  }
-
-  // Strategi bot: 1) tangkap lawan, 2) keluarkan bidak dari kandang, 3) majukan bidak paling depan
-  function ludoPilihLangkahBot(data, uid, legal){
-    var tokens = data.tokens;
-    var tangkap = legal.filter(function(l){ return ludoBidakTertangkap(data, uid, l.baru, tokens).length > 0; })[0];
-    if(tangkap) return tangkap;
-
-    var keluarKandang = legal.filter(function(l){ return tokens[uid][l.tokenIdx] === -1; })[0];
-    if(keluarKandang) return keluarKandang;
-
-    return legal.reduce(function(terbaik, l){ return l.baru > terbaik.baru ? l : terbaik; }, legal[0]);
-  }
-
-  function jalankanGiliranBotLudoJikaPerlu(data){
-    if(!data.vsBot || data.status !== 'playing') return;
-    if(data.turnUid !== LUDO_BOT_UID) return;
-    if(ludoBotSedangJalan) return;
-
-    ludoBotSedangJalan = true;
-    setTimeout(function(){
-      if(data.menungguPilihToken){
-        var legal = hitungLangkahLegalLudo(data, LUDO_BOT_UID, data.lastRoll);
-        if(legal.length > 0){
-          pilihTokenLudoUntuk(LUDO_BOT_UID, ludoPilihLangkahBot(data, LUDO_BOT_UID, legal).tokenIdx);
-        }
-      } else {
-        lemparDaduLudoUntukBot();
-      }
-      ludoBotSedangJalan = false;
-    }, 1200);
-  }
-
-  function tutupLudoSelesaiModal(){
-    document.getElementById('ludoSelesaiModal').classList.remove('show');
-  }
-
-  function mainLagiLudo(){
-    document.getElementById('ludoSelesaiModal').classList.remove('show');
-    showView('ludoMulai');
-  }
-
   function bukaEditProfil(){
     var data = profilDataSaatIni || {}; // pakai data yang sudah ada di memori — instan, tidak perlu nunggu server
 
@@ -6486,9 +5721,15 @@ var daftarAvatarPreset = [
   // Terapkan tema, bahasa, & status izin notifikasi tersimpan begitu app dimuat
   // (elemen-elemen terkait sudah ada di DOM walau halaman Pengaturan belum dibuka).
   terapkanTema(temaAktif);
+  perbaruiTombolSuaraPesanMasuk();
   terapkanBahasa(bahasaAktif);
   perbaruiStatusIzinNotif();
 </script>
 
+  <div id="gameLaunchOverlay">
+    <div class="gl-emoji" id="glEmoji">🎮</div>
+    <p class="gl-title" id="glTitle">Membuka game...</p>
+    <div class="gl-spinner"></div>
+  </div>
 </body>
 </html>
