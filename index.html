@@ -3737,27 +3737,40 @@
   // ---- Navigasi ke halaman game terpisah (games/*.html) ----
   var halamanGameSudahDiprefetch = {};
 
+  // GitHub Pages TIDAK mengalihkan alamat tanpa garis miring di akhir (mis. ".../Duozy")
+  // ke ".../Duozy/" — index.html tetap tampil apa adanya di alamat itu. Kalau kita pakai
+  // link relatif biasa ("games/ludo.html"), browser menghitungnya dari folder INDUK
+  // "Duozy" (bukan dari dalamnya), sehingga "Duozy" hilang dari alamat dan jadi 404.
+  // Fungsi ini menghitung folder situs yang benar secara eksplisit, apa pun bentuk
+  // alamatnya saat ini (dengan/tanpa garis miring, dengan/tanpa "index.html").
+  function alamatDasarSitus(){
+    var path = location.pathname.replace(/index\.html?$/, '');
+    if(!path.endsWith('/')) path += '/';
+    return location.origin + path;
+  }
+
   // Minta browser mengambil file game di latar belakang begitu tab Game dibuka,
   // supaya saat pemain benar-benar menekan game, filenya sering sudah ada di cache.
-  function prefetchHalamanGame(url){
-    if(halamanGameSudahDiprefetch[url]) return;
-    halamanGameSudahDiprefetch[url] = true;
+  function prefetchHalamanGame(urlRelatif){
+    if(halamanGameSudahDiprefetch[urlRelatif]) return;
+    halamanGameSudahDiprefetch[urlRelatif] = true;
     var link = document.createElement('link');
     link.rel = 'prefetch';
-    link.href = url;
+    link.href = alamatDasarSitus() + urlRelatif;
     document.head.appendChild(link);
   }
 
   // Tampilkan overlay bermerek Duozy sebentar, baru pindah ke halaman game.
   // Overlay ini murni transisi visual; loading sesungguhnya (Firebase siap, dsb)
   // ditangani game-shell.js di halaman tujuan.
-  function bukaGameEksternal(url, judul, emoji){
+  function bukaGameEksternal(urlRelatif, judul, emoji){
     var overlay = document.getElementById('gameLaunchOverlay');
     document.getElementById('glEmoji').textContent = emoji || '🎮';
     document.getElementById('glTitle').textContent = 'Membuka ' + (judul || 'game') + '...';
     overlay.classList.add('show');
     requestAnimationFrame(function(){ overlay.classList.add('in'); });
-    setTimeout(function(){ window.location.href = url; }, 220);
+    var tujuan = alamatDasarSitus() + urlRelatif;
+    setTimeout(function(){ window.location.href = tujuan; }, 220);
   }
 
   function terapkanBahasa(kode){
