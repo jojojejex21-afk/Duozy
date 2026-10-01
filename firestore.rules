@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: user is signed in
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper: request is from the document owner
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // Users / profiles — public read for discovery, write only by owner
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update, delete: if isOwner(userId);
+    }
+
+    match /profiles/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId);
+      allow update, delete: if isOwner(userId);
+    }
+
+    // Friendships — only participants can read/write
+    match /friendships/{friendshipId} {
+      allow read, write: if isSignedIn() &&
+        (request.auth.uid in resource.data.members ||
+         request.auth.uid in request.resource.data.members);
+    }
+
+    // Matches (dating) — only the two users involved
+    match /matches/{matchId} {
+      allow read, write: if isSignedIn() &&
+        (request.auth.uid in resource.data.users ||
+         request.auth.uid in request.resource.data.users);
+    }
+
+    // Likes — owner only
+    match /likes/{likeId} {
+      allow read, write: if isSignedIn() &&
+        (resource == null || request.auth.uid == resource.data.fromUserId) &&
+        (request.resource == null || request.auth.uid == request.resource.data.fromUserId);
+    }
+
+    // Chat threads — only participants
+    match /chats/{chatId} {
+      allow read, write: if isSignedIn() &&
+        (request.auth.uid in resource.data.participants ||
+         request.auth.uid in request.resource.data.participants);
+
+      // Messages subcollection — same participants
+      match /messages/{messageId} {
+        allow read, write: if isSignedIn() &&
+          request.auth.uid in get(/databases/$(database)/documents/chats/$(chatId)).data.participants;
+      }
+    }
+
+    // Posts / Moments — public read, owner write
+    match /posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.auth.uid == request.resource.data.authorId;
+      allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorId;
+
+      match /comments/{commentId} {
+        allow read: if true;
+        allow create: if isSignedIn();
+        allow update, delete: if isSignedIn() && request.auth.uid == resource.data.authorId;
+      }
+
+      match /likes/{likeId} {
+        allow read: if true;
+        allow write: if isSignedIn();
+      }
+    }
+
+    // Game rooms — participants can read/write
+    match /gameRooms/{roomId} {
+      allow read, write: if isSignedIn() &&
+        (request.auth.uid in resource.data.players ||
+         request.auth.uid in request.resource.data.players ||
+         resource.data.isPublic == true);
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
