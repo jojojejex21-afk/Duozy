@@ -27,13 +27,22 @@
     --surface:#ffffff;
   }
 
-  :root[data-theme="dark"]{
-    --bg-app:#15132b;
+  /* Default mengikuti mockup gelap; tema terang tetap bisa diaktifkan dari Pengaturan */
+  :root, :root[data-theme="dark"]{
+    --bg-app:#0f0d24;
     --text-dark:#f0eefc;
     --text-muted:#a9a4c9;
-    --card-line:#2e2b52;
-    --surface:#211f3f;
-    color-scheme:dark; /* dropdown, scrollbar & kontrol bawaan browser ikut gelap */
+    --card-line:#2a2750;
+    --surface:#1a1740;
+    color-scheme:dark;
+  }
+  :root[data-theme="light"]{
+    --bg-app:#f5f4fb;
+    --text-dark:#231f3d;
+    --text-muted:#8b87a3;
+    --card-line:#eceafb;
+    --surface:#ffffff;
+    color-scheme:light;
   }
 
   /* Warna teks dasar mengikuti tema, supaya elemen yang tidak menyebut warna (p, h1, dsb) tidak jadi hitam di mode gelap */
@@ -231,38 +240,73 @@
   /* ================= SPLASH ================= */
   #view-splash{
     background:
-      radial-gradient(circle at 30% 15%, rgba(255,111,165,0.25), transparent 45%),
-      radial-gradient(circle at 75% 80%, rgba(79,172,254,0.20), transparent 50%),
-      linear-gradient(160deg, var(--navy-deep) 0%, var(--violet-mid) 55%, var(--pink-glow) 130%);
+      radial-gradient(ellipse 80% 40% at 50% 100%, rgba(255,140,90,0.35) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 30% at 50% 88%, rgba(200,80,160,0.25) 0%, transparent 50%),
+      radial-gradient(circle at 20% 25%, rgba(120,80,220,0.2), transparent 40%),
+      linear-gradient(180deg, #0a0820 0%, #1a1440 35%, #2a1a55 60%, #3d2060 78%, #5a2a70 100%);
     min-height:100vh;
     align-items:center;
     justify-content:center;
     padding:0;
+    overflow:hidden;
   }
   .splash-inner{
     width:100%;
     height:100vh;
+    height:100dvh;
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-    padding:14vh 32px 48px;
+    justify-content:flex-start;
+    padding:18vh 28px 0;
     position:relative;
+    z-index:2;
   }
-  .brand{ display:flex; flex-direction:column; align-items:center; gap:18px; }
-  .logo-mark{ width:96px; height:96px; }
-  .wordmark{ font-size:38px; font-weight:800; letter-spacing:2px; color:#fff; }
-  .tagline{ font-size:15px; color:#c9c3e8; text-align:center; line-height:1.6; max-width:260px; }
-  .loading{ width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; }
-  .bar-track{ width:64%; height:4px; border-radius:4px; background:rgba(255,255,255,0.15); overflow:hidden; position:relative; }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:14px; position:relative; z-index:3; }
+  .logo-mark{ width:72px; height:72px; filter:drop-shadow(0 4px 16px rgba(255,111,165,0.4)); }
+  .wordmark{
+    font-size:42px; font-weight:800; letter-spacing:0.5px; color:#fff;
+    display:inline-flex; align-items:center; gap:0;
+    text-shadow:0 2px 20px rgba(106,61,216,0.5);
+  }
+  .wordmark .wm-heart{
+    display:inline-flex; width:30px; height:30px; margin:0 -1px 2px;
+    vertical-align:middle; flex-shrink:0;
+  }
+  .wordmark .wm-heart svg{ width:100%; height:100%; }
+  .tagline{ font-size:14px; color:#c9c3e8; text-align:center; line-height:1.65; max-width:240px; opacity:0.9; }
+  .loading{ width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:auto; padding-bottom:28px; position:relative; z-index:3; }
+  .bar-track{ width:56%; height:4px; border-radius:4px; background:rgba(255,255,255,0.12); overflow:hidden; position:relative; }
   .bar-fill{ height:100%; width:40%; border-radius:4px; background:linear-gradient(90deg, var(--heart-blue), var(--heart-pink)); animation:loadbar 1.6s ease-in-out infinite; position:absolute; left:0; top:0; }
   @keyframes loadbar{ 0%{ transform:translateX(-100%); } 100%{ transform:translateX(250%); } }
-  .loading-label{ font-size:13px; color:#c9c3e8; opacity:0.8; }
+  .loading-label{ font-size:12.5px; color:#c9c3e8; opacity:0.75; }
 
-  /* efek hati/bintang mengambang di splash */
-  .bokeh{ position:absolute; inset:0; pointer-events:none; overflow:hidden; }
-  .bokeh span{ position:absolute; font-size:20px; opacity:0.25; filter:blur(0.3px); animation:drift 7s ease-in-out infinite; }
-  @keyframes drift{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-16px); } }
+  /* bintang & shooting star di splash */
+  .bokeh{ position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:1; }
+  .bokeh span{ position:absolute; font-size:10px; opacity:0.55; color:#fff; animation:drift 6s ease-in-out infinite; }
+  .bokeh .star-sm{ width:3px; height:3px; border-radius:50%; background:#fff; font-size:0; }
+  .bokeh .star-md{ width:4px; height:4px; border-radius:50%; background:#fff; font-size:0; box-shadow:0 0 6px rgba(255,255,255,0.6); }
+  @keyframes drift{ 0%,100%{ transform:translateY(0) scale(1); opacity:0.45; } 50%{ transform:translateY(-10px) scale(1.15); opacity:0.85; } }
+  .shooting-star{
+    position:absolute; top:12%; left:8%; width:80px; height:2px;
+    background:linear-gradient(90deg, rgba(255,255,255,0.9), transparent);
+    border-radius:2px; transform:rotate(-28deg);
+    animation:shoot 4.5s ease-in-out infinite;
+    opacity:0;
+  }
+  @keyframes shoot{
+    0%{ opacity:0; transform:rotate(-28deg) translateX(0); }
+    8%{ opacity:1; }
+    30%{ opacity:0; transform:rotate(-28deg) translateX(180px); }
+    100%{ opacity:0; transform:rotate(-28deg) translateX(180px); }
+  }
+
+  /* ilustrasi pasangan + kota di bawah splash (ala design mockup) */
+  .splash-scene{
+    position:absolute; bottom:0; left:0; right:0; height:42%;
+    pointer-events:none; z-index:1; overflow:hidden;
+  }
+  .splash-scene svg{ width:100%; height:100%; display:block; }
 
   /* ================= SHARED HEADER / NAV ================= */
   .topbar{ padding:18px 20px 12px; background:var(--surface); border-bottom:1px solid var(--card-line); }
@@ -270,10 +314,10 @@
   .topbar-row h1{ font-size:19px; font-weight:800; color:var(--text-dark); }
   .icon-btn{ width:32px; height:32px; border-radius:50%; background:var(--surface); border:1px solid var(--card-line); display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--text-dark); }
 
-  .tabs{ display:flex; gap:8px; overflow-x:auto; }
+  .tabs{ display:flex; gap:8px; overflow-x:auto; padding-bottom:2px; }
   .tabs::-webkit-scrollbar{ display:none; }
-  .tab{ flex-shrink:0; padding:7px 16px; border-radius:20px; font-size:12.5px; font-weight:600; color:var(--text-muted); background:var(--bg-app); }
-  .tab.active{ background:var(--purple-brand); color:#fff; }
+  .tab{ flex-shrink:0; padding:7px 16px; border-radius:20px; font-size:12.5px; font-weight:600; color:var(--text-muted); background:var(--bg-app); border:1px solid var(--card-line); }
+  .tab.active{ background:var(--purple-brand); color:#fff; border-color:transparent; box-shadow:0 4px 12px rgba(106,61,216,0.35); }
 
   .content{ flex:1; padding:18px 20px 10px; }
 
@@ -293,27 +337,49 @@
   .nav-icon{ font-size:19px; }
   #chatNavBadge{ border-color:#fff; }
 
-  /* ================= HOME ================= */
+  /* ================= HOME (mockup gelap) ================= */
+  #view-home{ background:var(--bg-app); }
   #view-home .header{
-    background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 70%, var(--pink-glow) 140%);
-    padding:18px 20px 22px; color:#fff;
+    background:transparent;
+    padding:16px 18px 8px; color:var(--text-dark);
   }
   #view-home .header-top{ display:flex; align-items:center; justify-content:space-between; }
-  .brand-mini{ display:flex; align-items:center; gap:8px; font-size:19px; font-weight:800; letter-spacing:1px; }
-  .brand-mini svg{ width:24px; height:24px; }
-  .header-icons{ display:flex; align-items:center; gap:16px; }
-  .header-icons .icon-btn{ width:34px; height:34px; background:rgba(255,255,255,0.12); border:none; position:relative; color:#fff; }
-  .dot-badge{ position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#ff5da2; border:1.5px solid var(--violet-mid); }
+  .brand-mini{
+    display:flex; align-items:center; gap:6px; font-size:20px; font-weight:800; letter-spacing:0.5px;
+    background:linear-gradient(90deg,#a884ff,#ff6fa5); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .brand-mini svg{ width:22px; height:22px; flex-shrink:0; }
+  .header-icons{ display:flex; align-items:center; gap:10px; }
+  .header-icons .icon-btn{
+    width:36px; height:36px; background:var(--surface); border:1px solid var(--card-line);
+    position:relative; color:var(--text-dark); border-radius:12px;
+  }
+  .dot-badge{ position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%; background:#ff5da2; border:1.5px solid var(--surface); }
   .avatar-tiny{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#ffb2d9,#a884ff); }
-  .welcome-card{ margin-top:18px; background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.18); border-radius:18px; padding:16px 18px; }
-  .welcome-card h1{ font-size:17px; font-weight:700; margin-bottom:4px; }
-  .welcome-card p{ font-size:12.5px; color:#dcd8f5; line-height:1.5; }
 
-  .feature-cards{ display:flex; gap:12px; margin-top:2px; }
-  .feature-card{ flex:1; border-radius:20px; padding:20px 8px 16px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; color:#fff; box-shadow:0 8px 18px rgba(0,0,0,0.14); }
-  .feature-card .fc-icon{ font-size:28px; }
-  .feature-card .fc-title{ font-size:13px; font-weight:800; }
-  .feature-card .fc-desc{ font-size:10px; opacity:0.9; line-height:1.3; }
+  .home-promo{
+    margin:8px 18px 16px; border-radius:20px; padding:18px 16px;
+    background:linear-gradient(135deg,#3d2a8a 0%, #6a3dd8 45%, #c33fa0 130%);
+    display:flex; align-items:center; gap:12px; color:#fff; overflow:hidden; position:relative;
+  }
+  .home-promo-text{ flex:1; min-width:0; }
+  .home-promo-text h2{ font-size:15px; font-weight:800; margin-bottom:6px; line-height:1.35; }
+  .home-promo-text p{ font-size:11.5px; color:#e8e0ff; opacity:0.9; margin-bottom:12px; }
+  .home-promo-btn{
+    display:inline-block; border:none; padding:8px 16px; border-radius:12px;
+    background:#fff; color:#5a2fc7; font-size:12px; font-weight:800;
+  }
+  .home-promo-art{ font-size:48px; flex-shrink:0; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.25)); }
+
+  .feature-cards{ display:flex; gap:10px; margin:0 18px; }
+  .feature-card{
+    flex:1; border-radius:18px; padding:16px 8px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    text-align:center; color:#fff; box-shadow:0 8px 18px rgba(0,0,0,0.22);
+  }
+  .feature-card .fc-icon{ font-size:26px; }
+  .feature-card .fc-title{ font-size:12px; font-weight:800; }
+  .feature-card .fc-desc{ font-size:9.5px; opacity:0.9; line-height:1.3; }
   .menu-icon{ width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; }
 
   .online-count{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
@@ -326,8 +392,8 @@
 
   .game-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
   .game-row::-webkit-scrollbar{ display:none; }
-  .game-card{ flex-shrink:0; width:120px; border-radius:14px; overflow:hidden; background:var(--surface); border:1px solid var(--card-line); }
-  .game-thumb{ height:74px; display:flex; align-items:center; justify-content:center; font-size:28px; }
+  .game-card{ flex-shrink:0; width:110px; border-radius:16px; overflow:hidden; background:var(--surface); border:1px solid var(--card-line); }
+  .game-thumb{ height:72px; display:flex; align-items:center; justify-content:center; font-size:30px; }
   .gt-1{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
   .gt-2{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
   .gt-3{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
@@ -335,6 +401,36 @@
   .game-info{ padding:8px 10px 10px; }
   .game-info p{ font-size:12px; font-weight:700; color:var(--text-dark); }
   .game-info small, .game-info p.online{ font-size:10px; color:var(--text-muted); }
+
+  /* Onboarding */
+  #view-onboarding{
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,111,165,0.18), transparent 45%),
+      radial-gradient(circle at 70% 80%, rgba(79,172,254,0.15), transparent 50%),
+      linear-gradient(160deg, #0a0820 0%, #1a1440 55%, #2a1a55 100%);
+    padding:0;
+  }
+  .ob-inner{
+    min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:40px 28px 48px; text-align:center; color:#fff;
+  }
+  .ob-bubbles{ display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:36px; }
+  .ob-bubble{
+    width:72px; height:72px; border-radius:22px; display:flex; align-items:center; justify-content:center;
+    font-size:32px; box-shadow:0 10px 28px rgba(0,0,0,0.3);
+  }
+  .ob-bubble.b1{ background:linear-gradient(135deg,#4facfe,#6a3dd8); transform:rotate(-8deg); z-index:1; }
+  .ob-bubble.b2{ background:linear-gradient(135deg,#ff6fa5,#c33fa0); transform:rotate(8deg) translateY(8px); margin-left:-12px; }
+  .ob-title{ font-size:24px; font-weight:800; margin-bottom:12px; }
+  .ob-sub{ font-size:13.5px; color:#c9c3e8; line-height:1.6; max-width:280px; margin-bottom:40px; }
+  .ob-btn{
+    width:100%; max-width:280px; padding:15px 0; border:none; border-radius:16px;
+    background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
+    color:#fff; font-size:15px; font-weight:800; box-shadow:0 8px 20px rgba(106,61,216,0.4);
+  }
+  .ob-dots{ display:flex; gap:6px; margin-top:28px; }
+  .ob-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.25); }
+  .ob-dots span.on{ background:#fff; width:20px; border-radius:4px; }
 
   /* ================= MOMEN ================= */
   #view-momen .content{ padding:0 0 10px; }
@@ -367,7 +463,7 @@
   .fab{ position:absolute; bottom:88px; right:20px; background:linear-gradient(135deg, var(--pink-glow), var(--purple-brand)); color:#fff; border:none; padding:12px 20px; border-radius:24px; font-size:13px; font-weight:700; display:flex; align-items:center; gap:6px; box-shadow:0 8px 20px rgba(106,61,216,0.35); z-index:40; }
 
   /* ================= DATING ================= */
-  #view-dating .topbar{ display:flex; align-items:center; justify-content:space-between; padding:18px 20px 6px; background:transparent; border:none; }
+  #view-dating .topbar{ display:block; }
   .swipe-card{ background:var(--surface); border-radius:22px; overflow:hidden; box-shadow:0 10px 30px rgba(106,61,216,0.12); margin-bottom:20px; }
   .swipe-photo{ height:280px; background:linear-gradient(160deg,#2a2450,#6a3dd8 55%,#c33fa0 130%); display:flex; align-items:flex-end; justify-content:center; font-size:70px; }
   .swipe-info{ padding:16px 18px 20px; text-align:center; }
@@ -766,10 +862,15 @@
   (function(){
     try{
       var temaTersimpan = localStorage.getItem('tema');
-      if(temaTersimpan === 'gelap'){
+      // Default gelap sesuai mockup; hanya terang kalau user memilih
+      if(temaTersimpan === 'terang'){
+        document.documentElement.setAttribute('data-theme', 'light');
+      } else {
         document.documentElement.setAttribute('data-theme', 'dark');
       }
-    }catch(e){}
+    }catch(e){
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
   })();
 </script>
 
@@ -777,37 +878,111 @@
 
   <!-- ================= SPLASH ================= -->
   <div id="view-splash" class="view active">
+    <div class="bokeh" aria-hidden="true">
+      <span class="star-md" style="top:8%;left:15%;animation-delay:0s;"></span>
+      <span class="star-sm" style="top:14%;left:42%;animation-delay:0.6s;"></span>
+      <span class="star-md" style="top:6%;right:18%;animation-delay:1.2s;"></span>
+      <span class="star-sm" style="top:22%;right:28%;animation-delay:0.3s;"></span>
+      <span class="star-sm" style="top:18%;left:70%;animation-delay:1.8s;"></span>
+      <span class="star-md" style="top:32%;left:8%;animation-delay:2.1s;"></span>
+      <span class="star-sm" style="top:28%;right:12%;animation-delay:0.9s;"></span>
+      <span class="star-sm" style="top:40%;left:55%;animation-delay:1.5s;"></span>
+      <span class="star-md" style="top:12%;left:28%;animation-delay:2.4s;"></span>
+      <div class="shooting-star"></div>
+    </div>
+    <div class="splash-scene" aria-hidden="true">
+      <svg viewBox="0 0 430 320" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="cityGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ff9a5c" stop-opacity="0.55"/>
+            <stop offset="40%" stop-color="#c33fa0" stop-opacity="0.25"/>
+            <stop offset="100%" stop-color="#2a1a55" stop-opacity="0"/>
+          </linearGradient>
+          <linearGradient id="horizonGlow" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffb070" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="#ff6fa5" stop-opacity="0.3"/>
+          </linearGradient>
+          <linearGradient id="silBody" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1a1238"/>
+            <stop offset="100%" stop-color="#0d0a1f"/>
+          </linearGradient>
+        </defs>
+        <!-- horizon glow -->
+        <ellipse cx="215" cy="210" rx="200" ry="50" fill="url(#cityGlow)"/>
+        <ellipse cx="215" cy="200" rx="90" ry="18" fill="url(#horizonGlow)" opacity="0.7"/>
+        <!-- city skyline -->
+        <g fill="#120e2a" opacity="0.95">
+          <rect x="40" y="175" width="28" height="70" rx="1"/>
+          <rect x="72" y="155" width="22" height="90" rx="1"/>
+          <rect x="98" y="168" width="18" height="77" rx="1"/>
+          <rect x="120" y="148" width="32" height="97" rx="1"/>
+          <rect x="156" y="162" width="20" height="83" rx="1"/>
+          <rect x="180" y="140" width="26" height="105" rx="1"/>
+          <rect x="210" y="158" width="24" height="87" rx="1"/>
+          <rect x="238" y="145" width="30" height="100" rx="1"/>
+          <rect x="272" y="160" width="18" height="85" rx="1"/>
+          <rect x="294" y="150" width="28" height="95" rx="1"/>
+          <rect x="326" y="165" width="22" height="80" rx="1"/>
+          <rect x="352" y="155" width="26" height="90" rx="1"/>
+          <rect x="382" y="170" width="20" height="75" rx="1"/>
+        </g>
+        <!-- window lights -->
+        <g fill="#ffc878" opacity="0.55">
+          <rect x="46" y="185" width="4" height="4" rx="0.5"/><rect x="54" y="185" width="4" height="4" rx="0.5"/>
+          <rect x="46" y="198" width="4" height="4" rx="0.5"/><rect x="54" y="210" width="4" height="4" rx="0.5"/>
+          <rect x="78" y="165" width="4" height="4" rx="0.5"/><rect x="86" y="178" width="4" height="4" rx="0.5"/>
+          <rect x="78" y="192" width="4" height="4" rx="0.5"/><rect x="126" y="160" width="5" height="5" rx="0.5"/>
+          <rect x="136" y="175" width="5" height="5" rx="0.5"/><rect x="126" y="190" width="5" height="5" rx="0.5"/>
+          <rect x="186" y="155" width="5" height="5" rx="0.5"/><rect x="196" y="170" width="5" height="5" rx="0.5"/>
+          <rect x="186" y="185" width="5" height="5" rx="0.5"/><rect x="244" y="158" width="5" height="5" rx="0.5"/>
+          <rect x="254" y="175" width="5" height="5" rx="0.5"/><rect x="300" y="165" width="5" height="5" rx="0.5"/>
+          <rect x="310" y="180" width="5" height="5" rx="0.5"/><rect x="358" y="168" width="5" height="5" rx="0.5"/>
+          <rect x="368" y="185" width="5" height="5" rx="0.5"/>
+        </g>
+        <!-- ground -->
+        <rect x="0" y="240" width="430" height="80" fill="#0a0820"/>
+        <!-- couple silhouette (left person with backpack, right person) -->
+        <g fill="url(#silBody)">
+          <!-- left person (sitting, backpack) -->
+          <ellipse cx="175" cy="248" rx="18" ry="8"/>
+          <path d="M162 248 C160 230, 165 215, 175 208 C185 215, 190 230, 188 248 Z"/>
+          <circle cx="175" cy="198" r="12"/>
+          <!-- backpack -->
+          <path d="M158 220 C152 218, 150 228, 152 238 C154 242, 160 240, 162 232 Z" opacity="0.9"/>
+          <!-- right person -->
+          <ellipse cx="215" cy="250" rx="16" ry="7"/>
+          <path d="M202 250 C200 232, 205 216, 215 210 C225 216, 230 232, 228 250 Z"/>
+          <circle cx="215" cy="200" r="11"/>
+          <!-- hair suggestion on right -->
+          <path d="M205 195 C208 188, 222 188, 225 196 C220 192, 210 192, 205 195 Z" opacity="0.7"/>
+        </g>
+        <!-- soft glow near couple -->
+        <ellipse cx="195" cy="245" rx="50" ry="12" fill="#c33fa0" opacity="0.12"/>
+      </svg>
+    </div>
     <div class="splash-inner">
-      <div class="bokeh" aria-hidden="true">
-        <span style="top:12%;left:10%;animation-delay:0s;">💗</span>
-        <span style="top:20%;right:12%;animation-delay:1.4s;">✨</span>
-        <span style="bottom:32%;left:8%;animation-delay:2.6s;">💙</span>
-        <span style="bottom:24%;right:10%;animation-delay:0.8s;">✨</span>
-        <span style="top:45%;left:20%;animation-delay:2s;">💗</span>
-      </div>
-      <div></div>
       <div class="brand">
-        <svg class="logo-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="heartBlue" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#6fc3ff"/><stop offset="100%" stop-color="#4a7dfe"/>
-            </linearGradient>
-            <linearGradient id="heartPink" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#ff9ac4"/><stop offset="100%" stop-color="#ff5da2"/>
-            </linearGradient>
-          </defs>
-          <path transform="translate(6,10) scale(0.85)" fill="url(#heartBlue)" opacity="0.95"
-            d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
-          <path transform="translate(-6,20) scale(0.85)" fill="url(#heartPink)" opacity="0.95"
-            d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
-        </svg>
-        <div class="wordmark">DUOZY</div>
+        <div class="wordmark">Du<span class="wm-heart"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="splashHeartGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6fc3ff"/><stop offset="50%" stop-color="#a884ff"/><stop offset="100%" stop-color="#ff6fa5"/></linearGradient></defs><path fill="url(#splashHeartGrad)" d="M20 36C20 36 4 24 4 13C4 7 9 3 14 3C17 3 20 5 20 5C20 5 23 3 26 3C31 3 36 7 36 13C36 24 20 36 20 36Z"/></svg></span>zy</div>
         <div class="tagline">Easy to Meet, Easy to Chat,<br>Easy to Play.</div>
       </div>
       <div class="loading">
         <div class="bar-track"><div class="bar-fill"></div></div>
         <div class="loading-label">Memuat...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= ONBOARDING ================= -->
+  <div id="view-onboarding" class="view">
+    <div class="ob-inner">
+      <div class="ob-bubbles">
+        <div class="ob-bubble b1">💬</div>
+        <div class="ob-bubble b2">💗</div>
+      </div>
+      <h1 class="ob-title">Temukan Teman Baru</h1>
+      <p class="ob-sub">Kenalan, ngobrol, dan bangun pertemuan dengan orang baru dari seluruh Indonesia.</p>
+      <button class="ob-btn clickable" onclick="selesaiOnboarding()">Mulai</button>
+      <div class="ob-dots"><span class="on"></span><span></span><span></span></div>
     </div>
   </div>
 
@@ -891,49 +1066,79 @@
     <div class="header">
       <div class="header-top">
         <div class="brand-mini">
-          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <path fill="#6fc3ff" opacity="0.95" d="M50 88C50 88 10 62 10 34C10 18 22 8 36 8C44 8 50 14 50 14C50 14 56 8 64 8C78 8 90 18 90 34C90 62 50 88 50 88Z"/>
+          <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="hmHeart" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#6fc3ff"/><stop offset="100%" stop-color="#ff6fa5"/></linearGradient></defs>
+            <path fill="url(#hmHeart)" d="M20 36C20 36 4 24 4 13C4 7 9 3 14 3C17 3 20 5 20 5C20 5 23 3 26 3C31 3 36 7 36 13C36 24 20 36 20 36Z"/>
           </svg>
-          DUOZY
+          Duozy
         </div>
         <div class="header-icons">
-          <div class="icon-btn">🔍</div>
+          <div class="icon-btn clickable" onclick="showView('temanBaru')">🔍</div>
           <div class="icon-btn clickable" onclick="bukaNotifikasi()">🔔<span class="dot-badge" id="notifBadge" style="display:none;"></span></div>
-          <div class="avatar-tiny clickable" onclick="showView('profil')"></div>
         </div>
-      </div>
-      <div class="welcome-card">
-        <h1>Selamat datang di Duozy!</h1>
-        <p>Temukan pasangan, teman baru, atau main game bareng.</p>
       </div>
     </div>
 
-    <div class="content">
+    <div class="home-promo clickable" onclick="showView('temanBaru')">
+      <div class="home-promo-text">
+        <h2>Mau cari teman baru? Yuk mulai!</h2>
+        <p>Temukan teman ngobrol &amp; main bareng dari seluruh Indonesia.</p>
+        <button class="home-promo-btn" type="button">Cari Sekarang</button>
+      </div>
+      <div class="home-promo-art">🧑‍🤝‍🧑</div>
+    </div>
+
+    <div class="feature-cards">
+      <div class="feature-card clickable" style="background:linear-gradient(145deg,#ff6fa5,#ff4d7e);" onclick="showView('dating')">
+        <div class="fc-icon">💕</div>
+        <p class="fc-title">Dating</p>
+        <p class="fc-desc">Cari pasangan</p>
+      </div>
+      <div class="feature-card clickable" style="background:linear-gradient(145deg,#3fd695,#2bb87a);" onclick="showView('temanBaru')">
+        <div class="fc-icon">👋</div>
+        <p class="fc-title">Cari Teman</p>
+        <p class="fc-desc">Temukan teman baru</p>
+      </div>
+      <div class="feature-card clickable" style="background:linear-gradient(145deg,#7b5cff,#6a3dd8);" onclick="showView('soulGame')">
+        <div class="fc-icon">🎮</div>
+        <p class="fc-title">Meet &amp; Play</p>
+        <p class="fc-desc">Main bareng yuk</p>
+      </div>
+    </div>
+
+    <div class="content" style="padding-top:8px;">
       <div id="checkinCard" style="background:var(--surface);border:1px solid var(--card-line);border-radius:16px;padding:14px;margin-bottom:18px;">
         <p style="text-align:center;color:var(--text-muted);font-size:12px;">Memuat status check-in...</p>
       </div>
 
-      <div class="feature-cards">
-        <div class="feature-card clickable" style="background:linear-gradient(135deg,#ff8fb3,#ff5da2);" onclick="showView('dating')">
-          <div class="fc-icon">💘</div>
-          <p class="fc-title">Dating</p>
-          <p class="fc-desc">Cari pasangan</p>
+      <div class="section">
+        <div class="section-head">
+          <h2>Game Populer</h2>
+          <span class="see-all clickable" onclick="showView('game')">Lihat Semua</span>
         </div>
-        <div class="feature-card clickable" style="background:linear-gradient(135deg,#ffd08a,#ff9d5c);" onclick="showView('couple')">
-          <div class="fc-icon">❤️</div>
-          <p class="fc-title">Couple</p>
-          <p class="fc-desc">Seru bareng dia</p>
-        </div>
-        <div class="feature-card clickable" style="background:linear-gradient(135deg,#7fd4ff,#4a7dfe);" onclick="showView('ruangObrolan')">
-          <div class="fc-icon">💬</div>
-          <p class="fc-title">Ruang Obrolan</p>
-          <p class="fc-desc">Ngobrol rame-rame</p>
+        <div class="game-row">
+          <div class="game-card clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')">
+            <div class="game-thumb gt-1">🎲</div>
+            <div class="game-info"><p>Ludo</p><small>2-4 pemain</small></div>
+          </div>
+          <div class="game-card clickable" onclick="showView('ularTanggaMulai')">
+            <div class="game-thumb gt-2">🐍</div>
+            <div class="game-info"><p>Ular Tangga</p><small>2-4 pemain</small></div>
+          </div>
+          <div class="game-card clickable" onclick="showView('game')">
+            <div class="game-thumb gt-3">🃏</div>
+            <div class="game-info"><p>Uno</p><small>Segera hadir</small></div>
+          </div>
+          <div class="game-card clickable" onclick="showView('game')">
+            <div class="game-thumb gt-4">🏠</div>
+            <div class="game-info"><p>Monopoli</p><small>Segera hadir</small></div>
+          </div>
         </div>
       </div>
 
-      <div class="section" style="margin-top:26px;">
+      <div class="section">
         <div class="section-head">
-          <h2>Orang yang sedang online</h2>
+          <h2>Teman Terdekat</h2>
           <span class="online-count" id="onlineCountText">0 online</span>
         </div>
         <div class="online-row" id="onlineRowContainer">
@@ -1004,25 +1209,29 @@
 
   <!-- ================= DATING ================= -->
   <div id="view-dating" class="view">
-    <div class="topbar">
-      <div class="icon-btn clickable" onclick="kembaliApp('home')">←</div>
-      <h1>Dating</h1>
-      <div class="icon-btn">⚙️</div>
+    <div class="topbar" style="background:var(--surface);border-bottom:1px solid var(--card-line);padding:14px 18px 12px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div class="icon-btn clickable" onclick="kembaliApp('home')">←</div>
+        <h1 style="font-size:17px;font-weight:800;">Dating</h1>
+        <div class="icon-btn">⚙️</div>
+      </div>
+      <div class="tabs" id="datingFilterTabs">
+        <div class="tab active clickable" data-dating-filter="semua" onclick="setDatingFilter('semua')">Semua</div>
+        <div class="tab clickable" data-dating-filter="laki" onclick="setDatingFilter('laki')">Laki-laki</div>
+        <div class="tab clickable" data-dating-filter="perempuan" onclick="setDatingFilter('perempuan')">Perempuan</div>
+      </div>
     </div>
     <div class="content">
       <div style="text-align:center;margin-bottom:12px;">
         <span id="superlikeBadge" style="display:inline-block;background:linear-gradient(135deg,#7fd4ff,#4a7dfe);color:#fff;font-size:11px;font-weight:700;padding:6px 14px;border-radius:12px;">⭐ Super Like: — hari ini</span>
       </div>
-      <div id="datingSwipeContainer">
+      <div id="datingSwipeContainer" style="display:none;">
         <div class="swipe-card">
           <div class="swipe-photo">🧑‍🤝‍🧑</div>
           <div class="swipe-info"><h2>Memuat rekomendasi...</h2></div>
         </div>
       </div>
 
-      <div class="section-head">
-        <h2>Orang yang mungkin kamu suka</h2>
-      </div>
       <div class="grid-2" id="datingGridContainer"></div>
     </div>
   </div>
@@ -1089,6 +1298,19 @@
     <div class="topbar">
       <div class="topbar-row">
         <h1>Chat</h1>
+        <div class="icon-btn clickable" onclick="showView('pilihTeman')" style="font-size:18px;">✏️</div>
+      </div>
+      <div style="padding:0 0 12px;">
+        <div style="position:relative;">
+          <span style="position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:0.6;">🔍</span>
+          <input type="text" id="chatSearchInput" placeholder="Cari teman..." oninput="saringDaftarChat()"
+            style="width:100%;padding:11px 14px 11px 40px;border-radius:14px;border:1px solid var(--card-line);background:var(--bg-app);font-size:13px;outline:none;color:var(--text-dark);">
+        </div>
+      </div>
+      <div class="tabs" id="chatFilterTabs">
+        <div class="tab active clickable" data-chat-filter="semua" onclick="setChatFilter('semua')">Semua</div>
+        <div class="tab clickable" data-chat-filter="teman" onclick="setChatFilter('teman')">Teman</div>
+        <div class="tab clickable" data-chat-filter="dating" onclick="setChatFilter('dating')">Dating</div>
       </div>
     </div>
     <div class="content" id="chatListContainer">
@@ -1206,17 +1428,52 @@
     <div class="topbar">
       <div class="topbar-row">
         <h1>Game</h1>
+        <div class="icon-btn">⋯</div>
+      </div>
+      <div class="tabs" style="margin-bottom:4px;">
+        <div class="tab active">Semua</div>
+        <div class="tab">Favorit</div>
+        <div class="tab">Multiplayer</div>
       </div>
     </div>
     <div class="content">
-      <div class="banner clickable" onclick="showView('soulGame')" style="cursor:pointer;background:linear-gradient(120deg,var(--navy-deep),var(--violet-mid) 70%,var(--pink-glow) 140%);">
-        <div class="banner-text"><p class="big">💫 Duozy Match</p><p class="small">Temukan teman ngobrol baru!</p></div>
-        <div class="banner-icon">🎭</div>
+      <div class="banner clickable" onclick="showView('soulGame')" style="cursor:pointer;background:linear-gradient(120deg,#2a1a5c,var(--violet-mid) 60%,var(--pink-glow) 140%);">
+        <div class="banner-text">
+          <p class="big">Main Bareng, Chat, dan Jadi Lebih Dekat</p>
+          <p class="small">Temukan teman main &amp; ngobrol di Duozy Match</p>
+        </div>
+        <div class="banner-icon">🎮</div>
       </div>
 
-      <div class="banner clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')" style="cursor:pointer;background:linear-gradient(120deg,#3d7de0,#21a179 140%);">
-        <div class="banner-text"><p class="big">🎲 Ludo</p><p class="small">Main sendiri, bareng bot, atau gantian sama teman!</p></div>
-        <div class="banner-icon">🏠</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;">
+          <div style="height:90px;background:linear-gradient(135deg,#ffd08a,#ff9d5c);display:flex;align-items:center;justify-content:center;font-size:40px;">🎲</div>
+          <div style="padding:12px 12px 14px;">
+            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Ludo</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">2-4 pemain</p>
+          </div>
+        </div>
+        <div class="clickable" onclick="showView('ularTanggaMulai')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;">
+          <div style="height:90px;background:linear-gradient(135deg,#8bf0c0,#3fd695);display:flex;align-items:center;justify-content:center;font-size:40px;">🐍</div>
+          <div style="padding:12px 12px 14px;">
+            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Ular Tangga</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">2-4 pemain</p>
+          </div>
+        </div>
+        <div class="clickable" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;opacity:0.75;">
+          <div style="height:90px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;font-size:40px;">🃏</div>
+          <div style="padding:12px 12px 14px;">
+            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Uno</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">Segera hadir</p>
+          </div>
+        </div>
+        <div class="clickable" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;opacity:0.75;">
+          <div style="height:90px;background:linear-gradient(135deg,#7fd4ff,#4a7dfe);display:flex;align-items:center;justify-content:center;font-size:40px;">🏠</div>
+          <div style="padding:12px 12px 14px;">
+            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Monopoli</p>
+            <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">Segera hadir</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1423,9 +1680,9 @@
         </div>
 
         <div class="stats-row">
-          <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Momen</p></div>
-          <div class="stat" style="display:none;"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
-          <div class="stat" style="display:none;"><p class="num" id="statPengikut">0</p><p class="label">Pengikut</p></div>
+          <div class="stat"><p class="num" id="statTeman">0</p><p class="label">Teman</p></div>
+          <div class="stat"><p class="num" id="statPengikut">0</p><p class="label">Match</p></div>
+          <div class="stat"><p class="num" id="statMomen">0</p><p class="label">Game</p></div>
         </div>
 
         <div class="level-card" style="display:none;">
@@ -1433,18 +1690,18 @@
           <div class="level-bar-track"><div class="level-bar-fill" id="levelBarFill" style="width:0%"></div></div>
         </div>
 
-        <button class="edit-btn" onclick="bukaEditProfil()" data-i18n="btn_edit_profil">Edit Profil</button>
-
         <p class="section-title" data-i18n="favorit_saya">Favorit Saya</p>
         <div class="tag-row" id="favoritRow">
           <span style="color:var(--text-muted);background:transparent;border:none;" data-i18n="belum_ada_favorit">Belum ada favorit</span>
         </div>
 
         <div class="plist">
+          <div class="prow clickable" onclick="bukaEditProfil()"><div class="m-icon">✏️</div><div class="m-label" data-i18n="btn_edit_profil">Edit Profil</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="showView('pengaturan')"><div class="m-icon">⚙️</div><div class="m-label" data-i18n="pengaturan">Pengaturan</div><div class="m-arrow">›</div></div>
+          <div class="prow clickable" onclick="bukaNotifikasi()"><div class="m-icon">🔔</div><div class="m-label">Notifikasi</div><div class="m-arrow">›</div></div>
           <div class="prow clickable" onclick="showView('momen')"><div class="m-icon">📸</div><div class="m-label" data-i18n="momen_saya">Momen Saya</div><div class="m-arrow">›</div></div>
           <div class="prow clickable" onclick="showView('couple')"><div class="m-icon">💗</div><div class="m-label" data-i18n="couple_saya">Couple Saya</div><div class="m-arrow">›</div></div>
-          <div class="prow clickable" onclick="showView('pengaturan')"><div class="m-icon">⚙️</div><div class="m-label" data-i18n="pengaturan">Pengaturan</div><div class="m-arrow">›</div></div>
-          <div class="prow"><div class="m-icon">❓</div><div class="m-label" data-i18n="bantuan_faq">Bantuan &amp; FAQ</div><div class="m-arrow">›</div></div>
+          <div class="prow"><div class="m-icon">❓</div><div class="m-label" data-i18n="bantuan_faq">Bantuan</div><div class="m-arrow">›</div></div>
           <div class="prow danger clickable" onclick="handleLogout()"><div class="m-icon">🚪</div><div class="m-label" data-i18n="keluar">Keluar</div><div class="m-arrow">›</div></div>
         </div>
       </div>
@@ -1631,7 +1888,6 @@
   <!-- ================= BOTTOM NAV (shared) ================= -->
   <div class="bottom-nav" id="bottomNav">
     <div class="nav-item" data-view="home" onclick="showView('home')"><div class="nav-icon">🏠</div><span data-i18n="nav_beranda">Beranda</span></div>
-    <div class="nav-item" data-view="momen" onclick="showView('momen')"><div class="nav-icon">📸</div><span data-i18n="nav_momen">Momen</span></div>
     <div class="nav-item" data-view="chat" onclick="showView('chat')"><div class="nav-icon" style="position:relative;">💬<span class="dot-badge" id="chatNavBadge" style="display:none;"></span></div><span data-i18n="nav_chat">Chat</span></div>
     <div class="nav-item" data-view="game" onclick="showView('game')"><div class="nav-icon">🎮</div><span data-i18n="nav_game">Game</span></div>
     <div class="nav-item" data-view="profil" onclick="showView('profil')"><div class="nav-icon">👤</div><span data-i18n="nav_profil">Profil</span></div>
@@ -1686,7 +1942,47 @@
 
 <script>
   var mainTabs = ['home','momen','chat','game','profil'];
-  var authViews = ['splash','login','register'];
+  var authViews = ['splash','login','register','onboarding'];
+
+  var chatFilterAktif = 'semua';
+  var datingFilterAktif = 'semua';
+
+  function setChatFilter(f){
+    chatFilterAktif = f || 'semua';
+    document.querySelectorAll('#chatFilterTabs .tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-chat-filter') === chatFilterAktif);
+    });
+    saringDaftarChat();
+  }
+  function saringDaftarChat(){
+    var q = ((document.getElementById('chatSearchInput') || {}).value || '').trim().toLowerCase();
+    var rows = document.querySelectorAll('#chatListContainer .chat-row');
+    rows.forEach(function(row){
+      var name = (row.getAttribute('data-name') || row.querySelector('.name') && row.querySelector('.name').textContent || '').toLowerCase();
+      var jenis = (row.getAttribute('data-jenis') || 'teman').toLowerCase();
+      var matchQ = !q || name.indexOf(q) !== -1;
+      var matchF = chatFilterAktif === 'semua' || jenis === chatFilterAktif || (chatFilterAktif === 'teman' && jenis !== 'dating');
+      row.style.display = (matchQ && matchF) ? '' : 'none';
+    });
+  }
+  function setDatingFilter(f){
+    datingFilterAktif = f || 'semua';
+    document.querySelectorAll('#datingFilterTabs .tab').forEach(function(t){
+      t.classList.toggle('active', t.getAttribute('data-dating-filter') === datingFilterAktif);
+    });
+    var cards = document.querySelectorAll('#datingGridContainer .rec-card, #datingGridContainer [data-gender]');
+    cards.forEach(function(c){
+      var g = (c.getAttribute('data-gender') || '').toLowerCase();
+      var show = datingFilterAktif === 'semua'
+        || (datingFilterAktif === 'laki' && (g === 'laki' || g === 'laki-laki' || g === 'male' || g === 'l'))
+        || (datingFilterAktif === 'perempuan' && (g === 'perempuan' || g === 'female' || g === 'p'));
+      c.style.display = show ? '' : 'none';
+    });
+  }
+  function selesaiOnboarding(){
+    try{ localStorage.setItem('duozy_onboarding_done', '1'); }catch(e){}
+    showView('login');
+  }
   var fullscreenViews = ['pilihTeman','chatDetail','ularTanggaBoard','soulGame','pengaturan','ruangObrolanChat']; // halaman tanpa bottom nav, header sendiri
   var currentViewName = null; // nama view yang lagi aktif sekarang
   var historyBaselineSet = false; // sudah pernah catat titik awal (Home) di riwayat browser?
@@ -3678,7 +3974,7 @@
 
   // ================= TEMA & BAHASA =================
 
-  var temaAktif = localStorage.getItem('tema') || 'terang';
+  var temaAktif = localStorage.getItem('tema') || 'gelap';
   var bahasaAktif = localStorage.getItem('bahasa') || 'id';
 
   function terapkanTema(tema){
@@ -5688,7 +5984,9 @@ var daftarAvatarPreset = [
       mintaIzinNotifikasiBrowser();
       showView('home');
     } else {
-      showView('login');
+      var sudahOnboarding = false;
+      try{ sudahOnboarding = localStorage.getItem('duozy_onboarding_done') === '1'; }catch(e){}
+      showView(sudahOnboarding ? 'login' : 'onboarding');
     }
   }
 
