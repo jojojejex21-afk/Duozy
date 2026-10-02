@@ -6,10 +6,17 @@
 <title>Duozy</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4a2a86">
+<meta name="description" content="Easy to Meet, Easy to Chat, Easy to Play. Sosial, chat, cari teman, dan main game dalam satu aplikasi.">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Duozy">
+<meta name="application-name" content="Duozy">
 <style>
   :root{
     --navy-deep:#131240;
@@ -29,11 +36,11 @@
 
   /* Default mengikuti mockup gelap; tema terang tetap bisa diaktifkan dari Pengaturan */
   :root, :root[data-theme="dark"]{
-    --bg-app:#0f0d24;
-    --text-dark:#f0eefc;
-    --text-muted:#a9a4c9;
-    --card-line:#2a2750;
-    --surface:#1a1740;
+    --bg-app:#0b091c;
+    --text-dark:#f4f2ff;
+    --text-muted:#9b96b8;
+    --card-line:#252245;
+    --surface:#151230;
     color-scheme:dark;
   }
   :root[data-theme="light"]{
@@ -258,24 +265,25 @@
     flex-direction:column;
     align-items:center;
     justify-content:flex-start;
-    padding:18vh 28px 0;
+    padding:16vh 28px 0;
     position:relative;
     z-index:2;
   }
-  .brand{ display:flex; flex-direction:column; align-items:center; gap:14px; position:relative; z-index:3; }
+  .brand{ display:flex; flex-direction:column; align-items:center; gap:12px; position:relative; z-index:3; }
   .logo-mark{ width:72px; height:72px; filter:drop-shadow(0 4px 16px rgba(255,111,165,0.4)); }
   .wordmark{
-    font-size:42px; font-weight:800; letter-spacing:0.5px; color:#fff;
+    font-size:48px; font-weight:800; letter-spacing:0.5px; color:#fff;
     display:inline-flex; align-items:center; gap:0;
-    text-shadow:0 2px 20px rgba(106,61,216,0.5);
+    text-shadow:0 4px 28px rgba(106,61,216,0.55);
   }
   .wordmark .wm-heart{
-    display:inline-flex; width:30px; height:30px; margin:0 -1px 2px;
+    display:inline-flex; width:34px; height:34px; margin:0 -2px 3px;
     vertical-align:middle; flex-shrink:0;
+    filter:drop-shadow(0 2px 10px rgba(255,111,165,0.55));
   }
   .wordmark .wm-heart svg{ width:100%; height:100%; }
-  .tagline{ font-size:14px; color:#c9c3e8; text-align:center; line-height:1.65; max-width:240px; opacity:0.9; }
-  .loading{ width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:auto; padding-bottom:28px; position:relative; z-index:3; }
+  .tagline{ font-size:14.5px; color:#d4cff0; text-align:center; line-height:1.7; max-width:250px; opacity:0.95; }
+  .loading{ width:100%; display:flex; flex-direction:column; align-items:center; gap:10px; margin-top:auto; padding-bottom:24px; position:relative; z-index:3; }
   .bar-track{ width:56%; height:4px; border-radius:4px; background:rgba(255,255,255,0.12); overflow:hidden; position:relative; }
   .bar-fill{ height:100%; width:40%; border-radius:4px; background:linear-gradient(90deg, var(--heart-blue), var(--heart-pink)); animation:loadbar 1.6s ease-in-out infinite; position:absolute; left:0; top:0; }
   @keyframes loadbar{ 0%{ transform:translateX(-100%); } 100%{ transform:translateX(250%); } }
@@ -328,14 +336,17 @@
 
   .bottom-nav{
     position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:430px; background:var(--surface); border-top:1px solid var(--card-line);
-    display:none; justify-content:space-around; padding:10px 0 14px; z-index:50;
+    width:100%; max-width:430px; background:rgba(15,13,36,0.96);
+    border-top:1px solid rgba(255,255,255,0.06);
+    display:none; justify-content:space-around; padding:10px 0 16px; z-index:50;
+    backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
   }
   .bottom-nav.show{ display:flex; }
-  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:10.5px; color:var(--text-muted); font-weight:600; }
-  .nav-item.active{ color:var(--purple-brand); }
-  .nav-icon{ font-size:19px; }
-  #chatNavBadge{ border-color:#fff; }
+  .nav-item{ display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; color:#7a7599; font-weight:600; }
+  .nav-item.active{ color:#a884ff; }
+  .nav-item.active .nav-icon{ filter:none; }
+  .nav-icon{ font-size:20px; line-height:1; }
+  #chatNavBadge{ border-color:#0f0d24; }
 
   /* ================= HOME (mockup gelap) ================= */
   #view-home{ background:var(--bg-app); }
@@ -358,28 +369,40 @@
   .avatar-tiny{ width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,#ffb2d9,#a884ff); }
 
   .home-promo{
-    margin:8px 18px 16px; border-radius:20px; padding:18px 16px;
-    background:linear-gradient(135deg,#3d2a8a 0%, #6a3dd8 45%, #c33fa0 130%);
-    display:flex; align-items:center; gap:12px; color:#fff; overflow:hidden; position:relative;
+    margin:10px 16px 18px; border-radius:22px; padding:20px 18px;
+    background:linear-gradient(125deg,#5b3fd4 0%, #7b4dff 40%, #c44dff 100%);
+    display:flex; align-items:center; gap:10px; color:#fff; overflow:hidden; position:relative;
+    box-shadow:0 12px 28px rgba(91,63,212,0.35);
   }
   .home-promo-text{ flex:1; min-width:0; }
-  .home-promo-text h2{ font-size:15px; font-weight:800; margin-bottom:6px; line-height:1.35; }
-  .home-promo-text p{ font-size:11.5px; color:#e8e0ff; opacity:0.9; margin-bottom:12px; }
+  .home-promo-text h2{ font-size:16px; font-weight:800; margin-bottom:6px; line-height:1.3; }
+  .home-promo-text p{ font-size:12px; color:#f0e9ff; opacity:0.92; margin-bottom:14px; line-height:1.45; }
   .home-promo-btn{
-    display:inline-block; border:none; padding:8px 16px; border-radius:12px;
-    background:#fff; color:#5a2fc7; font-size:12px; font-weight:800;
+    display:inline-block; border:none; padding:9px 18px; border-radius:14px;
+    background:#fff; color:#5b3fd4; font-size:12.5px; font-weight:800;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
   }
-  .home-promo-art{ font-size:48px; flex-shrink:0; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.25)); }
+  .home-promo-art{
+    width:88px; height:88px; flex-shrink:0; border-radius:18px;
+    background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center;
+    font-size:42px; backdrop-filter:blur(6px);
+  }
 
-  .feature-cards{ display:flex; gap:10px; margin:0 18px; }
+  .feature-cards{ display:flex; gap:12px; margin:0 16px; }
   .feature-card{
-    flex:1; border-radius:18px; padding:16px 8px 14px;
-    display:flex; flex-direction:column; align-items:center; gap:5px;
-    text-align:center; color:#fff; box-shadow:0 8px 18px rgba(0,0,0,0.22);
+    flex:1; border-radius:20px; padding:18px 10px 14px;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    text-align:center; color:#fff;
+    box-shadow:0 10px 24px rgba(0,0,0,0.28);
+    min-height:110px; justify-content:center;
   }
-  .feature-card .fc-icon{ font-size:26px; }
-  .feature-card .fc-title{ font-size:12px; font-weight:800; }
-  .feature-card .fc-desc{ font-size:9.5px; opacity:0.9; line-height:1.3; }
+  .feature-card .fc-icon{
+    width:44px; height:44px; border-radius:14px;
+    background:rgba(255,255,255,0.22); display:flex; align-items:center; justify-content:center;
+    font-size:22px;
+  }
+  .feature-card .fc-title{ font-size:13px; font-weight:800; letter-spacing:0.2px; }
+  .feature-card .fc-desc{ font-size:10px; opacity:0.9; line-height:1.3; }
   .menu-icon{ width:52px; height:52px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:22px; }
 
   .online-count{ font-size:11.5px; color:var(--text-muted); font-weight:500; }
@@ -390,17 +413,21 @@
   .online-person span{ font-size:11px; color:var(--text-dark); font-weight:600; }
   .online-person small{ font-size:9.5px; color:var(--text-muted); }
 
-  .game-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:4px; }
+  .game-row{ display:flex; gap:12px; overflow-x:auto; padding-bottom:6px; }
   .game-row::-webkit-scrollbar{ display:none; }
-  .game-card{ flex-shrink:0; width:110px; border-radius:16px; overflow:hidden; background:var(--surface); border:1px solid var(--card-line); }
-  .game-thumb{ height:72px; display:flex; align-items:center; justify-content:center; font-size:30px; }
-  .gt-1{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
-  .gt-2{ background:linear-gradient(135deg,#8bf0c0,#3fd695); }
-  .gt-3{ background:linear-gradient(135deg,#c9a4ff,#8a5cf5); }
-  .gt-4{ background:linear-gradient(135deg,#7fd4ff,#4a7dfe); }
-  .game-info{ padding:8px 10px 10px; }
-  .game-info p{ font-size:12px; font-weight:700; color:var(--text-dark); }
-  .game-info small, .game-info p.online{ font-size:10px; color:var(--text-muted); }
+  .game-card{
+    flex-shrink:0; width:118px; border-radius:18px; overflow:hidden;
+    background:var(--surface); border:1px solid var(--card-line);
+    box-shadow:0 6px 16px rgba(0,0,0,0.2);
+  }
+  .game-thumb{ height:82px; display:flex; align-items:center; justify-content:center; font-size:34px; }
+  .gt-1{ background:linear-gradient(160deg,#ffc56e,#ff8f4a); }
+  .gt-2{ background:linear-gradient(160deg,#7af0b8,#2ed67a); }
+  .gt-3{ background:linear-gradient(160deg,#d4a8ff,#8a5cf5); }
+  .gt-4{ background:linear-gradient(160deg,#7fd4ff,#4a7dfe); }
+  .game-info{ padding:10px 12px 12px; }
+  .game-info p{ font-size:12.5px; font-weight:800; color:var(--text-dark); }
+  .game-info small, .game-info p.online{ font-size:10.5px; color:var(--text-muted); }
 
   /* Onboarding */
   #view-onboarding{
@@ -414,23 +441,23 @@
     min-height:100vh; min-height:100dvh; display:flex; flex-direction:column;
     align-items:center; justify-content:center; padding:40px 28px 48px; text-align:center; color:#fff;
   }
-  .ob-bubbles{ display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:36px; }
+  .ob-bubbles{ display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:40px; }
   .ob-bubble{
-    width:72px; height:72px; border-radius:22px; display:flex; align-items:center; justify-content:center;
-    font-size:32px; box-shadow:0 10px 28px rgba(0,0,0,0.3);
+    width:78px; height:78px; border-radius:24px; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 14px 32px rgba(0,0,0,0.35);
   }
-  .ob-bubble.b1{ background:linear-gradient(135deg,#4facfe,#6a3dd8); transform:rotate(-8deg); z-index:1; }
-  .ob-bubble.b2{ background:linear-gradient(135deg,#ff6fa5,#c33fa0); transform:rotate(8deg) translateY(8px); margin-left:-12px; }
-  .ob-title{ font-size:24px; font-weight:800; margin-bottom:12px; }
-  .ob-sub{ font-size:13.5px; color:#c9c3e8; line-height:1.6; max-width:280px; margin-bottom:40px; }
+  .ob-bubble.b1{ background:linear-gradient(145deg,#5bb8ff,#6a3dd8); transform:rotate(-10deg); z-index:2; }
+  .ob-bubble.b2{ background:linear-gradient(145deg,#ff8ec4,#ff4d9a); transform:rotate(10deg) translateY(10px); margin-left:-14px; z-index:1; }
+  .ob-title{ font-size:26px; font-weight:800; margin-bottom:14px; letter-spacing:-0.3px; }
+  .ob-sub{ font-size:14px; color:#c9c3e8; line-height:1.65; max-width:290px; margin-bottom:44px; }
   .ob-btn{
-    width:100%; max-width:280px; padding:15px 0; border:none; border-radius:16px;
-    background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow));
-    color:#fff; font-size:15px; font-weight:800; box-shadow:0 8px 20px rgba(106,61,216,0.4);
+    width:100%; max-width:300px; padding:16px 0; border:none; border-radius:18px;
+    background:linear-gradient(90deg,#6a3dd8,#c33fa0);
+    color:#fff; font-size:16px; font-weight:800; box-shadow:0 10px 28px rgba(106,61,216,0.45);
   }
-  .ob-dots{ display:flex; gap:6px; margin-top:28px; }
-  .ob-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.25); }
-  .ob-dots span.on{ background:#fff; width:20px; border-radius:4px; }
+  .ob-dots{ display:flex; gap:7px; margin-top:30px; align-items:center; }
+  .ob-dots span{ width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,0.22); }
+  .ob-dots span.on{ background:#fff; width:22px; border-radius:5px; }
 
   /* ================= MOMEN ================= */
   #view-momen .content{ padding:0 0 10px; }
@@ -473,31 +500,32 @@
   .btn-view{ background:var(--bg-app); color:var(--purple-brand); flex-basis:100%; }
   .btn-like{ background:linear-gradient(135deg, var(--heart-red), var(--pink-glow)); color:#fff; }
   .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .rec-card{ background:var(--surface); border-radius:16px; overflow:hidden; border:1px solid var(--card-line); }
-  .rec-photo{ height:130px; display:flex; align-items:flex-start; justify-content:flex-end; padding:8px; }
-  .rec-photo .heart{ width:26px; height:26px; border-radius:50%; background:var(--surface); display:flex; align-items:center; justify-content:center; font-size:13px; color:var(--heart-red); }
+  .rec-card{ background:var(--surface); border-radius:18px; overflow:hidden; border:1px solid var(--card-line); box-shadow:0 6px 16px rgba(0,0,0,0.18); }
+  .rec-photo{ height:150px; display:flex; align-items:flex-start; justify-content:flex-end; padding:10px; position:relative; background-size:cover; background-position:center; }
+  .rec-photo .heart{ width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,0.95); display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--heart-red); box-shadow:0 2px 8px rgba(0,0,0,0.2); }
   .rp-1{ background:linear-gradient(160deg,#ffb199,#ff5da2); }
   .rp-2{ background:linear-gradient(160deg,#7fd4ff,#4a7dfe); }
-  .rec-info{ padding:10px 12px 12px; }
-  .rec-info p.name{ font-size:13.5px; font-weight:700; color:var(--text-dark); }
+  .rec-info{ padding:12px 12px 14px; }
+  .rec-info p.name{ font-size:14px; font-weight:800; color:var(--text-dark); }
   .rec-info p.loc{ font-size:11px; color:var(--text-muted); margin-bottom:4px; }
   .rec-info .match{ font-size:11px; color:var(--heart-red); font-weight:600; margin-bottom:6px; }
-  .rec-tags{ display:flex; gap:5px; margin-bottom:10px; }
-  .rec-tags span{ font-size:9.5px; background:var(--bg-app); color:var(--purple-brand); padding:3px 7px; border-radius:8px; font-weight:600; }
-  .rec-btn{ width:100%; border:none; padding:8px 0; border-radius:10px; background:var(--purple-brand); color:#fff; font-size:11.5px; font-weight:700; }
+  .rec-tags{ display:flex; gap:5px; margin-bottom:10px; flex-wrap:wrap; }
+  .rec-tags span{ font-size:10px; background:var(--bg-app); color:var(--purple-brand); padding:4px 8px; border-radius:8px; font-weight:600; }
+  .rec-btn{ width:100%; border:none; padding:9px 0; border-radius:12px; background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow)); color:#fff; font-size:12px; font-weight:700; }
 
   /* ================= CHAT ================= */
   #view-chat .content{ padding:0; }
-  .chat-row{ display:flex; align-items:center; gap:12px; padding:14px 20px; border-bottom:1px solid var(--card-line); background:var(--surface); }
-  .chat-avatar{ width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; }
+  .chat-row{ display:flex; align-items:center; gap:14px; padding:14px 18px; border-bottom:1px solid var(--card-line); background:transparent; }
+  .chat-row:active{ background:rgba(106,61,216,0.08); }
+  .chat-avatar{ width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#d9d4ff,#a884ff); flex-shrink:0; background-size:cover; background-position:center; }
   .chat-avatar.group{ background:linear-gradient(135deg,#ffd08a,#ff9d5c); }
   .chat-main{ flex:1; min-width:0; }
-  .chat-main .row1{ display:flex; justify-content:space-between; margin-bottom:3px; }
-  .chat-main .name{ font-size:14px; font-weight:700; color:var(--text-dark); }
+  .chat-main .row1{ display:flex; justify-content:space-between; margin-bottom:4px; }
+  .chat-main .name{ font-size:14.5px; font-weight:700; color:var(--text-dark); }
   .chat-main .time{ font-size:11px; color:var(--text-muted); }
   .chat-main .row2{ display:flex; justify-content:space-between; align-items:center; }
   .chat-main .preview{ font-size:12.5px; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:220px; }
-  .unread-badge{ background:var(--unread); color:#fff; font-size:10.5px; font-weight:700; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 5px; }
+  .unread-badge{ background:linear-gradient(135deg,var(--purple-brand),var(--pink-glow)); color:#fff; font-size:10.5px; font-weight:700; min-width:20px; height:20px; border-radius:10px; display:flex; align-items:center; justify-content:center; padding:0 6px; }
   .section-label{ font-size:11.5px; font-weight:700; color:var(--text-muted); padding:14px 20px 6px; background:var(--bg-app); }
   .fab-chat{ position:absolute; bottom:88px; right:20px; width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg, var(--purple-brand), var(--pink-glow)); color:#fff; border:none; font-size:20px; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(106,61,216,0.35); z-index:40; }
 
@@ -538,11 +566,11 @@
   #view-profil{ padding-bottom:78px; }
   #view-profil .content{ padding-top:0; }
   .pf-banner{
-    background:linear-gradient(120deg, var(--navy-deep), var(--violet-mid) 65%, var(--pink-glow) 140%);
-    padding:18px 20px 46px; position:relative;
+    background:linear-gradient(135deg, #1a1440 0%, #4a2a86 55%, #c33fa0 130%);
+    padding:18px 20px 52px; position:relative;
   }
   .pf-banner .pf-topbar{ display:flex; align-items:center; justify-content:space-between; }
-  .pf-banner .pf-topbar h1{ color:#fff; font-size:16px; font-weight:800; }
+  .pf-banner .pf-topbar h1{ color:#fff; font-size:17px; font-weight:800; }
   .pf-banner .icon-btn{ background:rgba(255,255,255,0.16); border:none; color:#fff; }
 
   .pf-avatar-wrap{ position:relative; margin:-40px 0 0 20px; width:84px; }
@@ -939,25 +967,26 @@
           <rect x="310" y="180" width="5" height="5" rx="0.5"/><rect x="358" y="168" width="5" height="5" rx="0.5"/>
           <rect x="368" y="185" width="5" height="5" rx="0.5"/>
         </g>
-        <!-- ground -->
-        <rect x="0" y="240" width="430" height="80" fill="#0a0820"/>
-        <!-- couple silhouette (left person with backpack, right person) -->
-        <g fill="url(#silBody)">
-          <!-- left person (sitting, backpack) -->
-          <ellipse cx="175" cy="248" rx="18" ry="8"/>
-          <path d="M162 248 C160 230, 165 215, 175 208 C185 215, 190 230, 188 248 Z"/>
-          <circle cx="175" cy="198" r="12"/>
-          <!-- backpack -->
-          <path d="M158 220 C152 218, 150 228, 152 238 C154 242, 160 240, 162 232 Z" opacity="0.9"/>
-          <!-- right person -->
-          <ellipse cx="215" cy="250" rx="16" ry="7"/>
-          <path d="M202 250 C200 232, 205 216, 215 210 C225 216, 230 232, 228 250 Z"/>
-          <circle cx="215" cy="200" r="11"/>
-          <!-- hair suggestion on right -->
-          <path d="M205 195 C208 188, 222 188, 225 196 C220 192, 210 192, 205 195 Z" opacity="0.7"/>
+        <!-- sun / horizon orb -->
+        <circle cx="215" cy="195" r="28" fill="#ffb070" opacity="0.85"/>
+        <circle cx="215" cy="195" r="42" fill="#ff9a5c" opacity="0.25"/>
+        <!-- ground hill -->
+        <path d="M0 250 Q80 235 150 245 T280 240 T430 255 L430 320 L0 320 Z" fill="#0a0820"/>
+        <path d="M0 255 Q100 242 200 250 T430 260 L430 320 L0 320 Z" fill="#0d0a1c" opacity="0.9"/>
+        <!-- couple silhouette — dua orang duduk memandang kota -->
+        <g fill="#0a0618">
+          <!-- person kiri + backpack -->
+          <ellipse cx="168" cy="268" rx="22" ry="9"/>
+          <path d="M152 268 C148 245 155 225 168 215 C182 225 190 245 186 268 Z"/>
+          <circle cx="168" cy="202" r="14"/>
+          <path d="M150 228 C142 224 138 238 142 252 C146 258 154 254 156 244 Z"/>
+          <!-- person kanan (rambut) -->
+          <ellipse cx="210" cy="270" rx="20" ry="8"/>
+          <path d="M194 270 C190 248 198 228 210 218 C224 228 232 248 228 270 Z"/>
+          <circle cx="210" cy="204" r="13"/>
+          <path d="M198 198 C200 188 220 186 224 200 C218 192 204 192 198 198 Z"/>
         </g>
-        <!-- soft glow near couple -->
-        <ellipse cx="195" cy="245" rx="50" ry="12" fill="#c33fa0" opacity="0.12"/>
+        <ellipse cx="190" cy="272" rx="55" ry="14" fill="#c33fa0" opacity="0.12"/>
       </svg>
     </div>
     <div class="splash-inner">
@@ -976,8 +1005,12 @@
   <div id="view-onboarding" class="view">
     <div class="ob-inner">
       <div class="ob-bubbles">
-        <div class="ob-bubble b1">💬</div>
-        <div class="ob-bubble b2">💗</div>
+        <div class="ob-bubble b1">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" fill="#fff"/><circle cx="8" cy="10" r="1.2" fill="#6a3dd8"/><circle cx="12" cy="10" r="1.2" fill="#6a3dd8"/><circle cx="16" cy="10" r="1.2" fill="#6a3dd8"/></svg>
+        </div>
+        <div class="ob-bubble b2">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-4.5-7-10a4.5 4.5 0 018.2-2.5A4.5 4.5 0 0119 11c0 5.5-7 10-7 10z" fill="#fff" opacity="0.95"/></svg>
+        </div>
       </div>
       <h1 class="ob-title">Temukan Teman Baru</h1>
       <p class="ob-sub">Kenalan, ngobrol, dan bangun pertemuan dengan orang baru dari seluruh Indonesia.</p>
@@ -1085,24 +1118,37 @@
         <p>Temukan teman ngobrol &amp; main bareng dari seluruh Indonesia.</p>
         <button class="home-promo-btn" type="button">Cari Sekarang</button>
       </div>
-      <div class="home-promo-art">🧑‍🤝‍🧑</div>
+      <div class="home-promo-art" style="background:transparent;font-size:0;">
+        <svg width="88" height="88" viewBox="0 0 88 88" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="28" r="12" fill="#ffd4a8"/>
+          <circle cx="58" cy="28" r="12" fill="#f5c6a0"/>
+          <rect x="18" y="42" width="24" height="28" rx="10" fill="#5b8def"/>
+          <rect x="46" y="42" width="24" height="28" rx="10" fill="#ff6fa5"/>
+          <circle cx="30" cy="26" r="3" fill="#3d2a1a" opacity="0.35"/>
+          <circle cx="36" cy="26" r="3" fill="#3d2a1a" opacity="0.35"/>
+          <circle cx="54" cy="26" r="3" fill="#3d2a1a" opacity="0.35"/>
+          <circle cx="60" cy="26" r="3" fill="#3d2a1a" opacity="0.35"/>
+          <path d="M26 32 Q30 36 34 32" stroke="#3d2a1a" stroke-width="1.5" fill="none" opacity="0.4"/>
+          <path d="M54 32 Q58 36 62 32" stroke="#3d2a1a" stroke-width="1.5" fill="none" opacity="0.4"/>
+        </svg>
+      </div>
     </div>
 
     <div class="feature-cards">
-      <div class="feature-card clickable" style="background:linear-gradient(145deg,#ff6fa5,#ff4d7e);" onclick="showView('dating')">
-        <div class="fc-icon">💕</div>
+      <div class="feature-card clickable" style="background:linear-gradient(160deg,#ff7aad,#ff3d7a);" onclick="showView('dating')">
+        <div class="fc-icon">💗</div>
         <p class="fc-title">Dating</p>
         <p class="fc-desc">Cari pasangan</p>
       </div>
-      <div class="feature-card clickable" style="background:linear-gradient(145deg,#3fd695,#2bb87a);" onclick="showView('temanBaru')">
+      <div class="feature-card clickable" style="background:linear-gradient(160deg,#3ee0a0,#1fbf7a);" onclick="showView('temanBaru')">
         <div class="fc-icon">👋</div>
         <p class="fc-title">Cari Teman</p>
-        <p class="fc-desc">Temukan teman baru</p>
+        <p class="fc-desc">Teman baru</p>
       </div>
-      <div class="feature-card clickable" style="background:linear-gradient(145deg,#7b5cff,#6a3dd8);" onclick="showView('soulGame')">
+      <div class="feature-card clickable" style="background:linear-gradient(160deg,#8b6cff,#5b3fd4);" onclick="showView('soulGame')">
         <div class="fc-icon">🎮</div>
         <p class="fc-title">Meet &amp; Play</p>
-        <p class="fc-desc">Main bareng yuk</p>
+        <p class="fc-desc">Main bareng</p>
       </div>
     </div>
 
@@ -1118,19 +1164,27 @@
         </div>
         <div class="game-row">
           <div class="game-card clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')">
-            <div class="game-thumb gt-1">🎲</div>
+            <div class="game-thumb gt-1" style="padding:8px;">
+              <svg width="56" height="56" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#fff"/><rect x="2" y="2" width="24" height="24" rx="3" fill="#e74c3c"/><rect x="30" y="2" width="24" height="24" rx="3" fill="#f1c40f"/><rect x="2" y="30" width="24" height="24" rx="3" fill="#2ecc71"/><rect x="30" y="30" width="24" height="24" rx="3" fill="#3498db"/><circle cx="14" cy="14" r="5" fill="#fff"/><circle cx="42" cy="14" r="5" fill="#fff"/><circle cx="14" cy="42" r="5" fill="#fff"/><circle cx="42" cy="42" r="5" fill="#fff"/></svg>
+            </div>
             <div class="game-info"><p>Ludo</p><small>2-4 pemain</small></div>
           </div>
           <div class="game-card clickable" onclick="showView('ularTanggaMulai')">
-            <div class="game-thumb gt-2">🐍</div>
+            <div class="game-thumb gt-2" style="padding:8px;">
+              <svg width="56" height="56" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#e8fff0"/><path d="M8 40 Q18 20 28 32 T48 12" stroke="#2ed67a" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="48" cy="12" r="5" fill="#27ae60"/><path d="M12 12 L18 28 L14 28 L20 44" stroke="#e67e22" stroke-width="3" fill="none"/><path d="M36 44 L40 28 L38 28 L44 12" stroke="#e67e22" stroke-width="3" fill="none"/></svg>
+            </div>
             <div class="game-info"><p>Ular Tangga</p><small>2-4 pemain</small></div>
           </div>
           <div class="game-card clickable" onclick="showView('game')">
-            <div class="game-thumb gt-3">🃏</div>
+            <div class="game-thumb gt-3" style="padding:8px;">
+              <svg width="56" height="56" viewBox="0 0 56 56"><rect x="8" y="10" width="40" height="36" rx="6" fill="#e74c3c"/><text x="28" y="36" text-anchor="middle" fill="#fff" font-size="16" font-weight="800" font-family="sans-serif">UNO</text></svg>
+            </div>
             <div class="game-info"><p>Uno</p><small>Segera hadir</small></div>
           </div>
           <div class="game-card clickable" onclick="showView('game')">
-            <div class="game-thumb gt-4">🏠</div>
+            <div class="game-thumb gt-4" style="padding:8px;">
+              <svg width="56" height="56" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#1a3a2a"/><rect x="6" y="6" width="44" height="44" rx="4" fill="#2d5a3f" stroke="#c9a227" stroke-width="2"/><circle cx="28" cy="28" r="10" fill="#c9a227"/><text x="28" y="32" text-anchor="middle" fill="#1a3a2a" font-size="10" font-weight="800">M</text></svg>
+            </div>
             <div class="game-info"><p>Monopoli</p><small>Segera hadir</small></div>
           </div>
         </div>
@@ -1445,32 +1499,40 @@
         <div class="banner-icon">🎮</div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;">
-          <div style="height:90px;background:linear-gradient(135deg,#ffd08a,#ff9d5c);display:flex;align-items:center;justify-content:center;font-size:40px;">🎲</div>
-          <div style="padding:12px 12px 14px;">
-            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Ludo</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="clickable" onclick="bukaGameEksternal('games/ludo.html', 'Ludo', '🎲')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:20px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,0.2);">
+          <div style="height:100px;background:linear-gradient(160deg,#ffc56e,#ff8f4a);display:flex;align-items:center;justify-content:center;">
+            <svg width="64" height="64" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#fff"/><rect x="2" y="2" width="24" height="24" rx="3" fill="#e74c3c"/><rect x="30" y="2" width="24" height="24" rx="3" fill="#f1c40f"/><rect x="2" y="30" width="24" height="24" rx="3" fill="#2ecc71"/><rect x="30" y="30" width="24" height="24" rx="3" fill="#3498db"/><circle cx="14" cy="14" r="5" fill="#fff"/><circle cx="42" cy="14" r="5" fill="#fff"/><circle cx="14" cy="42" r="5" fill="#fff"/><circle cx="42" cy="42" r="5" fill="#fff"/></svg>
+          </div>
+          <div style="padding:12px 14px 14px;">
+            <p style="font-size:14px;font-weight:800;color:var(--text-dark);">Ludo</p>
             <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">2-4 pemain</p>
           </div>
         </div>
-        <div class="clickable" onclick="showView('ularTanggaMulai')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;">
-          <div style="height:90px;background:linear-gradient(135deg,#8bf0c0,#3fd695);display:flex;align-items:center;justify-content:center;font-size:40px;">🐍</div>
-          <div style="padding:12px 12px 14px;">
-            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Ular Tangga</p>
+        <div class="clickable" onclick="showView('ularTanggaMulai')" style="background:var(--surface);border:1px solid var(--card-line);border-radius:20px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,0.2);">
+          <div style="height:100px;background:linear-gradient(160deg,#7af0b8,#2ed67a);display:flex;align-items:center;justify-content:center;">
+            <svg width="64" height="64" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#e8fff0"/><path d="M8 40 Q18 20 28 32 T48 12" stroke="#27ae60" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="48" cy="12" r="5" fill="#1e8449"/><path d="M12 12 L18 28 L14 28 L20 44" stroke="#e67e22" stroke-width="3" fill="none"/><path d="M36 44 L40 28 L38 28 L44 12" stroke="#e67e22" stroke-width="3" fill="none"/></svg>
+          </div>
+          <div style="padding:12px 14px 14px;">
+            <p style="font-size:14px;font-weight:800;color:var(--text-dark);">Ular Tangga</p>
             <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">2-4 pemain</p>
           </div>
         </div>
-        <div class="clickable" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;opacity:0.75;">
-          <div style="height:90px;background:linear-gradient(135deg,#ff6b6b,#ee5a24);display:flex;align-items:center;justify-content:center;font-size:40px;">🃏</div>
-          <div style="padding:12px 12px 14px;">
-            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Uno</p>
+        <div style="background:var(--surface);border:1px solid var(--card-line);border-radius:20px;overflow:hidden;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.15);">
+          <div style="height:100px;background:linear-gradient(160deg,#ff6b6b,#c0392b);display:flex;align-items:center;justify-content:center;">
+            <svg width="64" height="64" viewBox="0 0 56 56"><rect x="8" y="10" width="40" height="36" rx="6" fill="#fff"/><text x="28" y="36" text-anchor="middle" fill="#c0392b" font-size="16" font-weight="800" font-family="sans-serif">UNO</text></svg>
+          </div>
+          <div style="padding:12px 14px 14px;">
+            <p style="font-size:14px;font-weight:800;color:var(--text-dark);">Uno</p>
             <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">Segera hadir</p>
           </div>
         </div>
-        <div class="clickable" style="background:var(--surface);border:1px solid var(--card-line);border-radius:18px;overflow:hidden;opacity:0.75;">
-          <div style="height:90px;background:linear-gradient(135deg,#7fd4ff,#4a7dfe);display:flex;align-items:center;justify-content:center;font-size:40px;">🏠</div>
-          <div style="padding:12px 12px 14px;">
-            <p style="font-size:13.5px;font-weight:800;color:var(--text-dark);">Monopoli</p>
+        <div style="background:var(--surface);border:1px solid var(--card-line);border-radius:20px;overflow:hidden;opacity:0.8;box-shadow:0 8px 20px rgba(0,0,0,0.15);">
+          <div style="height:100px;background:linear-gradient(160deg,#2d5a3f,#1a3a2a);display:flex;align-items:center;justify-content:center;">
+            <svg width="64" height="64" viewBox="0 0 56 56"><rect width="56" height="56" rx="8" fill="#1a3a2a"/><rect x="6" y="6" width="44" height="44" rx="4" fill="#2d5a3f" stroke="#c9a227" stroke-width="2"/><circle cx="28" cy="28" r="10" fill="#c9a227"/><text x="28" y="32" text-anchor="middle" fill="#1a3a2a" font-size="10" font-weight="800">M</text></svg>
+          </div>
+          <div style="padding:12px 14px 14px;">
+            <p style="font-size:14px;font-weight:800;color:var(--text-dark);">Monopoli</p>
             <p style="font-size:11px;color:var(--text-muted);margin-top:2px;">Segera hadir</p>
           </div>
         </div>
